@@ -9,6 +9,8 @@
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/build/debug/bin",
+      "showDisplayString": true,
+      "visualizerFile": "${workspaceFolder}/.natvis",
       "environment": [],
       "externalConsole": true,
       "MIMode": "gdb",

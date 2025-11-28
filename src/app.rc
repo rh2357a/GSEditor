@@ -31,3 +31,7 @@ VS_VERSION_INFO VERSIONINFO
 
 1   RT_MANIFEST "app.manifest"
 101 ICON        "app.ico"
+102 RCDATA      "exe/rgbasm.exe"
+103 RCDATA      "exe/rgblink.exe"
+104 RCDATA      "exe/rgbfix.exe"
+105 RCDATA      "exe/lzcomp.exe"

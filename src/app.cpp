@@ -1,14 +1,35 @@
-#include "app.h"
 #include "gui/main_frame.h"
+#include "pokegold.h"
+#include "utils.h"
 
-bool App::OnInit()
+#include <wx/wx.h>
+
+#include <iostream>
+
+class App : public wxApp
 {
-	wxInitAllImageHandlers();
+public:
+    bool OnInit()
+    {
+#ifdef DEBUG
+        freopen("GSEditor.log", "w", stdout);
+        freopen("GSEditor.log", "a", stderr);
+        setvbuf(stdout, nullptr, _IONBF, 0);
+        setvbuf(stderr, nullptr, _IONBF, 0);
+        std::ios::sync_with_stdio(true);
+#else
+        std::ios::sync_with_stdio(false);
+#endif
 
-	m_mainFrame = new gs::gui::MainFrame(nullptr);
-	m_mainFrame->Show();
+        pokegold::bytes::init_charmap();
+        utils::init_exec();
+        wxInitAllImageHandlers();
 
-	return true;
-}
+        gui::MainFrame *frame = new gui::MainFrame(nullptr);
+        frame->Show();
+
+        return true;
+    }
+};
 
 wxIMPLEMENT_APP(App);

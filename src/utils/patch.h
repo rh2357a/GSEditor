@@ -1,11 +1,11 @@
-#ifndef _CORE_PATCH_H_
-#define _CORE_PATCH_H_
+#ifndef _UTILS_PATCH_H_
+#define _UTILS_PATCH_H_
 
 #include <cstdint>
 #include <span>
 #include <vector>
 
-namespace gs::core::patch {
+namespace utils::patch {
 
 /// @brief IPS 패치 생성
 /// @param original_bytes 원본 데이터
@@ -19,6 +19,6 @@ std::vector<uint8_t> create_ips_patch(std::span<const uint8_t> original_bytes, s
 /// @return xdelta3 데이터
 std::vector<uint8_t> create_xdelta_patch(std::span<const uint8_t> original_bytes, std::span<const uint8_t> modified_bytes);
 
-} // namespace gs::core::patch
+} // namespace utils::patch
 
 #endif

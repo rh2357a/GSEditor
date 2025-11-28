@@ -1,3 +1,5 @@
+APP_NAME := GSEditor
+
 ifeq ($(DEBUG), 1)
 BUILD_TARGET := debug
 else
@@ -10,8 +12,10 @@ LIB_DIR          := lib
 BUILD_DIR        := build
 BUILD_TARGET_DIR := $(BUILD_DIR)/$(BUILD_TARGET)
 BUILD_OBJ_DIR    := $(BUILD_TARGET_DIR)/obj
+BUILD_TOOLS_DIR  := $(BUILD_TARGET_DIR)/tools
 
-TARGET := $(BUILD_TARGET_DIR)/bin/GSEditor.exe
+APP_FILENAME := $(APP_NAME).exe
+TARGET       := $(BUILD_TARGET_DIR)/bin/$(APP_FILENAME)
 
 ################################################################################
 
@@ -25,30 +29,32 @@ WXCXXFLAGS := --cxxflags --unicode --static
 WXLDFLAGS  := --libs --unicode --static
 endif
 
-NOWARNS := -Wno-unused-parameter \
+NOWARNS := -Wno-comment \
+           -Wno-unused-parameter \
            -Wno-unused-variable \
            -Wno-unused-function
 
 CFLAGS := -std=c17 \
           -MMD -MP \
           -Wall -Wextra \
+          -include $(SOURCE_DIR)/debug_log.h \
           $(NOWARNS) \
           $(shell wx-config $(WXCFLAGS))
 
 CXXFLAGS := -std=c++20 -fpermissive \
             -MMD -MP \
             -Wall -Wextra \
-            -Wno-comment \
+            -include $(SOURCE_DIR)/debug_log.h \
             $(NOWARNS) \
             $(shell wx-config $(WXCXXFLAGS))
 
-DEFINES := -DUNICODE -D_UNICODE
+DEFINES := -DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN
 
 INCLUDES := -Isrc \
             -I$(RESOURCE_DIR)
 
 LDFLAGS := -static -static-libgcc -static-libstdc++ \
-           -mwindows -lmsvcrt -lxdelta3 -llzma -lz \
+           -mwindows -lmsvcrt -lxdelta3 -llzma -lz -lxxhash \
            -L$(LIB_DIR) $(shell wx-config $(WXLDFLAGS))
 
 ifeq ($(DEBUG), 1)
@@ -64,10 +70,11 @@ endif
 
 ################################################################################
 
-SOURCES := $(shell find $(SOURCE_DIR) -type f \( -name "*.cpp" -o -name "*.c" -o -name "*.rc" \) )
+SOURCES := $(shell find $(SOURCE_DIR) -type f \( -name "*.cpp" -o -name "*.c" \) )
 OBJECTS := $(patsubst $(SOURCE_DIR)/%.cpp,$(BUILD_OBJ_DIR)/%.o,$(SOURCES))
 OBJECTS := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_OBJ_DIR)/%.o,$(OBJECTS))
-OBJECTS := $(patsubst $(SOURCE_DIR)/%.rc,$(BUILD_OBJ_DIR)/%.rc.o,$(OBJECTS))
+
+RESOURCES := $(shell find $(RESOURCE_DIR) -type f)
 
 ################################################################################
 
@@ -75,7 +82,7 @@ OBJECTS := $(patsubst $(SOURCE_DIR)/%.rc,$(BUILD_OBJ_DIR)/%.rc.o,$(OBJECTS))
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(BUILD_OBJ_DIR)/core/resources.o
+$(TARGET): $(OBJECTS) $(BUILD_OBJ_DIR)/app.rc.o $(BUILD_OBJ_DIR)/embed.o
 	@mkdir -p $(dir $@)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 ifneq ($(DEBUG), 1)
@@ -90,13 +97,21 @@ $(BUILD_OBJ_DIR)/%.o: $(SOURCE_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
-$(BUILD_OBJ_DIR)/%.rc.o: $(SOURCE_DIR)/%.rc
+$(BUILD_TOOLS_DIR)/%: tools/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) -o $@ $<
+
+$(BUILD_OBJ_DIR)/%.rc.o: $(SOURCE_DIR)/%.rc $(RESOURCES)
 	@mkdir -p $(dir $@)
 	windres $(DEFINES) $(INCLUDES) $< $@
 
-$(BUILD_OBJ_DIR)/core/resources.o: $(SOURCE_DIR)/core/resources.cpp $(shell find $(RESOURCE_DIR) -type f)
+$(BUILD_OBJ_DIR)/embed.o: $(BUILD_OBJ_DIR)/embed.g.cpp $(SOURCE_DIR)/embed.h $(RESOURCES)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+
+$(BUILD_OBJ_DIR)/embed.g.cpp: $(BUILD_TOOLS_DIR)/embed $(SOURCE_DIR)/embed.h $(RESOURCES)
+	@mkdir -p $(dir $@)
+	$(BUILD_TOOLS_DIR)/embed $(SOURCE_DIR)/embed.h $@
 
 clean:
 	rm -rf $(BUILD_DIR)

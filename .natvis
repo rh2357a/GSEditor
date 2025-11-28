@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="pokegold::bytes">
+    <DisplayString>{m_cached_str}</DisplayString>
+  </Type>
+
+  <Type Name="pokegold::color">
+    <DisplayString>{{ r={m_cached_r}, g={m_cached_g}, b={m_cached_b} }}</DisplayString>
+  </Type>
+
+</AutoVisualizer>

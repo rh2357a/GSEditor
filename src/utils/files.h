@@ -1,7 +1,9 @@
 #ifndef _UTILS_FILES_H_
 #define _UTILS_FILES_H_
 
-#include "strings.h"
+#include "crypto.h"
+
+#include <shlobj.h>
 
 #include <cstdint>
 #include <span>
@@ -9,7 +11,7 @@
 #include <fstream>
 #include <filesystem>
 
-namespace gs::utils::files {
+namespace utils::files {
 
 constexpr uint64_t CHUNK_SIZE = 16 * 1024 * 1024;
 
@@ -20,37 +22,37 @@ constexpr uint64_t CHUNK_SIZE = 16 * 1024 * 1024;
 /// @return 바이트
 inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &path, uint64_t index, uint64_t length)
 {
-	std::ifstream file(path, std::ios::binary);
-	if (!file)
-		return {};
+    std::ifstream file(path, std::ios::binary);
+    if (!file)
+        return {};
 
-	uint64_t file_size = std::filesystem::file_size(path);
-	if (index >= file_size)
-		return {};
+    uint64_t file_size = std::filesystem::file_size(path);
+    if (index >= file_size)
+        return {};
 
-	if (index + length > file_size)
-		length = file_size - index;
+    if (index + length > file_size)
+        length = file_size - index;
 
-	file.seekg(index, std::ios::beg);
+    file.seekg(index, std::ios::beg);
 
-	std::vector<uint8_t> buffer(length);
-	uint64_t remaining = length;
-	uint64_t offset = 0;
+    std::vector<uint8_t> buffer(length);
+    uint64_t remaining = length;
+    uint64_t offset = 0;
 
-	while (remaining > 0)
-	{
-		std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
-		file.read(reinterpret_cast<char *>(buffer.data() + offset), chunk);
-		std::streamsize read_count = file.gcount();
-		offset += read_count;
-		remaining -= read_count;
+    while (remaining > 0)
+    {
+        std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
+        file.read(reinterpret_cast<char *>(buffer.data() + offset), chunk);
+        std::streamsize read_count = file.gcount();
+        offset += read_count;
+        remaining -= read_count;
 
-		if (read_count == 0)
-			break;
-	}
+        if (read_count == 0)
+            break;
+    }
 
-	buffer.resize(offset);
-	return buffer;
+    buffer.resize(offset);
+    return buffer;
 }
 
 /// @brief 파일로부터 바이트 로딩
@@ -58,29 +60,29 @@ inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &pa
 /// @return 바이트
 inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &path)
 {
-	uint64_t length = std::filesystem::file_size(path);
-	std::ifstream file(path, std::ios::binary);
-	if (!file)
-		return {};
+    uint64_t length = std::filesystem::file_size(path);
+    std::ifstream file(path, std::ios::binary);
+    if (!file)
+        return {};
 
-	std::vector<uint8_t> buffer(length);
-	uint64_t remaining = length;
-	uint64_t offset = 0;
+    std::vector<uint8_t> buffer(length);
+    uint64_t remaining = length;
+    uint64_t offset = 0;
 
-	while (remaining > 0)
-	{
-		std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
-		file.read(reinterpret_cast<char *>(buffer.data() + offset), chunk);
-		std::streamsize read_count = file.gcount();
-		offset += read_count;
-		remaining -= read_count;
+    while (remaining > 0)
+    {
+        std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
+        file.read(reinterpret_cast<char *>(buffer.data() + offset), chunk);
+        std::streamsize read_count = file.gcount();
+        offset += read_count;
+        remaining -= read_count;
 
-		if (read_count == 0)
-			break;
-	}
+        if (read_count == 0)
+            break;
+    }
 
-	buffer.resize(offset);
-	return buffer;
+    buffer.resize(offset);
+    return buffer;
 }
 
 /// @brief 바이트 파일 기록
@@ -88,30 +90,50 @@ inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &pa
 /// @param bytes 바이트
 inline void write_bytes_to_file(const std::filesystem::path &path, std::span<const uint8_t> bytes)
 {
-	std::ofstream output(path, std::ios::binary);
-	if (!output)
-		return;
+    std::ofstream output(path, std::ios::binary);
+    if (!output)
+        return;
 
-	uint64_t remaining = bytes.size();
-	uint64_t offset = 0;
+    uint64_t remaining = bytes.size();
+    uint64_t offset = 0;
 
-	while (remaining > 0)
-	{
-		std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
-		output.write(reinterpret_cast<const char *>(bytes.data() + offset), chunk);
-		offset += chunk;
-		remaining -= chunk;
-	}
+    while (remaining > 0)
+    {
+        std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
+        output.write(reinterpret_cast<const char *>(bytes.data() + offset), chunk);
+        offset += chunk;
+        remaining -= chunk;
+    }
+}
+
+/// @brief 앱 데이터 경로 반환
+/// @return 앱 데이터 경로
+inline std::filesystem::path get_app_data_path()
+{
+    static const std::filesystem::path app_data_path = [] {
+        PWSTR path = nullptr;
+        ::SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
+
+        std::filesystem::path result(path);
+        ::CoTaskMemFree(path);
+
+        result = result / "GSEditor";
+        std::filesystem::create_directories(result);
+        return result;
+    }();
+    return app_data_path;
 }
 
 /// @brief 임시 파일 경로 생성
-/// @param filename 파일명
+/// @param key 문자열 키
 /// @return 생성된 임시 경로
-inline std::filesystem::path create_temp_file_path(const std::string &filename)
+inline std::filesystem::path create_temp_file_path(const std::string &key)
 {
-	return std::filesystem::temp_directory_path() / ("gs_" + gs::utils::strings::hash(filename));
+    static const auto tmp_dir = get_app_data_path() / "tmp";
+    std::filesystem::create_directories(tmp_dir);
+    return tmp_dir / utils::crypto::hash(key);
 }
 
-} // namespace gs::utils::files
+} // namespace utils::files
 
 #endif

@@ -7,7 +7,7 @@ IndentNamespace: false
 BreakBeforeBinaryOperators: All
 AllowShortCircuitOperatorsOnASingleLine: false
 NamespaceIndentation: None
-UseTab: ForContinuationAndIndentation
+UseTab: Never
 AlignConsecutiveMacros: true
 SortIncludes: false
 IncludeBlocks: Preserve

@@ -1,0 +1,223 @@
+#ifndef _POKEGOLD_DATA_H_
+#define _POKEGOLD_DATA_H_
+
+#include "pokegold/bytes.h"
+#include "pokegold/color.h"
+
+#include <cstdint>
+#include <array>
+
+namespace pokegold::data {
+
+enum class pokemon_type
+{
+    POKEMON,
+    UNOWN,
+    EGG,
+    DUMMY,
+};
+
+enum class growth_rate : uint8_t
+{
+    MEDIUM_FAST = 0,
+    SLIGHTLY_FAST,
+    SLIGHTLY_SLOW,
+    MEDIUM_SLOW,
+    FAST,
+    SLOW,
+};
+
+enum class gender_rate : uint8_t
+{
+    GENDER_0 = 0x00,
+    GENDER_12_5 = 0x1f,
+    GENDER_25 = 0x3f,
+    GENDER_37_5 = 0x5f,
+    GENDER_50 = 0x7f,
+    GENDER_62_5 = 0x9f,
+    GENDER_75 = 0xbf,
+    GENDER_87_5 = 0xdf,
+    GENDER_100 = 0xfe,
+    UNKNOWN = 0xff,
+};
+
+enum class image_dimens : uint8_t
+{
+    SIZE_40 = 0x55,
+    SIZE_48 = 0x66,
+    SIZE_56 = 0x77,
+};
+
+enum class egg_group : uint8_t
+{
+    UNKNWON = 0, // 사용 금지
+    MONSTER,
+    WATER_1,
+    BUG,
+    FLYING,
+    FIELD,
+    FAIRY,
+    PLANT,
+    HUMAN_LIKE,
+    WATER_3,
+    MINERAL,
+    INDETERMINATE,
+    WATER_2,
+    DITTO,
+    DRAGON,
+    NONE,
+};
+
+enum class type_effectiveness : uint8_t
+{
+    SUPER_EFFECTIVE = 20,
+    MORE_EFFECTIVE = 15,
+    EFFECTIVE = 10,
+    NOT_VERY_EFFECTIVE = 5,
+    NO_EFFECT = 0,
+};
+
+} // namespace pokegold::data
+
+namespace pokegold::data {
+
+class item
+{
+public:
+    uint16_t price;
+    uint8_t effect;
+    uint8_t parameter;
+    uint8_t property;
+    uint8_t pocket;
+    uint8_t field_menu;
+    uint8_t battle_menu;
+
+public:
+    bytes name;
+    bytes description;
+};
+
+class move
+{
+public:
+    uint8_t id;
+    uint8_t effect;
+    uint8_t power;
+    uint8_t type;
+    uint8_t accuracy;
+    uint8_t pp;
+    uint8_t effect_chance;
+
+public:
+    bytes name;
+    bytes description;
+};
+
+class evolution_method
+{
+public:
+    uint8_t evolution_type;
+    uint8_t pokemon_id;
+    uint8_t level;
+    uint8_t stats;
+    uint8_t item_id;
+    uint8_t happiness;
+};
+
+class learn_move
+{
+public:
+    uint8_t level;
+    uint8_t move_id;
+};
+
+class pokemon
+{
+public:
+    pokemon_type type;
+
+public:
+    uint8_t id;
+    uint8_t catch_rate;
+    uint8_t base_exp;
+    uint8_t hp, atk, def, spd, sp_atk, sp_def;
+    uint8_t type_1_id, type_2_id;
+    uint8_t item_1_id, item_2_id;
+    uint8_t egg_hatch_lv; // 걸음수: n * 256
+    egg_group egg_group_1, egg_group_2;
+    image_dimens image_dimens;
+    gender_rate gender_rate;
+    growth_rate growth_rate;
+    std::array<bool, 64> tmhms;
+
+public:
+    std::vector<evolution_method> evolution_methods;
+    std::vector<learn_move> learn_moves;
+
+public:
+    bytes name;
+    bytes species_name;
+    bytes description;
+    uint8_t height;
+    uint16_t weight;
+
+public:
+    bytes front_image;
+    bytes back_image;
+    std::array<color, 2> colors;
+    std::array<color, 2> shiny_colors;
+};
+
+class unown_image
+{
+public:
+    bytes front;
+    bytes back;
+
+    // pokemons[200].colors
+    // pokemons[200].shiny_colors
+};
+
+class trainer_class
+{
+public:
+    bool has_image;
+    bytes name;
+    bytes image;
+    std::array<color, 2> colors;
+};
+
+class type_matchup
+{
+public:
+    uint8_t attacker_type_id;
+    uint8_t defender_type_id;
+    type_effectiveness effectiveness;
+};
+
+class type
+{
+public:
+    bytes name;
+
+    // TODO: 업데이트 필요...
+public:
+    std::vector<type_matchup> matchups;
+    std::vector<type_matchup> foresight_matchups;
+};
+
+} // namespace pokegold::data
+
+namespace pokegold::data {
+
+inline std::array<item, 256> items;
+inline std::array<move, 251> moves;
+inline std::array<pokemon, 256> pokemons;
+inline std::array<unown_image, 26> unown_images;
+inline std::array<trainer_class, 67> trainer_classes;
+inline std::array<type, 28> types;
+inline std::array<uint8_t, 57> tmhms;
+
+} // namespace pokegold::data
+
+#endif

@@ -14,41 +14,41 @@ extern void (*xprintf_message_func)(const char *msg);
 static std::string _messages;
 static void internal_printf(const char *msg)
 {
-	_messages.append(msg);
+    _messages.append(msg);
 }
 
 std::string xdelta3::get_messages()
 {
-	return _messages;
+    return _messages;
 }
 
 int xdelta3::exec(const std::vector<std::string> &params)
 {
-	char **argv = new char *[params.size() + 2];
-	argv[0] = new char[8]{'x', 'd', 'e', 'l', 't', 'a', '3', '\0'};
+    char **argv = new char *[params.size() + 2];
+    argv[0] = new char[8]{'x', 'd', 'e', 'l', 't', 'a', '3', '\0'};
 
-	int count = 1;
-	for (auto &entry : params)
-	{
-		size_t len = entry.length() + 1;
-		argv[count] = new char[len];
-		std::copy(entry.begin(), entry.end(), argv[count]);
-		argv[count][len - 1] = '\0';
-		count++;
-	}
+    int count = 1;
+    for (auto &entry : params)
+    {
+        size_t len = entry.length() + 1;
+        argv[count] = new char[len];
+        std::copy(entry.begin(), entry.end(), argv[count]);
+        argv[count][len - 1] = '\0';
+        count++;
+    }
 
-	argv[count] = nullptr;
+    argv[count] = nullptr;
 
-	xprintf_message_func = &internal_printf;
-	_messages.clear();
+    xprintf_message_func = &internal_printf;
+    _messages.clear();
 
-	int ret = xd3_main_cmdline(count, argv);
+    int ret = xd3_main_cmdline(count, argv);
 
-	xprintf_message_func = nullptr;
-	for (int i = 0; i < count; i++)
-	{
-		delete[] argv[i];
-	}
-	delete[] argv;
-	return ret;
+    xprintf_message_func = nullptr;
+    for (int i = 0; i < count; i++)
+    {
+        delete[] argv[i];
+    }
+    delete[] argv;
+    return ret;
 }
