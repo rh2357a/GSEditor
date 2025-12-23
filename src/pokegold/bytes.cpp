@@ -13,6 +13,9 @@
 std::unordered_map<uint16_t, std::string_view> charmap;
 std::unordered_map<std::string_view, uint16_t> charmap_reverse;
 
+std::filesystem::path lzcomp_src_path = utils::files::create_temp_file_path("lzcomp_src");
+std::filesystem::path lzcomp_dst_path = utils::files::create_temp_file_path("lzcomp_dst");
+
 // clang-format off
 
 const std::array<uint8_t, 256> BIT_REVERSED{
@@ -230,6 +233,15 @@ std::string pokegold::bytes::string()
     return m_cached_str = ss.str();
 }
 
+void pokegold::bytes::setup_lzcomp_workdir(const std::filesystem::path &dir)
+{
+    const auto tmp_dir = dir / "tmp";
+    std::filesystem::create_directories(tmp_dir);
+
+    lzcomp_src_path = tmp_dir / utils::crypto::hash("lzcomp_src");
+    lzcomp_dst_path = tmp_dir / utils::crypto::hash("lzcomp_dst");
+}
+
 bool pokegold::bytes::is_lz_compressed(const std::vector<uint8_t> &bytes)
 {
     size_t index = 0;
@@ -338,24 +350,20 @@ size_t pokegold::bytes::scan_lz_size(const std::vector<uint8_t> &bytes)
     return 0;
 }
 
-// TODO: lzcomp 프로세스별 실행 시, 공용 자원 충돌 문제 해결 필요 (??)
 pokegold::bytes pokegold::bytes::compressed() const
 {
-    static const auto src_path = utils::files::create_temp_file_path("lzcomp_src");
-    static const auto dst_path = utils::files::create_temp_file_path("lzcomp_dst");
+    // std::filesystem::remove(lzcomp_src_path);
+    // std::filesystem::remove(lzcomp_dst_path);
 
-    // std::filesystem::remove(src_path);
-    // std::filesystem::remove(dst_path);
+    utils::files::write_bytes_to_file(lzcomp_src_path, m_bytes);
 
-    utils::files::write_bytes_to_file(src_path, m_bytes);
-
-    const auto args = std::format("--compressor multipass {} {}", src_path.string(), dst_path.string());
+    const auto args = std::format("--compressor multipass {} {}", lzcomp_src_path.string(), lzcomp_dst_path.string());
     utils::lzcomp(args);
 
-    const auto result = utils::files::read_bytes_from_file(dst_path);
+    const auto result = utils::files::read_bytes_from_file(lzcomp_dst_path);
 
-    // std::filesystem::remove(src_path);
-    // std::filesystem::remove(dst_path);
+    // std::filesystem::remove(lzcomp_src_path);
+    // std::filesystem::remove(lzcomp_dst_path);
 
     return result;
 }

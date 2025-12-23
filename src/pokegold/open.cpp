@@ -24,6 +24,9 @@ void pokegold::open(const std::filesystem::path &filepath)
     is_rom_opened = true;
     workspace_path = utils::files::get_app_data_path() / "works" / utils::crypto::hash(filepath.string());
 
+    // lzcomp 공유 자원 문제 수정
+    pokegold::bytes::setup_lzcomp_workdir(workspace_path);
+
     std::vector<uint8_t> image_buffer(0x1000);
 
     debug_log("pokegold::parse", "parse items");

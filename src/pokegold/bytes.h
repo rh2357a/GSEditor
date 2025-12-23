@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 namespace pokegold {
 
@@ -29,6 +30,7 @@ public:
     static bool is_charmap_string(const std::string &str);
     std::string string();
 
+    static void setup_lzcomp_workdir(const std::filesystem::path &dir);
     static bool is_lz_compressed(const std::vector<uint8_t> &bytes);
     static size_t scan_lz_size(const std::vector<uint8_t> &bytes);
     bytes compressed() const;

@@ -4,12 +4,13 @@
 
 std::vector<uint8_t> pokegold::build()
 {
-    const auto base_path = workspace_path / "base.bin";
-    const auto target_path = workspace_path / "target.bin";
+    const auto real_workdir = workspace_path / "workspace";
+    const auto base_path = real_workdir / "base.bin";
+    const auto target_path = real_workdir / "target.bin";
 
-    debug_log("pokegold::build", "cleanup (path=\"{}\")", workspace_path.string());
-    std::filesystem::remove_all(workspace_path);
-    std::filesystem::create_directories(workspace_path);
+    debug_log("pokegold::build", "cleanup (path=\"{}\")", real_workdir.string());
+    std::filesystem::remove_all(real_workdir);
+    std::filesystem::create_directories(real_workdir);
 
     debug_log("pokegold::build", "copy baserom to workspace dir");
     utils::files::write_bytes_to_file(base_path, rom.data());
@@ -18,8 +19,7 @@ std::vector<uint8_t> pokegold::build()
 
     // cleanup
 #ifdef RELEASE
-    std::filesystem::remove_all(workspace_path);
-    std::filesystem::create_directories(workspace_path);
+    std::filesystem::remove_all(real_workdir);
 #endif
 
     return result;
