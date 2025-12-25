@@ -4,7 +4,6 @@
 #include "pokegold/address.h"
 #include "pokegold/bytes.h"
 
-#include <cstdint>
 #include <filesystem>
 #include <vector>
 #include <functional>
@@ -15,25 +14,25 @@ class romfile
 {
 private:
     std::filesystem::path m_path;
-    std::vector<uint8_t> m_bytes;
+    std::vector<u8> m_bytes;
 
 public:
     romfile() = default;
     romfile(std::filesystem::path filepath);
 
 public:
-    const std::vector<uint8_t> &data() const { return m_bytes; }
+    const std::vector<u8> &data() const { return m_bytes; }
 
 public:
-    void read_bytes(std::vector<uint8_t> &bytes, size_t addr, size_t len);
-    uint8_t get_byte(size_t addr);
+    void read_bytes(std::vector<u8> &bytes, size_t addr, size_t len);
+    u8 get_byte(size_t addr);
     bytes get_bytes(size_t addr, size_t len);
-    bytes get_bytes_until(size_t addr, std::function<bool(size_t, uint8_t)> predicate, bool include_end = false);
+    bytes get_bytes_until(size_t addr, std::function<bool(size_t, u8)> predicate, bool include_end = false);
 
 public:
-    void set_byte(size_t addr, uint8_t byte);
-    void set_bytes(size_t addr, const std::vector<uint8_t> &bytes);
-    void fill_bytes(uint8_t byte, size_t addr, size_t len);
+    void set_byte(size_t addr, u8 byte);
+    void set_bytes(size_t addr, const std::vector<u8> &bytes);
+    void fill_bytes(u8 byte, size_t addr, size_t len);
 };
 
 } // namespace pokegold

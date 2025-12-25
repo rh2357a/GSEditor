@@ -4,18 +4,17 @@
 #include <wx/mstream.h>
 #include <wx/wx.h>
 
-#include <cstdint>
 #include <vector>
 #include <span>
 
-#define EMBED_BINARY(name, filename)        \
-    namespace embed {                       \
-    extern const std::vector<uint8_t> name; \
+#define EMBED_BINARY(name, filename)   \
+    namespace embed {                  \
+    extern const std::vector<u8> name; \
     }
 
 #define EMBED_WX_BITMAP(name, type, filename)                     \
     namespace embed {                                             \
-    extern const std::vector<uint8_t> name;                       \
+    extern const std::vector<u8> name;                            \
     inline wxBitmap &name##_to_wx_bitmap()                        \
     {                                                             \
         static wxMemoryInputStream mis(name.data(), name.size()); \
@@ -38,10 +37,10 @@
     extern __attribute__((aligned(16))) const char incbin_##name##_start[]; \
     extern const char incbin_##name##_end[];                                \
     namespace embed {                                                       \
-    const std::vector<uint8_t> name = [] {                                  \
-        return std::vector<uint8_t>(                                        \
-            reinterpret_cast<const uint8_t *>(incbin_##name##_start),       \
-            reinterpret_cast<const uint8_t *>(incbin_##name##_end));        \
+    const std::vector<u8> name = [] {                                       \
+        return std::vector<u8>(                                             \
+            reinterpret_cast<const u8 *>(incbin_##name##_start),            \
+            reinterpret_cast<const u8 *>(incbin_##name##_end));             \
     }();                                                                    \
     }
 

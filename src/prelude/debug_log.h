@@ -1,5 +1,5 @@
-#ifndef _LOG_H_
-#define _LOG_H_
+#ifndef _PRELUDE_DEBUG_LOG_H_
+#define _PRELUDE_DEBUG_LOG_H_
 
 #include <string>
 #include <sstream>

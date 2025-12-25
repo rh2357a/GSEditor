@@ -10,15 +10,15 @@
 #include <array>
 #include <unordered_map>
 
-std::unordered_map<uint16_t, std::string_view> charmap;
-std::unordered_map<std::string_view, uint16_t> charmap_reverse;
+std::unordered_map<u16, std::string_view> charmap;
+std::unordered_map<std::string_view, u16> charmap_reverse;
 
 std::filesystem::path lzcomp_src_path = utils::files::create_temp_file_path("lzcomp_src");
 std::filesystem::path lzcomp_dst_path = utils::files::create_temp_file_path("lzcomp_dst");
 
 // clang-format off
 
-const std::array<uint8_t, 256> BIT_REVERSED{
+const std::array<u8, 256> BIT_REVERSED{
     0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0, 0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
     0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8, 0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8, 0x78, 0xf8,
     0x04, 0x84, 0x44, 0xc4, 0x24, 0xa4, 0x64, 0xe4, 0x14, 0x94, 0x54, 0xd4, 0x34, 0xb4, 0x74, 0xf4,
@@ -62,12 +62,12 @@ pokegold::bytes::bytes(const std::string &str)
                 int code = it->second;
                 if (code > 255)
                 {
-                    m_bytes.push_back(static_cast<uint8_t>((code & 0xff00) >> 8));
-                    m_bytes.push_back(static_cast<uint8_t>(code & 0x00ff));
+                    m_bytes.push_back(static_cast<u8>((code & 0xff00) >> 8));
+                    m_bytes.push_back(static_cast<u8>(code & 0x00ff));
                 }
                 else
                 {
-                    m_bytes.push_back(static_cast<uint8_t>(code));
+                    m_bytes.push_back(static_cast<u8>(code));
                 }
 
                 matched = true;
@@ -82,7 +82,7 @@ pokegold::bytes::bytes(const std::string &str)
                     int value = std::stoi(hex, nullptr, 16);
                     if (value <= 255)
                     {
-                        m_bytes.push_back(static_cast<uint8_t>(value));
+                        m_bytes.push_back(static_cast<u8>(value));
                         matched = true;
                         break;
                     }
@@ -104,10 +104,9 @@ pokegold::bytes::bytes(const std::string &str)
     }
 }
 
-pokegold::bytes::bytes(std::vector<uint8_t> bytes) : m_bytes(std::move(bytes))
+pokegold::bytes::bytes(std::vector<u8> bytes) : m_bytes(std::move(bytes))
 {
 #ifdef DEBUG
-    // 디버그 변수 미리보기용 강제 호출
     string();
 #endif
 }
@@ -133,7 +132,7 @@ void pokegold::bytes::init_charmap()
         std::string_view val = line.substr(0, eq);
         std::string_view ch = line.substr(eq + 1);
 
-        uint16_t code = 0;
+        u16 code = 0;
         const auto conv_result = std::from_chars(val.data(), val.data() + val.size(), code, 16);
         if (conv_result.ec != std::errc{})
             continue;
@@ -205,7 +204,7 @@ std::string pokegold::bytes::string()
 
     for (size_t i = 0; i < m_bytes.size(); i++)
     {
-        uint8_t b = m_bytes[i];
+        u8 b = m_bytes[i];
 
         // 한글
         if (b >= 1 && b <= 0xb)
@@ -213,7 +212,7 @@ std::string pokegold::bytes::string()
             if (i + 1 >= m_bytes.size())
                 return m_cached_str = s_unk_string;
 
-            uint16_t char_id = (m_bytes[i] << 8) | m_bytes[i + 1];
+            u16 char_id = (m_bytes[i] << 8) | m_bytes[i + 1];
             ss << charmap[char_id];
             i++;
             continue;
@@ -242,17 +241,17 @@ void pokegold::bytes::setup_lzcomp_workdir(const std::filesystem::path &dir)
     lzcomp_dst_path = tmp_dir / utils::crypto::hash("lzcomp_dst");
 }
 
-bool pokegold::bytes::is_lz_compressed(const std::vector<uint8_t> &bytes)
+bool pokegold::bytes::is_lz_compressed(const std::vector<u8> &bytes)
 {
     size_t index = 0;
     while (index < bytes.size())
     {
-        uint8_t cmd = bytes[index++];
+        u8 cmd = bytes[index++];
         if (cmd == 0xff)
             return true;
 
-        uint8_t type = cmd & 0xe0;
-        uint16_t length = cmd & 0x1f;
+        u8 type = cmd & 0xe0;
+        u16 length = cmd & 0x1f;
 
     extended_cmd:
         switch (type)
@@ -275,7 +274,7 @@ bool pokegold::bytes::is_lz_compressed(const std::vector<uint8_t> &bytes)
         case 0x80:
         case 0xa0:
         case 0xc0: {
-            uint8_t offset = bytes[index++];
+            u8 offset = bytes[index++];
             if ((offset & 0x80) == 0)
                 index++;
             break;
@@ -296,17 +295,17 @@ bool pokegold::bytes::is_lz_compressed(const std::vector<uint8_t> &bytes)
     return false;
 }
 
-size_t pokegold::bytes::scan_lz_size(const std::vector<uint8_t> &bytes)
+size_t pokegold::bytes::scan_lz_size(const std::vector<u8> &bytes)
 {
     size_t index = 0;
     while (index < bytes.size())
     {
-        uint8_t cmd = bytes[index++];
+        u8 cmd = bytes[index++];
         if (cmd == 0xff)
             return index;
 
-        uint8_t type = cmd & 0xe0;
-        uint16_t length = cmd & 0x1f;
+        u8 type = cmd & 0xe0;
+        u16 length = cmd & 0x1f;
 
     extended_cmd:
         switch (type)
@@ -329,7 +328,7 @@ size_t pokegold::bytes::scan_lz_size(const std::vector<uint8_t> &bytes)
         case 0x80:
         case 0xa0:
         case 0xc0: {
-            uint8_t offset = bytes[index++];
+            u8 offset = bytes[index++];
             if ((offset & 0x80) == 0)
                 index++;
             break;
@@ -370,17 +369,17 @@ pokegold::bytes pokegold::bytes::compressed() const
 
 pokegold::bytes pokegold::bytes::decompressed() const
 {
-    std::vector<uint8_t> output;
+    std::vector<u8> output;
 
     size_t index = 0;
     while (index < m_bytes.size())
     {
-        uint8_t cmd = m_bytes[index++];
+        u8 cmd = m_bytes[index++];
         if (cmd == 0xff)
             return output;
 
-        uint8_t type = cmd & 0xe0;
-        uint16_t length = cmd & 0x1f;
+        u8 type = cmd & 0xe0;
+        u16 length = cmd & 0x1f;
 
     extended_cmd:
         switch (type)
@@ -394,7 +393,7 @@ pokegold::bytes pokegold::bytes::decompressed() const
 
         // 바이트 채우기
         case 0x20: {
-            uint8_t b = m_bytes[index++];
+            u8 b = m_bytes[index++];
             for (int i = 0; i < length + 1; ++i)
                 output.push_back(b);
             break;
@@ -402,8 +401,8 @@ pokegold::bytes pokegold::bytes::decompressed() const
 
         // 교차 반복 채우기
         case 0x40: {
-            uint8_t first = m_bytes[index++];
-            uint8_t second = m_bytes[index++];
+            u8 first = m_bytes[index++];
+            u8 second = m_bytes[index++];
             for (int i = 0; i < length + 1; ++i)
                 output.push_back((i % 2 == 0) ? first : second);
             break;
@@ -418,7 +417,7 @@ pokegold::bytes pokegold::bytes::decompressed() const
 
         // 이전 데이터 반복
         case 0x80: {
-            uint8_t offset = m_bytes[index++];
+            u8 offset = m_bytes[index++];
             if ((offset & 0x80) == 0)
             {
                 size_t real_offset = offset * 0x100 + m_bytes[index++] + 1;
@@ -436,7 +435,7 @@ pokegold::bytes pokegold::bytes::decompressed() const
 
         // 이전 데이터 반복 + 비트 반전
         case 0xa0: {
-            uint8_t offset = m_bytes[index++];
+            u8 offset = m_bytes[index++];
             if ((offset & 0x80) == 0)
             {
                 size_t real_offset = offset * 0x100 + m_bytes[index++] + 1;
@@ -454,7 +453,7 @@ pokegold::bytes pokegold::bytes::decompressed() const
 
         // 이전 데이터 역순 반복
         case 0xc0: {
-            uint8_t offset = m_bytes[index++];
+            u8 offset = m_bytes[index++];
             size_t count = output.size();
             if ((offset & 0x80) == 0)
             {
@@ -489,7 +488,7 @@ pokegold::bytes pokegold::bytes::decompressed() const
 
 pokegold::bytes pokegold::bytes::operator+(const bytes &rhs) const
 {
-    std::vector<uint8_t> new_bytes;
+    std::vector<u8> new_bytes;
     new_bytes.reserve(m_bytes.size() + rhs.m_bytes.size());
     new_bytes.insert(new_bytes.end(), m_bytes.begin(), m_bytes.end());
     new_bytes.insert(new_bytes.end(), rhs.m_bytes.begin(), rhs.m_bytes.end());
@@ -500,6 +499,10 @@ pokegold::bytes &pokegold::bytes::operator+=(const bytes &rhs)
 {
     m_bytes.insert(m_bytes.end(), rhs.m_bytes.begin(), rhs.m_bytes.end());
     m_cached_str = s_unk_string;
+
+#ifdef DEBUG
     string();
+#endif
+
     return *this;
 }

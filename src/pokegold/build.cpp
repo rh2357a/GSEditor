@@ -2,7 +2,7 @@
 #include "utils.h"
 #include <filesystem>
 
-std::vector<uint8_t> pokegold::build()
+std::vector<u8> pokegold::build()
 {
     const auto real_workdir = workspace_path / "workspace";
     const auto base_path = real_workdir / "base.bin";

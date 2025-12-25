@@ -4,7 +4,6 @@
 #include "pokegold/bytes.h"
 #include "pokegold/color.h"
 
-#include <cstdint>
 #include <array>
 
 namespace pokegold::data {
@@ -17,7 +16,7 @@ enum class pokemon_type
     DUMMY,
 };
 
-enum class growth_rate : uint8_t
+enum class growth_rate : u8
 {
     MEDIUM_FAST = 0,
     SLIGHTLY_FAST,
@@ -27,7 +26,7 @@ enum class growth_rate : uint8_t
     SLOW,
 };
 
-enum class gender_rate : uint8_t
+enum class gender_rate : u8
 {
     GENDER_0 = 0x00,
     GENDER_12_5 = 0x1f,
@@ -41,14 +40,14 @@ enum class gender_rate : uint8_t
     UNKNOWN = 0xff,
 };
 
-enum class image_dimens : uint8_t
+enum class image_dimens : u8
 {
     SIZE_40 = 0x55,
     SIZE_48 = 0x66,
     SIZE_56 = 0x77,
 };
 
-enum class egg_group : uint8_t
+enum class egg_group : u8
 {
     UNKNWON = 0, // 사용 금지
     MONSTER,
@@ -68,7 +67,7 @@ enum class egg_group : uint8_t
     NONE,
 };
 
-enum class type_effectiveness : uint8_t
+enum class type_effectiveness : u8
 {
     SUPER_EFFECTIVE = 20,
     MORE_EFFECTIVE = 15,
@@ -84,13 +83,13 @@ namespace pokegold::data {
 class item
 {
 public:
-    uint16_t price;
-    uint8_t effect;
-    uint8_t parameter;
-    uint8_t property;
-    uint8_t pocket;
-    uint8_t field_menu;
-    uint8_t battle_menu;
+    u16 price;
+    u8 effect;
+    u8 parameter;
+    u8 property;
+    u8 pocket;
+    u8 field_menu;
+    u8 battle_menu;
 
 public:
     bytes name;
@@ -100,13 +99,13 @@ public:
 class move
 {
 public:
-    uint8_t id;
-    uint8_t effect;
-    uint8_t power;
-    uint8_t type;
-    uint8_t accuracy;
-    uint8_t pp;
-    uint8_t effect_chance;
+    u8 id;
+    u8 effect;
+    u8 power;
+    u8 type;
+    u8 accuracy;
+    u8 pp;
+    u8 effect_chance;
 
 public:
     bytes name;
@@ -116,19 +115,19 @@ public:
 class evolution_method
 {
 public:
-    uint8_t evolution_type;
-    uint8_t pokemon_id;
-    uint8_t level;
-    uint8_t stats;
-    uint8_t item_id;
-    uint8_t happiness;
+    u8 evolution_type;
+    u8 pokemon_id;
+    u8 level;
+    u8 stats;
+    u8 item_id;
+    u8 happiness;
 };
 
 class learn_move
 {
 public:
-    uint8_t level;
-    uint8_t move_id;
+    u8 level;
+    u8 move_id;
 };
 
 class pokemon
@@ -137,13 +136,13 @@ public:
     pokemon_type type;
 
 public:
-    uint8_t id;
-    uint8_t catch_rate;
-    uint8_t base_exp;
-    uint8_t hp, atk, def, spd, sp_atk, sp_def;
-    uint8_t type_1_id, type_2_id;
-    uint8_t item_1_id, item_2_id;
-    uint8_t egg_hatch_lv; // 걸음수: n * 256
+    u8 id;
+    u8 catch_rate;
+    u8 base_exp;
+    u8 hp, atk, def, spd, sp_atk, sp_def;
+    u8 type_1_id, type_2_id;
+    u8 item_1_id, item_2_id;
+    u8 egg_hatch_lv; // 걸음수: n * 256
     egg_group egg_group_1, egg_group_2;
     image_dimens image_dimens;
     gender_rate gender_rate;
@@ -158,8 +157,8 @@ public:
     bytes name;
     bytes species_name;
     bytes description;
-    uint8_t height;
-    uint16_t weight;
+    u8 height;
+    u16 weight;
 
 public:
     bytes front_image;
@@ -190,8 +189,8 @@ public:
 class type_matchup
 {
 public:
-    uint8_t attacker_type_id;
-    uint8_t defender_type_id;
+    u8 attacker_type_id;
+    u8 defender_type_id;
     type_effectiveness effectiveness;
 };
 
@@ -216,7 +215,7 @@ inline std::array<pokemon, 256> pokemons;
 inline std::array<unown_image, 26> unown_images;
 inline std::array<trainer_class, 67> trainer_classes;
 inline std::array<type, 28> types;
-inline std::array<uint8_t, 57> tmhms;
+inline std::array<u8, 57> tmhms;
 
 } // namespace pokegold::data
 

@@ -7,7 +7,6 @@
 #include "utils/strings.h"
 #include "utils/exec.h"
 
-#include <cstdint>
 #include <vector>
 #include <span>
 
@@ -18,7 +17,7 @@ namespace utils {
 /// @param index 검사 위치
 /// @param find_bytes 검사 바이트
 /// @return 일치 유무
-inline bool match_bytes(const std::vector<uint8_t> &data, size_t index, const std::vector<uint8_t> &find_bytes)
+inline bool match_bytes(const std::vector<u8> &data, size_t index, const std::vector<u8> &find_bytes)
 {
     if (index + find_bytes.size() > data.size())
         return false;

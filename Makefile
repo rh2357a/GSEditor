@@ -37,14 +37,14 @@ NOWARNS := -Wno-comment \
 CFLAGS := -std=c17 \
           -MMD -MP \
           -Wall -Wextra \
-          -include $(SOURCE_DIR)/debug_log.h \
+          -include $(SOURCE_DIR)/prelude.h \
           $(NOWARNS) \
           $(shell wx-config $(WXCFLAGS))
 
 CXXFLAGS := -std=c++20 -fpermissive \
             -MMD -MP \
             -Wall -Wextra \
-            -include $(SOURCE_DIR)/debug_log.h \
+            -include $(SOURCE_DIR)/prelude.h \
             $(NOWARNS) \
             $(shell wx-config $(WXCXXFLAGS))
 

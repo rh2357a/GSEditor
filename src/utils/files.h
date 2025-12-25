@@ -5,7 +5,6 @@
 
 #include <shlobj.h>
 
-#include <cstdint>
 #include <span>
 #include <vector>
 #include <fstream>
@@ -13,20 +12,20 @@
 
 namespace utils::files {
 
-constexpr uint64_t CHUNK_SIZE = 16 * 1024 * 1024;
+constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024;
 
 /// @brief 파일로부터 바이트 로딩
 /// @param path 파일 경로
 /// @param index 오프셋
 /// @param length 길이
 /// @return 바이트
-inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &path, uint64_t index, uint64_t length)
+inline std::vector<u8> read_bytes_from_file(const std::filesystem::path &path, size_t index, size_t length)
 {
     std::ifstream file(path, std::ios::binary);
     if (!file)
         return {};
 
-    uint64_t file_size = std::filesystem::file_size(path);
+    size_t file_size = std::filesystem::file_size(path);
     if (index >= file_size)
         return {};
 
@@ -35,13 +34,13 @@ inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &pa
 
     file.seekg(index, std::ios::beg);
 
-    std::vector<uint8_t> buffer(length);
-    uint64_t remaining = length;
-    uint64_t offset = 0;
+    std::vector<u8> buffer(length);
+    size_t remaining = length;
+    size_t offset = 0;
 
     while (remaining > 0)
     {
-        std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
+        std::streamsize chunk = static_cast<std::streamsize>(std::min<size_t>(remaining, CHUNK_SIZE));
         file.read(reinterpret_cast<char *>(buffer.data() + offset), chunk);
         std::streamsize read_count = file.gcount();
         offset += read_count;
@@ -58,20 +57,20 @@ inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &pa
 /// @brief 파일로부터 바이트 로딩
 /// @param path 파일 경로
 /// @return 바이트
-inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &path)
+inline std::vector<u8> read_bytes_from_file(const std::filesystem::path &path)
 {
-    uint64_t length = std::filesystem::file_size(path);
+    size_t length = std::filesystem::file_size(path);
     std::ifstream file(path, std::ios::binary);
     if (!file)
         return {};
 
-    std::vector<uint8_t> buffer(length);
-    uint64_t remaining = length;
-    uint64_t offset = 0;
+    std::vector<u8> buffer(length);
+    size_t remaining = length;
+    size_t offset = 0;
 
     while (remaining > 0)
     {
-        std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
+        std::streamsize chunk = static_cast<std::streamsize>(std::min<size_t>(remaining, CHUNK_SIZE));
         file.read(reinterpret_cast<char *>(buffer.data() + offset), chunk);
         std::streamsize read_count = file.gcount();
         offset += read_count;
@@ -88,18 +87,18 @@ inline std::vector<uint8_t> read_bytes_from_file(const std::filesystem::path &pa
 /// @brief 바이트 파일 기록
 /// @param path 파일 경로
 /// @param bytes 바이트
-inline void write_bytes_to_file(const std::filesystem::path &path, std::span<const uint8_t> bytes)
+inline void write_bytes_to_file(const std::filesystem::path &path, std::span<const u8> bytes)
 {
     std::ofstream output(path, std::ios::binary);
     if (!output)
         return;
 
-    uint64_t remaining = bytes.size();
-    uint64_t offset = 0;
+    size_t remaining = bytes.size();
+    size_t offset = 0;
 
     while (remaining > 0)
     {
-        std::streamsize chunk = static_cast<std::streamsize>(std::min<uint64_t>(remaining, CHUNK_SIZE));
+        std::streamsize chunk = static_cast<std::streamsize>(std::min<size_t>(remaining, CHUNK_SIZE));
         output.write(reinterpret_cast<const char *>(bytes.data() + offset), chunk);
         offset += chunk;
         remaining -= chunk;

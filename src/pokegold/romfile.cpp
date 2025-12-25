@@ -7,7 +7,7 @@ pokegold::romfile::romfile(std::filesystem::path filepath) : m_path(std::move(fi
     m_bytes.insert(m_bytes.end(), bytes.begin(), bytes.end());
 }
 
-void pokegold::romfile::read_bytes(std::vector<uint8_t> &bytes, size_t addr, size_t len)
+void pokegold::romfile::read_bytes(std::vector<u8> &bytes, size_t addr, size_t len)
 {
     if (len == 0 || addr >= m_bytes.size() || len > m_bytes.size() - addr)
         return;
@@ -15,7 +15,7 @@ void pokegold::romfile::read_bytes(std::vector<uint8_t> &bytes, size_t addr, siz
     std::copy(m_bytes.begin() + addr, m_bytes.begin() + addr + len, bytes.begin());
 }
 
-uint8_t pokegold::romfile::get_byte(size_t addr)
+u8 pokegold::romfile::get_byte(size_t addr)
 {
     return m_bytes[addr];
 }
@@ -25,23 +25,23 @@ pokegold::bytes pokegold::romfile::get_bytes(size_t addr, size_t len)
     if (len == 0 || addr >= m_bytes.size() || len > m_bytes.size() - addr)
         return {};
 
-    std::vector<uint8_t> result;
+    std::vector<u8> result;
     for (size_t i = 0; i < len; i++)
         result.push_back(m_bytes[addr + i]);
 
     return result;
 }
 
-pokegold::bytes pokegold::romfile::get_bytes_until(size_t addr, std::function<bool(size_t, uint8_t)> predicate, bool include_end)
+pokegold::bytes pokegold::romfile::get_bytes_until(size_t addr, std::function<bool(size_t, u8)> predicate, bool include_end)
 {
     if (addr >= m_bytes.size())
         return {};
 
-    std::vector<uint8_t> result;
+    std::vector<u8> result;
     size_t i = 0;
     while (true)
     {
-        uint8_t b = m_bytes[addr + i];
+        u8 b = m_bytes[addr + i];
         if (predicate(i, b))
         {
             if (include_end)
@@ -56,12 +56,12 @@ pokegold::bytes pokegold::romfile::get_bytes_until(size_t addr, std::function<bo
     return result;
 }
 
-void pokegold::romfile::set_byte(size_t addr, uint8_t byte)
+void pokegold::romfile::set_byte(size_t addr, u8 byte)
 {
     m_bytes[addr] = byte;
 }
 
-void pokegold::romfile::set_bytes(size_t addr, const std::vector<uint8_t> &bytes)
+void pokegold::romfile::set_bytes(size_t addr, const std::vector<u8> &bytes)
 {
     if (addr >= m_bytes.size() || bytes.size() > m_bytes.size() - addr)
         return;
@@ -70,7 +70,7 @@ void pokegold::romfile::set_bytes(size_t addr, const std::vector<uint8_t> &bytes
         m_bytes[addr + i] = bytes[i];
 }
 
-void pokegold::romfile::fill_bytes(uint8_t byte, size_t addr, size_t len)
+void pokegold::romfile::fill_bytes(u8 byte, size_t addr, size_t len)
 {
     if (addr >= m_bytes.size() || len > m_bytes.size() - addr)
         return;

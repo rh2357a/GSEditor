@@ -4,7 +4,6 @@
 
 #include <windows.h>
 
-#include <cstdint>
 #include <iomanip>
 #include <string>
 #include <filesystem>
@@ -12,7 +11,7 @@
 #include <fstream>
 #include <vector>
 
-std::vector<uint8_t> read_bin(int id)
+std::vector<u8> read_bin(int id)
 {
     const auto module = ::GetModuleHandle(nullptr);
 
@@ -20,8 +19,8 @@ std::vector<uint8_t> read_bin(int id)
     const auto res_data = ::LoadResource(module, res);
     const auto res_size = ::SizeofResource(module, res);
 
-    const uint8_t *data = static_cast<const uint8_t *>(::LockResource(res_data));
-    return std::vector<uint8_t>(data, data + res_size);
+    const u8 *data = static_cast<const u8 *>(::LockResource(res_data));
+    return std::vector<u8>(data, data + res_size);
 }
 
 void prepare_bin_file(const std::filesystem::path &exe_path, int res_id)

@@ -4,7 +4,6 @@
 #include <minwindef.h>
 #include <wx/wx.h>
 
-#include <cstdint>
 #include <string>
 
 namespace utils::strings {
@@ -12,7 +11,7 @@ namespace utils::strings {
 /// @brief 문자열 변환
 /// @param utf8_bytes UTF-8 바이트 배열
 /// @return wx용 문자열
-inline wxString to_wx_string(const std::vector<uint8_t> &utf8_bytes)
+inline wxString to_wx_string(const std::vector<u8> &utf8_bytes)
 {
     return wxString::FromUTF8(reinterpret_cast<const char *>(utf8_bytes.data()), utf8_bytes.size());
 }

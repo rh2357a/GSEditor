@@ -8,7 +8,7 @@
 #include <string>
 #include <format>
 
-void append_ips_record(std::vector<uint8_t> &result, int offset, const std::vector<uint8_t> &data)
+void append_ips_record(std::vector<u8> &result, int offset, const std::vector<u8> &data)
 {
     result.push_back((offset >> 16) & 0xff);
     result.push_back((offset >> 8) & 0xff);
@@ -22,21 +22,21 @@ void append_ips_record(std::vector<uint8_t> &result, int offset, const std::vect
     }
     else
     {
-        bool rle_possible = std::all_of(data.begin(), data.end(), [&](uint8_t b) { return b == data[0]; });
+        bool rle_possible = std::all_of(data.begin(), data.end(), [&](u8 b) { return b == data[0]; });
         if (rle_possible && data.size() > 2)
         {
-            // RLE 레코드
+            // RLE
             result.push_back(0);
             result.push_back(0);
-            uint16_t rle_count = static_cast<uint16_t>(data.size());
+
+            u16 rle_count = static_cast<u16>(data.size());
             result.push_back((rle_count >> 8) & 0xff);
             result.push_back(rle_count & 0xff);
             result.push_back(data[0]);
         }
         else
         {
-            // 일반 레코드
-            uint16_t size = static_cast<uint16_t>(data.size());
+            u16 size = static_cast<u16>(data.size());
             result.push_back((size >> 8) & 0xff);
             result.push_back(size & 0xff);
             result.insert(result.end(), data.begin(), data.end());
@@ -44,14 +44,14 @@ void append_ips_record(std::vector<uint8_t> &result, int offset, const std::vect
     }
 }
 
-std::vector<uint8_t> utils::patch::create_ips_patch(std::span<const uint8_t> original_bytes, std::span<const uint8_t> modified_bytes)
+std::vector<u8> utils::patch::create_ips_patch(std::span<const u8> original_bytes, std::span<const u8> modified_bytes)
 {
     int original_len = static_cast<int>(original_bytes.size());
     int modified_len = static_cast<int>(modified_bytes.size());
     if (original_len < modified_len)
         return {};
 
-    std::vector<uint8_t> result;
+    std::vector<u8> result;
     result.push_back('P');
     result.push_back('A');
     result.push_back('T');
@@ -64,7 +64,7 @@ std::vector<uint8_t> utils::patch::create_ips_patch(std::span<const uint8_t> ori
         if (original_bytes[i] != modified_bytes[i])
         {
             int start = i;
-            std::vector<uint8_t> diff_data;
+            std::vector<u8> diff_data;
 
             while (i < std::min(original_len, modified_len) && original_bytes[i] != modified_bytes[i])
             {
@@ -82,7 +82,7 @@ std::vector<uint8_t> utils::patch::create_ips_patch(std::span<const uint8_t> ori
 
     if (modified_len > original_len)
     {
-        std::vector<uint8_t> tail(modified_bytes.begin() + original_len, modified_bytes.end());
+        std::vector<u8> tail(modified_bytes.begin() + original_len, modified_bytes.end());
         append_ips_record(result, original_len, tail);
     }
 
@@ -93,7 +93,7 @@ std::vector<uint8_t> utils::patch::create_ips_patch(std::span<const uint8_t> ori
     return result;
 }
 
-std::vector<uint8_t> utils::patch::create_xdelta_patch(std::span<const uint8_t> original_bytes, std::span<const uint8_t> modified_bytes)
+std::vector<u8> utils::patch::create_xdelta_patch(std::span<const u8> original_bytes, std::span<const u8> modified_bytes)
 {
     using namespace std;
     using namespace utils;

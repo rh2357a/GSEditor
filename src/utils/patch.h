@@ -1,7 +1,6 @@
 #ifndef _UTILS_PATCH_H_
 #define _UTILS_PATCH_H_
 
-#include <cstdint>
 #include <span>
 #include <vector>
 
@@ -11,13 +10,13 @@ namespace utils::patch {
 /// @param original_bytes 원본 데이터
 /// @param modified_bytes 변경 데이터
 /// @return IPS 데이터
-std::vector<uint8_t> create_ips_patch(std::span<const uint8_t> original_bytes, std::span<const uint8_t> modified_bytes);
+std::vector<u8> create_ips_patch(std::span<const u8> original_bytes, std::span<const u8> modified_bytes);
 
 /// @brief xdelta3 패치 생성
 /// @param original_bytes 원본 데이터
 /// @param modified_bytes 변경 데이터
 /// @return xdelta3 데이터
-std::vector<uint8_t> create_xdelta_patch(std::span<const uint8_t> original_bytes, std::span<const uint8_t> modified_bytes);
+std::vector<u8> create_xdelta_patch(std::span<const u8> original_bytes, std::span<const u8> modified_bytes);
 
 } // namespace utils::patch
 

@@ -7,7 +7,6 @@
 #include "pokegold/data.h"
 #include "lib/json.hpp"
 
-#include <cstdint>
 #include <vector>
 #include <filesystem>
 
@@ -23,7 +22,7 @@ void open(const std::filesystem::path &filepath);
 
 /// @brief 롬 빌드
 /// @return 빌드 바이너리
-std::vector<uint8_t> build();
+std::vector<u8> build();
 
 } // namespace pokegold
 
