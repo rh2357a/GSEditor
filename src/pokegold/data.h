@@ -177,7 +177,7 @@ public:
     // pokemons[200].shiny_colors
 };
 
-class trainer_class
+class trainer_group
 {
 public:
     bool has_image;
@@ -213,7 +213,7 @@ inline std::array<item, 256> items;
 inline std::array<move, 251> moves;
 inline std::array<pokemon, 256> pokemons;
 inline std::array<unown_image, 26> unown_images;
-inline std::array<trainer_class, 67> trainer_classes;
+inline std::array<trainer_group, 67> trainer_groups;
 inline std::array<type, 28> types;
 inline std::array<u8, 57> tmhms;
 

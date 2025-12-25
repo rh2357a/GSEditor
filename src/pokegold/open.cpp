@@ -18,8 +18,9 @@ void pokegold::open(const std::filesystem::path &filepath)
     using namespace pokegold::data;
 
     auto &data = pokegold::rom = filepath;
-    is_rom_opened = true;
+
     workspace_path = utils::files::get_app_data_path() / "works" / utils::crypto::hash(filepath.string());
+    is_rom_opened = true;
 
     // lzcomp 공유 자원 문제 수정
     pokegold::bytes::setup_lzcomp_workdir(workspace_path);
@@ -301,23 +302,23 @@ void pokegold::open(const std::filesystem::path &filepath)
     address trainer_name_addr(data.get_bytes(0x35d5, 3));
     for (size_t i = 0; i < 67; i++)
     {
-        trainer_classes[i].has_image = i != 66;
+        trainer_groups[i].has_image = i != 66;
 
         const auto bytes = data.get_bytes_until(trainer_name_addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
-        trainer_classes[i].name = bytes;
+        trainer_groups[i].name = bytes;
         trainer_name_addr += bytes.size();
 
-        if (trainer_classes[i].has_image)
+        if (trainer_groups[i].has_image)
         {
             const auto img_addr = address::encoded_bank(data.get_bytes(0x80000 + (i * 3), 3));
             data.read_bytes(image_buffer, img_addr, 0x1000);
-            trainer_classes[i].image = data.get_bytes(img_addr, bytes::scan_lz_size(image_buffer));
+            trainer_groups[i].image = data.get_bytes(img_addr, bytes::scan_lz_size(image_buffer));
 
-            trainer_classes[i].colors[0] = data.get_bytes(0xb511 + (i * 4) + 0, 2);
-            trainer_classes[i].colors[1] = data.get_bytes(0xb511 + (i * 4) + 2, 2);
+            trainer_groups[i].colors[0] = data.get_bytes(0xb511 + (i * 4) + 0, 2);
+            trainer_groups[i].colors[1] = data.get_bytes(0xb511 + (i * 4) + 2, 2);
         }
 
-        debug_log("pokegold::parse", "    - idx={}, name = \"{}\"", i, trainer_classes[i].name.string());
+        debug_log("pokegold::parse", "    - idx={}, name = \"{}\"", i, trainer_groups[i].name.string());
     }
 
     debug_log("pokegold::parse", "types");
