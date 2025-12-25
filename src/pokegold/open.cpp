@@ -128,7 +128,7 @@ void pokegold::open(const std::filesystem::path &filepath)
         debug_log("pokegold::parse", "  - props, name, pokedex");
         for (size_t i = 0; i < 256; i++)
         {
-            debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::parse", "    - {}", i);
 
             const auto bytes = data.get_bytes(props_addr, 32);
             props_addr += 32;
@@ -243,7 +243,7 @@ void pokegold::open(const std::filesystem::path &filepath)
                 mon.description = data.get_bytes_until(addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             }
 
-            mon.name = data.get_bytes_until(mon_name_addr, [&](size_t idx, u8 b) { return idx == 10 || b == 0x50; }, true);
+            mon.name = data.get_bytes_until(mon_name_addr, [&](size_t idx, u8 b) { return idx == 9 || b == 0x50; }, true);
             mon_name_addr += 10;
         }
 
@@ -318,7 +318,7 @@ void pokegold::open(const std::filesystem::path &filepath)
             trainer_groups[i].colors[1] = data.get_bytes(0xb511 + (i * 4) + 2, 2);
         }
 
-        debug_log("pokegold::parse", "    - idx={}, name = \"{}\"", i, trainer_groups[i].name.string());
+        debug_log("pokegold::parse", "  - idx={}, name = \"{}\"", i, trainer_groups[i].name.string());
     }
 
     debug_log("pokegold::parse", "types");
