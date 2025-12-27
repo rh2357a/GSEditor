@@ -47,7 +47,7 @@ void prepare_bin_file(const std::filesystem::path &exe_path, int res_id)
     }
 }
 
-utils::exec_result run_process(const std::filesystem::path &exe_path, const std::string &args)
+utils::exec_result run_process(const std::filesystem::path &exe_path, const std::string &args, const std::string &cwd)
 {
     SECURITY_ATTRIBUTES sa{};
     sa.nLength = sizeof(sa);
@@ -75,7 +75,7 @@ utils::exec_result run_process(const std::filesystem::path &exe_path, const std:
         true,
         CREATE_NO_WINDOW,
         nullptr,
-        nullptr,
+        cwd == "" ? nullptr : utils::strings::to_wstring(cwd).c_str(),
         &si,
         &pi);
 
@@ -110,28 +110,28 @@ utils::exec_result run_process(const std::filesystem::path &exe_path, const std:
     return result;
 }
 
-utils::exec_result utils::rgbasm(const std::string &args)
+utils::exec_result utils::rgbasm(const std::string &args, const std::string &cwd)
 {
     static const auto path = utils::files::get_app_data_path() / "bin" / "rgbasm.exe";
-    return run_process(path, args);
+    return run_process(path, args, cwd);
 }
 
-utils::exec_result utils::rgblink(const std::string &args)
+utils::exec_result utils::rgblink(const std::string &args, const std::string &cwd)
 {
     static const auto path = utils::files::get_app_data_path() / "bin" / "rgblink.exe";
-    return run_process(path, args);
+    return run_process(path, args, cwd);
 }
 
-utils::exec_result utils::rgbfix(const std::string &args)
+utils::exec_result utils::rgbfix(const std::string &args, const std::string &cwd)
 {
     static const auto path = utils::files::get_app_data_path() / "bin" / "rgbfix.exe";
-    return run_process(path, args);
+    return run_process(path, args, cwd);
 }
 
-utils::exec_result utils::lzcomp(const std::string &args)
+utils::exec_result utils::lzcomp(const std::string &args, const std::string &cwd)
 {
     static const auto path = utils::files::get_app_data_path() / "bin" / "lzcomp.exe";
-    return run_process(path, args);
+    return run_process(path, args, cwd);
 }
 
 void utils::init_exec()
