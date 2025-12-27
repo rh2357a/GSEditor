@@ -9,9 +9,25 @@
 #include <ctime>
 #include <iomanip>
 
+// #define TEST
+#define LOG_FILENAME "GSEditor.log"
+
+inline void init_logging()
+{
+#if defined(DEBUG) || defined(TEST)
+    freopen(LOG_FILENAME, "w", stdout);
+    freopen(LOG_FILENAME, "a", stderr);
+    setvbuf(stdout, nullptr, _IONBF, 0);
+    setvbuf(stderr, nullptr, _IONBF, 0);
+    std::ios::sync_with_stdio(true);
+#else
+    std::ios::sync_with_stdio(false);
+#endif
+}
+
 inline void debug_log(const std::string &tag, const std::string &s)
 {
-#ifdef DEBUG
+#if defined(DEBUG) || defined(TEST)
     using namespace std::chrono;
 
     auto now = system_clock::now();
@@ -35,7 +51,7 @@ inline void debug_log(const std::string &tag, const std::string &s)
 template <typename... _Args>
 inline void debug_log(const std::string &tag, std::format_string<_Args...> fmt, _Args &&...args)
 {
-#ifdef DEBUG
+#if defined(DEBUG) || defined(TEST)
     debug_log(tag, std::format(fmt, std::forward<_Args>(args)...));
 #endif
 }
