@@ -32,8 +32,8 @@ public:
     static void setup_lzcomp_workdir(const std::filesystem::path &dir);
     static bool is_lz_compressed(const std::vector<u8> &bytes);
     static size_t scan_lz_size(const std::vector<u8> &bytes);
-    bytes compressed() const;
-    bytes decompressed() const;
+    bytes compressed();
+    bytes decompressed();
 
 public:
     operator std::string() { return string(); }

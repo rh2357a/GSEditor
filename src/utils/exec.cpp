@@ -128,17 +128,10 @@ utils::exec_result utils::rgbfix(const std::string &args, const std::string &cwd
     return run_process(path, args, cwd);
 }
 
-utils::exec_result utils::lzcomp(const std::string &args, const std::string &cwd)
-{
-    static const auto path = utils::files::get_app_data_path() / "bin" / "lzcomp.exe";
-    return run_process(path, args, cwd);
-}
-
 void utils::init_exec()
 {
     const auto bin_path = utils::files::get_app_data_path() / "bin";
     prepare_bin_file(bin_path / "rgbasm.exe", 102);
     prepare_bin_file(bin_path / "rgblink.exe", 103);
     prepare_bin_file(bin_path / "rgbfix.exe", 104);
-    prepare_bin_file(bin_path / "lzcomp.exe", 105);
 }

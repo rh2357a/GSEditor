@@ -1,5 +1,6 @@
 #include "bytes.h"
 
+#include "lib/lzcomp.h"
 #include "utils.h"
 #include "embed.h"
 
@@ -7,6 +8,7 @@
 #include <charconv>
 #include <format>
 #include <sstream>
+#include <vector>
 #include <array>
 #include <unordered_map>
 
@@ -243,247 +245,22 @@ void pokegold::bytes::setup_lzcomp_workdir(const std::filesystem::path &dir)
 
 bool pokegold::bytes::is_lz_compressed(const std::vector<u8> &bytes)
 {
-    size_t index = 0;
-    while (index < bytes.size())
-    {
-        u8 cmd = bytes[index++];
-        if (cmd == 0xff)
-            return true;
-
-        u8 type = cmd & 0xe0;
-        u16 length = cmd & 0x1f;
-
-    extended_cmd:
-        switch (type)
-        {
-        case 0x00:
-            index += length + 1;
-            break;
-
-        case 0x20:
-            index += 1;
-            break;
-
-        case 0x40:
-            index += 2;
-            break;
-
-        case 0x60:
-            break;
-
-        case 0x80:
-        case 0xa0:
-        case 0xc0: {
-            u8 offset = bytes[index++];
-            if ((offset & 0x80) == 0)
-                index++;
-            break;
-        }
-
-        case 0xe0: {
-            cmd = (cmd & 0x1c) * 8;
-            type = cmd & 0xe0;
-            length = (length & 0x03) * 0x100 + bytes[index++];
-            goto extended_cmd;
-        }
-
-        default:
-            return false;
-        }
-    }
-
-    return false;
+    return lzcomp::scan_lz_size(bytes) > 0;
 }
 
 size_t pokegold::bytes::scan_lz_size(const std::vector<u8> &bytes)
 {
-    size_t index = 0;
-    while (index < bytes.size())
-    {
-        u8 cmd = bytes[index++];
-        if (cmd == 0xff)
-            return index;
-
-        u8 type = cmd & 0xe0;
-        u16 length = cmd & 0x1f;
-
-    extended_cmd:
-        switch (type)
-        {
-        case 0x00:
-            index += length + 1;
-            break;
-
-        case 0x20:
-            index += 1;
-            break;
-
-        case 0x40:
-            index += 2;
-            break;
-
-        case 0x60:
-            break;
-
-        case 0x80:
-        case 0xa0:
-        case 0xc0: {
-            u8 offset = bytes[index++];
-            if ((offset & 0x80) == 0)
-                index++;
-            break;
-        }
-
-        case 0xe0: {
-            cmd = (cmd & 0x1c) * 8;
-            type = cmd & 0xe0;
-            length = (length & 0x03) * 0x100 + bytes[index++];
-            goto extended_cmd;
-        }
-
-        default:
-            return 0;
-        }
-    }
-
-    return 0;
+    return lzcomp::scan_lz_size(bytes);
 }
 
-pokegold::bytes pokegold::bytes::compressed() const
+pokegold::bytes pokegold::bytes::compressed()
 {
-    // std::filesystem::remove(lzcomp_src_path);
-    // std::filesystem::remove(lzcomp_dst_path);
-
-    utils::files::write_bytes_to_file(lzcomp_src_path, m_bytes);
-
-    const auto args = std::format("--compressor multipass {} {}", lzcomp_src_path.string(), lzcomp_dst_path.string());
-    utils::lzcomp(args);
-
-    const auto result = utils::files::read_bytes_from_file(lzcomp_dst_path);
-
-    // std::filesystem::remove(lzcomp_src_path);
-    // std::filesystem::remove(lzcomp_dst_path);
-
-    return result;
+    return lzcomp::compress(m_bytes);
 }
 
-pokegold::bytes pokegold::bytes::decompressed() const
+pokegold::bytes pokegold::bytes::decompressed()
 {
-    std::vector<u8> output;
-
-    size_t index = 0;
-    while (index < m_bytes.size())
-    {
-        u8 cmd = m_bytes[index++];
-        if (cmd == 0xff)
-            return output;
-
-        u8 type = cmd & 0xe0;
-        u16 length = cmd & 0x1f;
-
-    extended_cmd:
-        switch (type)
-        {
-        // 원본 복사
-        case 0x00: {
-            for (int i = 0; i < length + 1; ++i)
-                output.push_back(m_bytes[index++]);
-            break;
-        }
-
-        // 바이트 채우기
-        case 0x20: {
-            u8 b = m_bytes[index++];
-            for (int i = 0; i < length + 1; ++i)
-                output.push_back(b);
-            break;
-        }
-
-        // 교차 반복 채우기
-        case 0x40: {
-            u8 first = m_bytes[index++];
-            u8 second = m_bytes[index++];
-            for (int i = 0; i < length + 1; ++i)
-                output.push_back((i % 2 == 0) ? first : second);
-            break;
-        }
-
-        // 0 채우기
-        case 0x60: {
-            for (int i = 0; i < length + 1; ++i)
-                output.push_back(0);
-            break;
-        }
-
-        // 이전 데이터 반복
-        case 0x80: {
-            u8 offset = m_bytes[index++];
-            if ((offset & 0x80) == 0)
-            {
-                size_t real_offset = offset * 0x100 + m_bytes[index++] + 1;
-                for (int i = 0; i < length + 1; ++i)
-                    output.push_back(output[real_offset + i - 1]);
-            }
-            else
-            {
-                size_t back = (offset & 0x7f) + 1;
-                for (int i = 0; i < length + 1; ++i)
-                    output.push_back(output[output.size() - back - 1]);
-            }
-            break;
-        }
-
-        // 이전 데이터 반복 + 비트 반전
-        case 0xa0: {
-            u8 offset = m_bytes[index++];
-            if ((offset & 0x80) == 0)
-            {
-                size_t real_offset = offset * 0x100 + m_bytes[index++] + 1;
-                for (int i = 0; i < length + 1; ++i)
-                    output.push_back(BIT_REVERSED[output[real_offset + i - 1]]);
-            }
-            else
-            {
-                size_t back = (offset & 0x7f) + 1;
-                for (int i = 0; i < length + 1; ++i)
-                    output.push_back(BIT_REVERSED[output[output.size() - back - 1]]);
-            }
-            break;
-        }
-
-        // 이전 데이터 역순 반복
-        case 0xc0: {
-            u8 offset = m_bytes[index++];
-            size_t count = output.size();
-            if ((offset & 0x80) == 0)
-            {
-                size_t real_offset = offset * 0x100 + m_bytes[index++] + 1;
-                for (int i = 0; i < length + 1; ++i)
-                    output.push_back(output[real_offset - i - 1]);
-            }
-            else
-            {
-                size_t back = offset & 0x7f;
-                for (int i = 0; i < length + 1; ++i)
-                    output.push_back(output[count - back - i - 1]);
-            }
-            break;
-        }
-
-        // 확장 명령
-        case 0xe0: {
-            cmd = (cmd & 0x1c) * 8;
-            type = cmd & 0xe0;
-            length = (length & 0x03) * 0x100 + m_bytes[index++];
-            goto extended_cmd;
-        }
-
-        default:
-            return {};
-        }
-    }
-
-    return {};
+    return lzcomp::uncompress(m_bytes);
 }
 
 pokegold::bytes pokegold::bytes::operator+(const bytes &rhs) const

@@ -1,5 +1,6 @@
 #include "main_frame.h"
 
+#include "utils.h"
 #include "embed.h"
 #include "pokegold.h"
 #include "gui/about_dialog.h"
@@ -42,9 +43,33 @@ void gui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (openDlg.ShowModal() == wxID_CANCEL)
             return;
 
-        // TEST:
+        // TEST 1: pokegold
         pokegold::open(openDlg.GetPath().ToStdString());
         pokegold::build();
+
+        return;
+    }
+
+    if (id == wxID_SAVE)
+    {
+        wxFileDialog openDlg(this, wxT("롬 열기..."), "", "", wxT("GBC 파일|*.gbc"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+        if (openDlg.ShowModal() == wxID_CANCEL)
+            return;
+
+        // TEST 2: lzcomp
+        pokegold::open(openDlg.GetPath().ToStdString());
+
+        auto a = pokegold::data::pokemons[2].front_image;
+        utils::files::write_bytes_to_file("a.bin", a);
+
+        auto b = a.decompressed();
+        utils::files::write_bytes_to_file("b.bin", b);
+
+        auto c = b.compressed();
+        utils::files::write_bytes_to_file("c.bin", c);
+
+        auto d = c.decompressed();
+        utils::files::write_bytes_to_file("d.bin", d);
 
         return;
     }

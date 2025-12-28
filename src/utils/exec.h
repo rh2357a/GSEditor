@@ -14,7 +14,6 @@ struct exec_result
 exec_result rgbasm(const std::string &args, const std::string &cwd = "");
 exec_result rgblink(const std::string &args, const std::string &cwd = "");
 exec_result rgbfix(const std::string &args, const std::string &cwd = "");
-exec_result lzcomp(const std::string &args, const std::string &cwd = "");
 
 void init_exec();
 

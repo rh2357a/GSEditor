@@ -30,6 +30,7 @@ WXLDFLAGS  := --libs --unicode --static
 endif
 
 CCWARNS := -Wno-comment \
+           -Wno-parentheses \
            -Wno-unused-parameter \
            -Wno-unused-variable \
            -Wno-unused-function
