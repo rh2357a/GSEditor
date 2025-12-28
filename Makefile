@@ -20,32 +20,37 @@ TARGET       := $(BUILD_TARGET_DIR)/bin/$(APP_FILENAME)
 ################################################################################
 
 ifeq ($(DEBUG), 1)
-WXCFLAGS   := --cflags --unicode --static --debug
+WXCCFLAGS  := --cflags --unicode --static --debug
 WXCXXFLAGS := --cxxflags --unicode --static --debug
 WXLDFLAGS  := --libs --unicode --static
 else
-WXCFLAGS   := --cflags --unicode --static
+WXCCFLAGS  := --cflags --unicode --static
 WXCXXFLAGS := --cxxflags --unicode --static
 WXLDFLAGS  := --libs --unicode --static
 endif
 
-NOWARNS := -Wno-comment \
+CCWARNS := -Wno-comment \
            -Wno-unused-parameter \
            -Wno-unused-variable \
            -Wno-unused-function
 
-CFLAGS := -std=c17 \
-          -MMD -MP \
-          -Wall -Wextra \
-          -include $(SOURCE_DIR)/prelude.h \
-          $(NOWARNS) \
-          $(shell wx-config $(WXCFLAGS))
+CXXWARNS := -Wno-comment \
+            -Wno-unused-parameter \
+            -Wno-unused-variable \
+            -Wno-unused-function
+
+CCFLAGS := -std=c17 \
+           -MMD -MP \
+           -Wall -Wextra \
+           -include $(SOURCE_DIR)/prelude.h \
+           $(CCWARNS) \
+           $(shell wx-config $(WXCCFLAGS))
 
 CXXFLAGS := -std=c++20 -fpermissive \
             -MMD -MP \
             -Wall -Wextra \
             -include $(SOURCE_DIR)/prelude.h \
-            $(NOWARNS) \
+            $(CXXWARNS) \
             $(shell wx-config $(WXCXXFLAGS))
 
 DEFINES := -DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN
@@ -59,11 +64,11 @@ LDFLAGS := -static -static-libgcc -static-libstdc++ \
 
 ifeq ($(DEBUG), 1)
 DEFINES    += -DDEBUG
-CFLAGS     += -g -O0
+CCFLAGS    += -g -O0
 CXXFLAGS   += -g -O0
 else
 DEFINES    += -DRELEASE
-CFLAGS     += -O3 -ffunction-sections -fdata-sections
+CCFLAGS    += -O3 -ffunction-sections -fdata-sections
 CXXFLAGS   += -O3 -ffunction-sections -fdata-sections
 LDFLAGS    += -s -Wl,--gc-sections
 endif
@@ -95,7 +100,7 @@ $(BUILD_OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp
 
 $(BUILD_OBJ_DIR)/%.o: $(SOURCE_DIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(CC) $(CCFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 $(BUILD_TOOLS_DIR)/%: tools/%.cpp
 	@mkdir -p $(dir $@)

@@ -1,6 +1,8 @@
 #ifndef _PRELUDE_DEBUG_LOG_H_
 #define _PRELUDE_DEBUG_LOG_H_
 
+#ifdef __cplusplus
+
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -55,5 +57,7 @@ inline void debug_log(const std::string &tag, std::format_string<_Args...> fmt, 
     debug_log(tag, std::format(fmt, std::forward<_Args>(args)...));
 #endif
 }
+
+#endif
 
 #endif
