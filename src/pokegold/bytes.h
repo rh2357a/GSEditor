@@ -29,12 +29,6 @@ public:
     static bool is_charmap_string(const std::string &str);
     std::string string();
 
-    static void setup_lzcomp_workdir(const std::filesystem::path &dir);
-    static bool is_lz_compressed(const std::vector<u8> &bytes);
-    static size_t scan_lz_size(const std::vector<u8> &bytes);
-    bytes compressed();
-    bytes decompressed();
-
 public:
     operator std::string() { return string(); }
     operator std::vector<u8>() const { return m_bytes; };

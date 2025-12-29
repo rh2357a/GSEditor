@@ -4,8 +4,8 @@ extern "C" {
 #include "lib/lzcomp/proto.h"
 }
 
-u8 comp_buffer[0x400];
-u8 uncomp_buffer[0x400];
+#include <array>
+#include <vector>
 
 struct command *lzcomp_compress(const unsigned char *data, unsigned short *size, unsigned method)
 {
@@ -50,30 +50,26 @@ size_t lzcomp::scan_lz_size(const std::vector<u8> &src)
     return get_compressed_size(src.data(), &size);
 }
 
-std::vector<u8> lzcomp::compress(const std::vector<u8> &src)
+size_t lzcomp::compress(std::vector<u8> &dst, const std::vector<u8> &src)
 {
-    unsigned short size = static_cast<unsigned short>(src.size());
+    unsigned short size = src.size();
 
-    // 80: multipass
-    struct command *commands = lzcomp_compress(src.data(), &size, 80);
-    size_t lz_size = write_commands_to_buffer(comp_buffer, commands, size, src.data(), 0);
+    struct command *commands = lzcomp_compress(src.data(), &size, 0 /* singlepass */);
+    // struct command *commands = lzcomp_compress(src.data(), &size, 80 /* multipass */);
+    size_t lz_size = write_commands_to_buffer(dst.data(), commands, size, src.data(), 0);
     free(commands);
 
-    std::vector<u8> result(std::begin(comp_buffer), std::end(comp_buffer));
-    result.resize(lz_size);
-    return result;
+    return lz_size;
 }
 
-std::vector<u8> lzcomp::uncompress(const std::vector<u8> &src)
+size_t lzcomp::uncompress(std::vector<u8> &dst, const std::vector<u8> &src, size_t src_offset, size_t src_size)
 {
-    unsigned short size = static_cast<unsigned short>(src.size());
+    unsigned short size = static_cast<unsigned short>(src_size);
     unsigned short original_size = size, remainder;
 
-    struct command *commands = get_commands_from_file(src.data(), &size, &remainder);
-    write_uncompressed_data(uncomp_buffer, commands, src.data(), &size);
+    struct command *commands = get_commands_from_file(src.data() + src_offset, &size, &remainder);
+    write_uncompressed_data(dst.data(), commands, src.data() + src_offset, &size);
     free(commands);
 
-    std::vector<u8> result(std::begin(uncomp_buffer), std::end(uncomp_buffer));
-    result.resize(size);
-    return result;
+    return size;
 }

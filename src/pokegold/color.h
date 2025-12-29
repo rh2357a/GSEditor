@@ -55,6 +55,9 @@ private:
 public:
     u16 value() const { return (u16(m_hi_byte) << 8) | m_lo_byte; }
 
+    u8 hi_byte() const { return m_hi_byte; }
+    u8 lo_byte() const { return m_lo_byte; }
+
     u8 r() const { return static_cast<u8>((value() & 0x1f) << 3); }
     void r(u8 val)
     {
@@ -96,8 +99,6 @@ public:
         debug_cache();
 #endif
     }
-
-    bytes to_bytes() { return {m_lo_byte, m_hi_byte}; }
 };
 
 inline const color color::BLACK = color(0, 0, 0);

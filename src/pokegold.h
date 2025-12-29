@@ -24,6 +24,9 @@ void open(const std::filesystem::path &filepath);
 /// @return 빌드 바이너리
 std::vector<u8> build();
 
+void parse_build_data();
+void save_build_data();
+
 } // namespace pokegold
 
 #endif

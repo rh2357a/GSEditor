@@ -5,6 +5,7 @@
 #include "pokegold/color.h"
 
 #include <array>
+#include <vector>
 
 namespace pokegold::data {
 
@@ -205,9 +206,27 @@ public:
     std::vector<type_matchup> foresight_matchups;
 };
 
+class asset_info
+{
+public:
+    std::string name;
+    std::string description;
+    bytes data;
+};
+
+class script_info
+{
+public:
+    std::string name;
+    std::string description;
+    std::string script;
+};
+
 } // namespace pokegold::data
 
 namespace pokegold::data {
+
+// 바이너리 데이터
 
 inline std::array<item, 256> items;
 inline std::array<move, 251> moves;
@@ -216,6 +235,11 @@ inline std::array<unown_image, 26> unown_images;
 inline std::array<trainer_group, 67> trainer_groups;
 inline std::array<type, 28> types;
 inline std::array<u8, 57> tmhms;
+
+// 빌드 데이터
+
+inline std::vector<asset_info> assets;
+inline std::vector<script_info> scripts;
 
 } // namespace pokegold::data
 

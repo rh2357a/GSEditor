@@ -46,23 +46,13 @@ public:
     }
 
 public:
-    u8 get_bank() { return static_cast<u8>(m_address / 0x4000); }
+    static inline u8 calc_bank(size_t addr) { return u8(addr / 0x4000); }
+    static inline u16 calc_pointer(size_t addr) { return u16(addr % 0x4000 + (addr >= 0x4000 ? 0x4000 : 0)); }
 
-    std::vector<u8> to_bytes(bool ignore_bank = false)
-    {
-        std::vector<u8> bytes;
-        if (!ignore_bank)
-        {
-            // TODO: encoded bank 수정...
-            bytes.push_back(static_cast<u8>(m_address / 0x4000));
-        }
-
-        u32 a = m_address % 0x4000 + (m_address >= 0x4000 ? 0x4000 : 0);
-        bytes.push_back(static_cast<u8>(a & 0xff));
-        bytes.push_back(static_cast<u8>((a & 0xff00) >> 8));
-
-        return bytes;
-    }
+public:
+    inline size_t offset(size_t v = 0) const { return m_address + v; }
+    inline u8 bank() const { return u8(m_address / 0x4000); }
+    inline u16 pointer() const { return u16(m_address % 0x4000 + (m_address >= 0x4000 ? 0x4000 : 0)); }
 
 public:
     operator size_t() const { return m_address; }

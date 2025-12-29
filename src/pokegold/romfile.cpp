@@ -1,18 +1,13 @@
 #include "romfile.h"
+
+#include "lib/lzcomp.h"
 #include "utils.h"
 
-pokegold::romfile::romfile(std::filesystem::path filepath) : m_path(std::move(filepath))
+pokegold::romfile::romfile(std::filesystem::path filepath)
+    : m_path(std::move(filepath)), m_build_data_path(m_path.parent_path() / (m_path.stem().string() + ".gsb"))
 {
     const auto bytes = utils::files::read_bytes_from_file(m_path);
     m_bytes.insert(m_bytes.end(), bytes.begin(), bytes.end());
-}
-
-void pokegold::romfile::read_bytes(std::vector<u8> &bytes, size_t addr, size_t len)
-{
-    if (len == 0 || addr >= m_bytes.size() || len > m_bytes.size() - addr)
-        return;
-
-    std::copy(m_bytes.begin() + addr, m_bytes.begin() + addr + len, bytes.begin());
 }
 
 u8 pokegold::romfile::get_byte(size_t addr)
@@ -54,6 +49,11 @@ pokegold::bytes pokegold::romfile::get_bytes_until(size_t addr, std::function<bo
     }
 
     return result;
+}
+
+size_t pokegold::romfile::read_lz_decompressed(std::vector<u8> &dst, size_t offset, size_t size)
+{
+    return lzcomp::uncompress(dst, m_bytes, offset, size);
 }
 
 void pokegold::romfile::set_byte(size_t addr, u8 byte)

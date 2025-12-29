@@ -15,9 +15,6 @@
 std::unordered_map<u16, std::string_view> charmap;
 std::unordered_map<std::string_view, u16> charmap_reverse;
 
-std::filesystem::path lzcomp_src_path = utils::files::create_temp_file_path("lzcomp_src");
-std::filesystem::path lzcomp_dst_path = utils::files::create_temp_file_path("lzcomp_dst");
-
 // clang-format off
 
 const std::array<u8, 256> BIT_REVERSED{
@@ -232,35 +229,6 @@ std::string pokegold::bytes::string()
     }
 
     return m_cached_str = ss.str();
-}
-
-void pokegold::bytes::setup_lzcomp_workdir(const std::filesystem::path &dir)
-{
-    const auto tmp_dir = dir / "tmp";
-    std::filesystem::create_directories(tmp_dir);
-
-    lzcomp_src_path = tmp_dir / utils::crypto::hash("lzcomp_src");
-    lzcomp_dst_path = tmp_dir / utils::crypto::hash("lzcomp_dst");
-}
-
-bool pokegold::bytes::is_lz_compressed(const std::vector<u8> &bytes)
-{
-    return lzcomp::scan_lz_size(bytes) > 0;
-}
-
-size_t pokegold::bytes::scan_lz_size(const std::vector<u8> &bytes)
-{
-    return lzcomp::scan_lz_size(bytes);
-}
-
-pokegold::bytes pokegold::bytes::compressed()
-{
-    return lzcomp::compress(m_bytes);
-}
-
-pokegold::bytes pokegold::bytes::decompressed()
-{
-    return lzcomp::uncompress(m_bytes);
 }
 
 pokegold::bytes pokegold::bytes::operator+(const bytes &rhs) const
