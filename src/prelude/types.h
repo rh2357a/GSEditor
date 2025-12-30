@@ -15,9 +15,17 @@ using i16 = std::int16_t;
 using i32 = std::int32_t;
 using i64 = std::int64_t;
 
+constexpr bool DEBUG_MODE =
+#ifdef DEBUG
+    true;
+#else
+    false;
+#endif
+
 #else
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef uint8_t u8;
 typedef uint16_t u16;

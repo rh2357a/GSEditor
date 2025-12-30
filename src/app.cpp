@@ -9,9 +9,9 @@ public:
     bool OnInit()
     {
         init_logging();
-        pokegold::bytes::init_charmap();
-        utils::init_exec();
         wxInitAllImageHandlers();
+        pokegold::string::init_charmap();
+        utils::init_exec();
 
         gui::MainFrame *frame = new gui::MainFrame(nullptr);
         frame->Show();

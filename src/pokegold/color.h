@@ -1,7 +1,7 @@
 #ifndef _POKEGOLD_COLOR_H_
 #define _POKEGOLD_COLOR_H_
 
-#include "pokegold/bytes.h"
+#include <vector>
 
 namespace pokegold {
 
@@ -21,7 +21,7 @@ public:
     color() = default;
     ~color() = default;
 
-    color(bytes b) : m_hi_byte(b[1]), m_lo_byte(b[0])
+    color(std::span<const u8> b) : m_hi_byte(b[1]), m_lo_byte(b[0])
     {
 #ifdef DEBUG
         debug_cache();

@@ -16,10 +16,10 @@ class data_block
 {
 public:
     std::string label;
-    pokegold::bytes data;
+    std::vector<u8> data;
 
 public:
-    data_block(const std::string &l, pokegold::bytes d) : label(l), data(d) {}
+    data_block(const std::string &l, std::vector<u8> d) : label(l), data(std::move(d)) {}
     ~data_block() = default;
 };
 
@@ -455,7 +455,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
 
         std::vector<data_block> data_blocks;
         std::vector<u8> compressed_buffer(0x400);
-        auto img_push = [&](const std::string &label, const pokegold::bytes &data) {
+        auto img_push = [&](const std::string &label, const std::vector<u8> &data) {
             const auto size = lzcomp::compress(compressed_buffer, data);
             data_blocks.push_back({
                 label,
@@ -550,7 +550,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
 
     // names
     {
-        pokegold::address names_addr(0x1b0000);
+        size_t names_addr = 0x1b0000;
 
         debug_log("pokegold::build", "generate items name");
         {
@@ -561,7 +561,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
                 << asm_section(0x515d7, "GSEditor_Item_Names_Pointer_2")
                 << asm_line("dw GSEditor_Item_Names")
 
-                << asm_section(names_addr.offset(), "GSEditor_Item_Names")
+                << asm_section(names_addr, "GSEditor_Item_Names")
                 << asm_line("GSEditor_Item_Names::");
             for (size_t i = 0; i < 256; i++)
             {
@@ -577,7 +577,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
                 << asm_line("db BANK(GSEditor_TrainerGroup_Names)")
                 << asm_line("dw GSEditor_TrainerGroup_Names")
 
-                << asm_section(names_addr.offset(), "GSEditor_TrainerGroup_Names")
+                << asm_section(names_addr, "GSEditor_TrainerGroup_Names")
                 << asm_line("GSEditor_TrainerGroup_Names::");
             for (size_t i = 0; i < 67; i++)
             {
@@ -596,7 +596,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
                 << asm_section(0x515bf, "GSEditor_Pokemon_Names_Pointer_2")
                 << asm_line("dw GSEditor_Pokemon_Names")
 
-                << asm_section(names_addr.offset(), "GSEditor_Pokemon_Names")
+                << asm_section(names_addr, "GSEditor_Pokemon_Names")
                 << asm_line("GSEditor_Pokemon_Names::");
             for (size_t i = 0; i < 256; i++)
             {
@@ -618,7 +618,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
                 << asm_line("db BANK(GSEditor_Move_Names)")
                 << asm_line("dw GSEditor_Move_Names")
 
-                << asm_section(names_addr.offset(), "GSEditor_Move_Names")
+                << asm_section(names_addr, "GSEditor_Move_Names")
                 << asm_line("GSEditor_Move_Names::");
             for (size_t i = 0; i < 251; i++)
             {
@@ -634,31 +634,30 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
         debug_log("pokegold::build", "generate item description");
         std::unordered_map<std::string, std::string> item_label_map;
         std::array<std::string, 256> item_labels;
-        pokegold::address item_ptr_addr(0x1b8000);
-        pokegold::address item_addr(0x1b8200);
+        size_t item_addr = 0x1b8200;
 
-        src << asm_section(item_addr.offset(), "GSEditor_Item_Descriptions")
+        src << asm_section(item_addr, "GSEditor_Item_Descriptions")
             << asm_line("GSEditor_Item_Descriptions::");
         for (size_t i = 0; i < 256; i++)
         {
             const auto label = std::format("GSEditor_Item_Description_{}", i);
             auto &e = pokegold::data::items[i].description;
 
-            if (item_label_map.contains(e.string()))
+            if (item_label_map.contains(e.u8string()))
             {
-                item_labels[i] = item_label_map[e.string()];
+                item_labels[i] = item_label_map[e.u8string()];
             }
             else
             {
                 src << asm_line("{}:", label)
                     << asm_bytes(e);
                 item_addr += e.size();
-                item_label_map[e.string()] = label;
+                item_label_map[e.u8string()] = label;
                 item_labels[i] = label;
             }
         }
 
-        src << asm_section(item_ptr_addr.offset(), "GSEditor_Item_Description_Pointers")
+        src << asm_section(0x1b8000, "GSEditor_Item_Description_Pointers")
             << asm_line("GSEditor_Item_Description_Pointers::");
         for (size_t i = 0; i < 256; i++)
             src << asm_line("dw {}", item_labels[i]);
@@ -669,10 +668,9 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
         debug_log("pokegold::build", "generate move description");
         std::unordered_map<std::string, std::string> move_label_map;
         std::array<std::string, 256> move_labels;
-        pokegold::address move_ptr_addr(0x1b4000);
-        pokegold::address move_addr(0x1b4200);
+        size_t move_addr = 0x1b4200;
 
-        src << asm_section(move_addr.offset(), "GSEditor_Move_Descriptions")
+        src << asm_section(move_addr, "GSEditor_Move_Descriptions")
             << asm_line("GSEditor_Move_Descriptions::")
             << asm_line("GSEditor_Move_Description_0:")
             << asm_bytes({230, 80});
@@ -681,21 +679,21 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
             const auto label = std::format("GSEditor_Move_Description_{}", i + 1);
             auto &e = pokegold::data::moves[i].description;
 
-            if (move_label_map.contains(e.string()))
+            if (move_label_map.contains(e.u8string()))
             {
-                move_labels[i] = move_label_map[e.string()];
+                move_labels[i] = move_label_map[e.u8string()];
             }
             else
             {
                 src << asm_line("{}:", label)
                     << asm_bytes(e);
                 move_addr += e.size();
-                move_label_map[e.string()] = label;
+                move_label_map[e.u8string()] = label;
                 move_labels[i] = label;
             }
         }
 
-        src << asm_section(move_ptr_addr.offset(), "GSEditor_Move_Description_Pointers")
+        src << asm_section(0x1b4000, "GSEditor_Move_Description_Pointers")
             << asm_line("GSEditor_Move_Description_Pointers::");
         for (size_t i = 0; i < 251; i++)
             src << asm_line("dw {}", move_labels[i]);
@@ -721,7 +719,6 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
             if (ffd_data_blocks[i].empty())
                 continue;
 
-            pokegold::address addr(TYPE_NAME_FREE_SPACES[i][0]);
             src << asm_section(TYPE_NAME_FREE_SPACES[i][0], "GSEditor_Type_Name_0x{:x}", TYPE_NAME_FREE_SPACES[i][0])
                 << asm_line("GSEditor_Type_Name_0x{:x}::", TYPE_NAME_FREE_SPACES[i][0]);
             for (const auto &e : ffd_data_blocks[i])
@@ -784,10 +781,5 @@ std::vector<u8> pokegold::build()
     const auto rgbfix_result = utils::rgbfix(rgbfix_args, workspace_path.string());
     debug_log("pokegold::build", "\n{}", rgbfix_result.output);
 
-    const auto result = utils::files::read_bytes_from_file(target_path);
-#ifdef RELEASE
-    // debug_log("pokegold::build", "last cleanup (path=\"{}\")", workspace_path.string());
-    std::filesystem::remove_all(workspace_path);
-#endif
-    return result;
+    return utils::files::read_bytes_from_file(target_path);
 }

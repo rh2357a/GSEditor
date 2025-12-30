@@ -7,10 +7,10 @@
 
 using json = nlohmann::json;
 
-void pokegold::parse_build_data()
+void pokegold::config::read()
 {
-    data::assets.clear();
-    data::scripts.clear();
+    assets.clear();
+    scripts.clear();
 
     if (!is_rom_opened)
         return;
@@ -30,38 +30,38 @@ void pokegold::parse_build_data()
     debug_log("pokegold::parse_build_data", "assets size={}", data["assets"].size());
     for (const auto &e : data["assets"])
     {
-        data::asset_info new_entry;
+        asset_info new_entry;
         new_entry.name = e.at("name").get<std::string>();
         new_entry.description = e.at("description").get<std::string>();
-        new_entry.data = bytes(e.at("data").get_binary());
-        data::assets.push_back(new_entry);
+        new_entry.data = e.at("data").get_binary();
+        assets.push_back(new_entry);
     }
 
     debug_log("pokegold::parse_build_data", "scripts size={}", data["scripts"].size());
     for (const auto &e : data["scripts"])
     {
-        data::script_info new_entry;
+        script_info new_entry;
         new_entry.name = e.at("name").get<std::string>();
         new_entry.description = e.at("description").get<std::string>();
         new_entry.script = e.at("script").get<std::string>();
-        data::scripts.push_back(new_entry);
+        scripts.push_back(new_entry);
     }
 }
 
-void pokegold::save_build_data()
+void pokegold::config::write()
 {
     if (!is_rom_opened)
         return;
 
     // 스크립트, 에셋이 비어있으면 설정을 저장 x
-    if (data::assets.empty() && data::scripts.empty())
+    if (assets.empty() && scripts.empty())
         return;
 
     auto data = json::object();
     data["assets"] = json::array();
     data["scripts"] = json::array();
 
-    for (const auto &e : data::assets)
+    for (const auto &e : assets)
     {
         auto new_entry = json::object();
         new_entry["name"] = e.name;
@@ -70,7 +70,7 @@ void pokegold::save_build_data()
         data["assets"].push_back(new_entry);
     }
 
-    for (const auto &e : data::scripts)
+    for (const auto &e : scripts)
     {
         auto new_entry = json::object();
         new_entry["name"] = e.name;

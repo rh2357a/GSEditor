@@ -13,15 +13,16 @@ const std::array<u8, 8> BITS{
     0b10000000,
 };
 
-inline void image_addr_log(const pokegold::address &addr)
+inline void image_addr_log(size_t addr, size_t len)
 {
-#if defined(DEBUG) && 0
-    const auto s = std::format("img_addr={:x}", addr.offset());
-    debug_log("pokegold::parse", s);
-#endif
+    if constexpr (DEBUG_MODE && false)
+    {
+        const auto s = std::format("img_addr={:x}, size={}", addr, len);
+        debug_log("pokegold::read", s);
+    }
 }
 
-void pokegold::open(const std::filesystem::path &filepath)
+void pokegold::read(const std::filesystem::path &filepath)
 {
     using namespace pokegold::data;
 
@@ -29,16 +30,16 @@ void pokegold::open(const std::filesystem::path &filepath)
 
     workspace_path = utils::files::get_app_data_path() / "works" / utils::crypto::hash(filepath.string());
     is_rom_opened = true;
-    parse_build_data();
+    config::read();
 
     std::vector<u8> image_buffer(0x400);
 
-    debug_log("pokegold::parse", "parse items");
+    debug_log("pokegold::read", "parse items");
     {
-        debug_log("pokegold::parse", "  - props");
+        debug_log("pokegold::read", "  - props");
         for (size_t i = 0; i < 256; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
             auto bytes = data.get_bytes(0x697b + i * 7, 7);
 
@@ -52,35 +53,35 @@ void pokegold::open(const std::filesystem::path &filepath)
             item.battle_menu = bytes[6] & 0x0f;
         }
 
-        debug_log("pokegold::parse", "  - names");
-        address name_addr(data.get_bytes(0x35cc, 3));
+        debug_log("pokegold::read", "  - names");
+        size_t name_addr = addr::calc(data.get_bytes(0x35cc, 3));
         for (size_t i = 0; i < 256; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
             const auto bytes = data.get_bytes_until(name_addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             name_addr += bytes.size();
             items[i].name = bytes;
         }
 
-        debug_log("pokegold::parse", "  - descriptions");
-        u8 desc_bank = address::calc_bank(0x1b8000);
+        debug_log("pokegold::read", "  - descriptions");
+        u8 desc_bank = addr::calc_bank(0x1b8000);
         for (size_t i = 0; i < 256; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
-            address addr(desc_bank, data.get_bytes(0x1b8000 + (i * 2), 2));
+            size_t addr = addr::calc(desc_bank, data.get_bytes(0x1b8000 + (i * 2), 2));
             const auto bytes = data.get_bytes_until(addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             items[i].description = bytes;
         }
     }
 
-    debug_log("pokegold::parse", "parse moves");
+    debug_log("pokegold::read", "parse moves");
     {
-        debug_log("pokegold::parse", "  - props");
+        debug_log("pokegold::read", "  - props");
         for (size_t i = 0; i < 251; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
             auto bytes = data.get_bytes(0x4172e + i * 7, 7);
 
@@ -94,47 +95,47 @@ void pokegold::open(const std::filesystem::path &filepath)
             move.effect_chance = bytes[6];
         }
 
-        debug_log("pokegold::parse", "  - names");
-        address name_addr(data.get_bytes(0x35c6, 3));
+        debug_log("pokegold::read", "  - names");
+        size_t name_addr = addr::calc(data.get_bytes(0x35c6, 3));
         for (size_t i = 0; i < 251; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
             const auto bytes = data.get_bytes_until(name_addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             name_addr += bytes.size();
             moves[i].name = bytes;
         }
 
-        debug_log("pokegold::parse", "  - descriptions");
-        u8 desc_bank = address::calc_bank(0x1b4000);
+        debug_log("pokegold::read", "  - descriptions");
+        u8 desc_bank = addr::calc_bank(0x1b4000);
         for (size_t i = 0; i < 251; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
-            address addr(desc_bank, data.get_bytes(0x1b4000 + (i * 2), 2));
+            size_t addr = addr::calc(desc_bank, data.get_bytes(0x1b4000 + (i * 2), 2));
             const auto bytes = data.get_bytes_until(addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             moves[i].description = bytes;
         }
     }
 
-    debug_log("pokegold::parse", "parse TMHMs");
+    debug_log("pokegold::read", "parse TMHMs");
     for (size_t i = 0; i < 57; i++)
     {
-        // debug_log("pokegold::parse", "    - {}", i);
+        // debug_log("pokegold::read", "    - {}", i);
         tmhms[i] = data.get_byte(0x119f5 + i);
     }
 
-    debug_log("pokegold::parse", "parse pokemons");
+    debug_log("pokegold::read", "parse pokemons");
     {
-        const u8 evos_bank = address::calc_bank(0x423ed);
-        address evos_addr(0x423ed);
-        address mon_name_addr(data.get_bytes(0x35c3, 3));
-        address props_addr = address(0x51bdf);
+        const u8 evos_bank = addr::calc_bank(0x423ed);
+        size_t evos_addr = 0x423ed;
+        size_t mon_name_addr = addr::calc(data.get_bytes(0x35c3, 3));
+        size_t props_addr = 0x51bdf;
 
-        debug_log("pokegold::parse", "  - props, name, pokedex");
+        debug_log("pokegold::read", "  - props, name, pokedex");
         for (size_t i = 0; i < 256; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
             const auto bytes = data.get_bytes(props_addr, 32);
             props_addr += 32;
@@ -183,7 +184,7 @@ void pokegold::open(const std::filesystem::path &filepath)
                     }
                 }
 
-                address evo_addr(evos_bank, data.get_bytes(evos_addr, 2));
+                size_t evo_addr = addr::calc(evos_bank, data.get_bytes(evos_addr, 2));
                 evos_addr += 2;
 
                 const auto evo_bytes = data.get_bytes_until(evo_addr, [&](size_t idx, u8 b) { return b == 0; }, true);
@@ -229,11 +230,11 @@ void pokegold::open(const std::filesystem::path &filepath)
                     mon.learn_moves.push_back(new_item);
                 }
 
-                address addr;
+                size_t addr;
                 if (i < 128)
-                    addr = address(0x68, data.get_bytes(0x442ff + (i * 2), 2));
+                    addr = addr::calc(0x68, data.get_bytes(0x442ff + (i * 2), 2));
                 else
-                    addr = address(0x69, data.get_bytes(0x443ff + ((i - 128) * 2), 2));
+                    addr = addr::calc(0x69, data.get_bytes(0x443ff + ((i - 128) * 2), 2));
 
                 auto &mon = pokemons[i];
 
@@ -243,7 +244,7 @@ void pokegold::open(const std::filesystem::path &filepath)
                 mon.height = data.get_byte(addr);
                 addr += 1;
 
-                mon.weight = data.get_byte(addr) | (data.get_byte(addr + size_t(1)) << 8);
+                mon.weight = data.get_byte(addr) | (data.get_byte(addr + 1) << 8);
                 addr += 2;
 
                 mon.description = data.get_bytes_until(addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
@@ -253,63 +254,63 @@ void pokegold::open(const std::filesystem::path &filepath)
             mon_name_addr += 10;
         }
 
-        debug_log("pokegold::parse", "  - image, color");
+        debug_log("pokegold::read", "  - image, color");
         for (size_t i = 0; i < 256; i++)
         {
-            // debug_log("pokegold::parse", "    - {}", i);
+            // debug_log("pokegold::read", "    - {}", i);
 
             const auto addr = 0xad15 + i * 8;
-            pokemons[i].colors[0] = data.get_bytes(addr, 2);
-            pokemons[i].colors[1] = data.get_bytes(addr + 2, 2);
-            pokemons[i].shiny_colors[0] = data.get_bytes(addr + 4, 2);
-            pokemons[i].shiny_colors[1] = data.get_bytes(addr + 6, 2);
+            pokemons[i].colors[0] = color(data.get_bytes(addr, 2));
+            pokemons[i].colors[1] = color(data.get_bytes(addr + 2, 2));
+            pokemons[i].shiny_colors[0] = color(data.get_bytes(addr + 4, 2));
+            pokemons[i].shiny_colors[1] = color(data.get_bytes(addr + 6, 2));
 
             if (pokemons[i].type == pokemon_type::UNOWN || pokemons[i].type == pokemon_type::DUMMY)
                 continue;
 
             if (pokemons[i].type == pokemon_type::EGG)
             {
-                const address front_addr(data.get_byte(0x5189a), data.get_bytes(0x51897, 2));
+                const size_t front_addr = addr::calc(data.get_byte(0x5189a), data.get_bytes(0x51897, 2));
                 const auto front_size = data.read_lz_decompressed(image_buffer, front_addr, 0x400);
                 pokemons[i].front_image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
             }
             else
             {
                 const auto front_ptr = data.get_bytes(0x48000 + i * 6, 3);
-                const auto front_addr = address::encoded_bank(front_ptr);
-                image_addr_log(front_addr);
+                const auto front_addr = addr::calc_from_encoded_bank(front_ptr);
                 const auto front_size = data.read_lz_decompressed(image_buffer, front_addr, 0x400);
+                image_addr_log(front_addr, data.calc_lz_size(front_addr, 0x400));
                 pokemons[i].front_image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
 
                 const auto back_ptr = data.get_bytes(0x48000 + i * 6 + 3, 3);
-                const auto back_addr = address::encoded_bank(back_ptr);
-                image_addr_log(back_addr);
+                const auto back_addr = addr::calc_from_encoded_bank(back_ptr);
                 const auto back_size = data.read_lz_decompressed(image_buffer, back_addr, 0x400);
+                image_addr_log(back_addr, data.calc_lz_size(back_addr, 0x400));
                 pokemons[i].back_image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + back_size);
             }
         }
     }
 
-    debug_log("pokegold::parse", "parse unown images");
+    debug_log("pokegold::read", "parse unown images");
     for (size_t i = 0; i < 26; i++)
     {
-        // debug_log("pokegold::parse", "  - {}", i);
+        // debug_log("pokegold::read", "  - {}", i);
 
         const auto front_ptr = data.get_bytes(0x7c000 + i * 6, 3);
-        const auto front_addr = address::encoded_bank(front_ptr);
-        image_addr_log(front_addr);
+        const auto front_addr = addr::calc_from_encoded_bank(front_ptr);
         const auto front_size = data.read_lz_decompressed(image_buffer, front_addr, 0x400);
+        image_addr_log(front_addr, data.calc_lz_size(front_addr, 0x400));
         unown_images[i].front = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
 
         const auto back_ptr = data.get_bytes(0x7c000 + i * 6 + 3, 3);
-        const auto back_addr = address::encoded_bank(back_ptr);
-        image_addr_log(back_addr);
+        const auto back_addr = addr::calc_from_encoded_bank(back_ptr);
         const auto back_size = data.read_lz_decompressed(image_buffer, back_addr, 0x400);
+        image_addr_log(back_addr, data.calc_lz_size(back_addr, 0x400));
         unown_images[i].back = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + back_size);
     }
 
-    debug_log("pokegold::parse", "trainers");
-    address trainer_name_addr(data.get_bytes(0x35d5, 3));
+    debug_log("pokegold::read", "trainers");
+    size_t trainer_name_addr = addr::calc(data.get_bytes(0x35d5, 3));
     for (size_t i = 0; i < 67; i++)
     {
         trainer_groups[i].has_image = i != 66;
@@ -320,28 +321,28 @@ void pokegold::open(const std::filesystem::path &filepath)
 
         if (trainer_groups[i].has_image)
         {
-            const auto img_addr = address::encoded_bank(data.get_bytes(0x80000 + (i * 3), 3));
-            image_addr_log(img_addr);
+            const auto img_addr = addr::calc_from_encoded_bank(data.get_bytes(0x80000 + (i * 3), 3));
             const auto img_size = data.read_lz_decompressed(image_buffer, img_addr, 0x400);
+            image_addr_log(img_addr, data.calc_lz_size(img_addr, 0x400));
             trainer_groups[i].image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + img_size);
 
-            trainer_groups[i].colors[0] = data.get_bytes(0xb511 + (i * 4) + 0, 2);
-            trainer_groups[i].colors[1] = data.get_bytes(0xb511 + (i * 4) + 2, 2);
+            trainer_groups[i].colors[0] = color(data.get_bytes(0xb511 + (i * 4) + 0, 2));
+            trainer_groups[i].colors[1] = color(data.get_bytes(0xb511 + (i * 4) + 2, 2));
         }
 
-        // debug_log("pokegold::parse", "  - idx={}, name = \"{}\"", i, trainer_groups[i].name.string());
+        // debug_log("pokegold::read", "  - idx={}, name = \"{}\"", i, trainer_groups[i].name.string());
     }
 
-    debug_log("pokegold::parse", "types");
+    debug_log("pokegold::read", "types");
     for (size_t i = 0; i < 28; i++)
     {
-        const address name_addr(0x14, data.get_bytes(0x50a57 + i * 2, 2));
+        const size_t name_addr = addr::calc(0x14, data.get_bytes(0x50a57 + i * 2, 2));
         types[i].name = data.get_bytes_until(name_addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
 
-        debug_log("pokegold::parse", "  - idx={}, name = \"{}\"", i, types[i].name.string());
+        debug_log("pokegold::read", "  - idx={}, name = \"{}\"", i, types[i].name.u8string());
     }
 
-    debug_log("pokegold::parse", "done");
+    debug_log("pokegold::read", "done");
 }
 
 // 0x34d01 ~ 0x34e4c : type matchups

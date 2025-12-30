@@ -1,5 +1,5 @@
-#ifndef _POKEGOLD_BYTES_H_
-#define _POKEGOLD_BYTES_H_
+#ifndef _POKEGOLD_STRING_H_
+#define _POKEGOLD_STRING_H_
 
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 
 namespace pokegold {
 
-class bytes
+class string
 {
 private:
     inline static std::string s_unk_string = "<UNK_STRING>";
@@ -17,30 +17,28 @@ private:
     std::string m_cached_str = s_unk_string;
 
 public:
-    bytes() = default;
-    bytes(const char *c_str) : bytes(std::string(c_str)) {}
-    bytes(const std::string &str);
-    bytes(std::initializer_list<u8> l) : bytes(std::vector<u8>(l)) {}
-    bytes(std::vector<u8> bytes);
-    ~bytes() = default;
+    string() = default;
+    string(const char *c_str) : string(std::string(c_str)) {}
+    string(const std::string &str);
+    string(std::vector<u8> bytes);
+    string(std::initializer_list<u8> l) : string(std::vector<u8>(l)) {}
+    ~string() = default;
 
 public:
     static void init_charmap();
     static bool is_charmap_string(const std::string &str);
-    std::string string();
+    std::string u8string();
+    std::vector<u8> data() const { return m_bytes; };
 
 public:
-    operator std::string() { return string(); }
-    operator std::vector<u8>() const { return m_bytes; };
-
     auto begin() { return m_bytes.begin(); }
     auto end() { return m_bytes.end(); }
     auto begin() const { return m_bytes.begin(); }
     auto end() const { return m_bytes.end(); }
 
-    bytes operator+(const bytes &rhs) const;
-    bytes &operator+=(const bytes &rhs);
-    auto operator<=>(const bytes &rhs) const { return m_bytes <=> rhs.m_bytes; };
+    string operator+(const string &rhs) const;
+    string &operator+=(const string &rhs);
+    auto operator<=>(const string &rhs) const { return m_bytes <=> rhs.m_bytes; };
     u8 &operator[](size_t idx) { return m_bytes.at(idx); }
     const u8 &operator[](size_t idx) const { return m_bytes.at(idx); }
 

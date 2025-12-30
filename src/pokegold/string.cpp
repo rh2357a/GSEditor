@@ -1,4 +1,4 @@
-#include "bytes.h"
+#include "string.h"
 
 #include "lib/lzcomp.h"
 #include "utils.h"
@@ -38,7 +38,7 @@ const std::array<u8, 256> BIT_REVERSED{
 
 // clang-format on
 
-pokegold::bytes::bytes(const std::string &str)
+pokegold::string::string(const std::string &str)
 {
     m_cached_str = str;
 
@@ -103,14 +103,14 @@ pokegold::bytes::bytes(const std::string &str)
     }
 }
 
-pokegold::bytes::bytes(std::vector<u8> bytes) : m_bytes(std::move(bytes))
+pokegold::string::string(std::vector<u8> bytes) : m_bytes(std::move(bytes))
 {
 #ifdef DEBUG
-    string();
+    u8string();
 #endif
 }
 
-void pokegold::bytes::init_charmap()
+void pokegold::string::init_charmap()
 {
     charmap.clear();
 
@@ -141,7 +141,7 @@ void pokegold::bytes::init_charmap()
     }
 }
 
-bool pokegold::bytes::is_charmap_string(const std::string &str)
+bool pokegold::string::is_charmap_string(const std::string &str)
 {
     for (size_t i = 0; i < str.size();)
     {
@@ -194,7 +194,7 @@ bool pokegold::bytes::is_charmap_string(const std::string &str)
     return true;
 }
 
-std::string pokegold::bytes::string()
+std::string pokegold::string::u8string()
 {
     if (m_cached_str != s_unk_string)
         return m_cached_str;
@@ -231,22 +231,22 @@ std::string pokegold::bytes::string()
     return m_cached_str = ss.str();
 }
 
-pokegold::bytes pokegold::bytes::operator+(const bytes &rhs) const
+pokegold::string pokegold::string::operator+(const string &rhs) const
 {
     std::vector<u8> new_bytes;
     new_bytes.reserve(m_bytes.size() + rhs.m_bytes.size());
     new_bytes.insert(new_bytes.end(), m_bytes.begin(), m_bytes.end());
     new_bytes.insert(new_bytes.end(), rhs.m_bytes.begin(), rhs.m_bytes.end());
-    return pokegold::bytes(new_bytes);
+    return pokegold::string(new_bytes);
 }
 
-pokegold::bytes &pokegold::bytes::operator+=(const bytes &rhs)
+pokegold::string &pokegold::string::operator+=(const string &rhs)
 {
     m_bytes.insert(m_bytes.end(), rhs.m_bytes.begin(), rhs.m_bytes.end());
     m_cached_str = s_unk_string;
 
 #ifdef DEBUG
-    string();
+    u8string();
 #endif
 
     return *this;

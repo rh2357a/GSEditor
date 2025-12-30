@@ -2,9 +2,11 @@
 #define _POKEGOLD_H_
 
 #include "pokegold/address.h"
-#include "pokegold/romfile.h"
-#include "pokegold/bytes.h"
+#include "pokegold/string.h"
 #include "pokegold/data.h"
+#include "pokegold/romfile.h"
+#include "pokegold/config.h"
+
 #include "lib/json.hpp"
 
 #include <vector>
@@ -16,16 +18,17 @@ inline bool is_rom_opened = false;
 inline pokegold::romfile rom;
 inline std::filesystem::path workspace_path;
 
+} // namespace pokegold
+
+namespace pokegold {
+
 /// @brief 롬 파일 열기
 /// @param filepath 파일 경로
-void open(const std::filesystem::path &filepath);
+void read(const std::filesystem::path &filepath);
 
 /// @brief 롬 빌드
 /// @return 빌드 바이너리
 std::vector<u8> build();
-
-void parse_build_data();
-void save_build_data();
 
 } // namespace pokegold
 

@@ -43,7 +43,7 @@ void gui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (openDlg.ShowModal() == wxID_CANCEL)
             return;
 
-        pokegold::open(openDlg.GetPath().ToStdString());
+        pokegold::read(openDlg.GetPath().ToStdString());
 
         return;
     }

@@ -44,13 +44,13 @@ struct command *lzcomp_compress(const unsigned char *data, unsigned short *size,
     return result;
 }
 
-size_t lzcomp::scan_lz_size(const std::vector<u8> &src)
+size_t lzcomp::scan_lz_size(std::span<const u8> src)
 {
     unsigned short size = static_cast<unsigned short>(src.size());
     return get_compressed_size(src.data(), &size);
 }
 
-size_t lzcomp::compress(std::vector<u8> &dst, const std::vector<u8> &src)
+size_t lzcomp::compress(std::span<u8> dst, std::span<const u8> src)
 {
     unsigned short size = src.size();
 
@@ -62,7 +62,7 @@ size_t lzcomp::compress(std::vector<u8> &dst, const std::vector<u8> &src)
     return lz_size;
 }
 
-size_t lzcomp::uncompress(std::vector<u8> &dst, const std::vector<u8> &src, size_t src_offset, size_t src_size)
+size_t lzcomp::uncompress(std::span<u8> dst, std::span<const u8> src, size_t src_offset, size_t src_size)
 {
     unsigned short size = static_cast<unsigned short>(src_size);
     unsigned short original_size = size, remainder;

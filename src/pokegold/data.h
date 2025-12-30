@@ -1,7 +1,7 @@
 #ifndef _POKEGOLD_DATA_H_
 #define _POKEGOLD_DATA_H_
 
-#include "pokegold/bytes.h"
+#include "pokegold/string.h"
 #include "pokegold/color.h"
 
 #include <array>
@@ -93,8 +93,8 @@ public:
     u8 battle_menu;
 
 public:
-    bytes name;
-    bytes description;
+    string name;
+    string description;
 };
 
 class move
@@ -109,8 +109,8 @@ public:
     u8 effect_chance;
 
 public:
-    bytes name;
-    bytes description;
+    string name;
+    string description;
 };
 
 class evolution_method
@@ -155,15 +155,15 @@ public:
     std::vector<learn_move> learn_moves;
 
 public:
-    bytes name;
-    bytes species_name;
-    bytes description;
+    string name;
+    string species_name;
+    string description;
     u8 height;
     u16 weight;
 
 public:
-    bytes front_image;
-    bytes back_image;
+    std::vector<u8> front_image;
+    std::vector<u8> back_image;
     std::array<color, 2> colors;
     std::array<color, 2> shiny_colors;
 };
@@ -171,8 +171,8 @@ public:
 class unown_image
 {
 public:
-    bytes front;
-    bytes back;
+    std::vector<u8> front;
+    std::vector<u8> back;
 
     // pokemons[200].colors
     // pokemons[200].shiny_colors
@@ -182,8 +182,8 @@ class trainer_group
 {
 public:
     bool has_image;
-    bytes name;
-    bytes image;
+    string name;
+    std::vector<u8> image;
     std::array<color, 2> colors;
 };
 
@@ -198,7 +198,7 @@ public:
 class type
 {
 public:
-    bytes name;
+    string name;
 
     // TODO: 업데이트 필요...
 public:
@@ -206,27 +206,9 @@ public:
     std::vector<type_matchup> foresight_matchups;
 };
 
-class asset_info
-{
-public:
-    std::string name;
-    std::string description;
-    bytes data;
-};
-
-class script_info
-{
-public:
-    std::string name;
-    std::string description;
-    std::string script;
-};
-
 } // namespace pokegold::data
 
 namespace pokegold::data {
-
-// 바이너리 데이터
 
 inline std::array<item, 256> items;
 inline std::array<move, 251> moves;
@@ -235,11 +217,6 @@ inline std::array<unown_image, 26> unown_images;
 inline std::array<trainer_group, 67> trainer_groups;
 inline std::array<type, 28> types;
 inline std::array<u8, 57> tmhms;
-
-// 빌드 데이터
-
-inline std::vector<asset_info> assets;
-inline std::vector<script_info> scripts;
 
 } // namespace pokegold::data
 
