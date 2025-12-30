@@ -4,10 +4,10 @@ MACRO? dbw
 ENDM
 
 MACRO? dbpic
-    db (BANK(\1) == $1f) * $f4 \
+    db LOW((BANK(\1) == $1f) * $f4 \
       +(BANK(\1) == $20) * $f4 \
       +(BANK(\1) == $2e) * $f1 \
-      +(BANK(\1))
+      +(BANK(\1)))
     dw \1
 ENDM
 
