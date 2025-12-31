@@ -123,6 +123,24 @@ inline std::filesystem::path get_app_data_path()
     return app_data_path;
 }
 
+/// @brief 앱 데이터 경로 반환 (구버전 호환용)
+/// @return 앱 데이터 경로
+inline std::filesystem::path get_app_data_path_legacy()
+{
+    static const std::filesystem::path app_data_path = [] {
+        PWSTR path = nullptr;
+        ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &path);
+
+        std::filesystem::path result(path);
+        ::CoTaskMemFree(path);
+
+        result /= "GSEditor";
+        std::filesystem::create_directories(result);
+        return result;
+    }();
+    return app_data_path;
+}
+
 /// @brief 임시 파일 경로 생성
 /// @param key 문자열 키
 /// @return 생성된 임시 경로
