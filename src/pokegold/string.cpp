@@ -141,7 +141,7 @@ void pokegold::string::init_charmap()
     }
 }
 
-bool pokegold::string::is_charmap_string(const std::string &str)
+bool pokegold::string::is_charmap_string(std::string_view str)
 {
     for (size_t i = 0; i < str.size();)
     {
@@ -154,7 +154,7 @@ bool pokegold::string::is_charmap_string(const std::string &str)
             if (i + j >= str.size())
                 return false;
 
-            std::string ch = str.substr(i, j + 1);
+            const auto ch = str.substr(i, j + 1);
 
             auto it = charmap_reverse.find(ch);
             if (it != charmap_reverse.end())
@@ -167,7 +167,7 @@ bool pokegold::string::is_charmap_string(const std::string &str)
             {
                 try
                 {
-                    std::string hex = ch.substr(1, ch.size() - 2);
+                    const std::string hex(ch.substr(1, ch.size() - 2));
                     int value = std::stoi(hex, nullptr, 16);
                     if (value <= 255)
                     {

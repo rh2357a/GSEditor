@@ -126,7 +126,7 @@ inline std::filesystem::path get_app_data_path()
 /// @brief 임시 파일 경로 생성
 /// @param key 문자열 키
 /// @return 생성된 임시 경로
-inline std::filesystem::path create_temp_file_path(const std::string &key)
+inline std::filesystem::path create_temp_file_path(std::string_view key)
 {
     static const auto tmp_dir = get_app_data_path() / "tmp";
     std::filesystem::create_directories(tmp_dir);

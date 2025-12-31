@@ -30,7 +30,7 @@ inline void init_logging()
     }
 }
 
-inline void debug_log(const std::string &tag, const std::string &s)
+inline void debug_log(std::string_view tag, std::string_view s)
 {
     if constexpr (DEBUG_MODE || TEST)
     {
@@ -55,7 +55,7 @@ inline void debug_log(const std::string &tag, const std::string &s)
 }
 
 template <typename... _Args>
-inline void debug_log(const std::string &tag, std::format_string<_Args...> fmt, _Args &&...args)
+inline void debug_log(std::string_view tag, std::format_string<_Args...> fmt, _Args &&...args)
 {
     if constexpr (DEBUG_MODE || TEST)
         debug_log(tag, std::format(fmt, std::forward<_Args>(args)...));
