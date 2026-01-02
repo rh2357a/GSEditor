@@ -77,6 +77,14 @@ enum class type_effectiveness : u8
     NO_EFFECT = 0,
 };
 
+enum class battle_weather : u8
+{
+    NONE = 0, // 사용 금지
+    RAIN,
+    SUN,
+    SANDSTORM,
+};
+
 } // namespace pokegold::data
 
 namespace pokegold::data {
@@ -97,6 +105,14 @@ public:
     string description;
 };
 
+class weather_modifier_move
+{
+public:
+    u8 move_id;
+    battle_weather weather;
+    type_effectiveness effectiveness;
+};
+
 class move
 {
 public:
@@ -107,6 +123,9 @@ public:
     u8 accuracy;
     u8 pp;
     u8 effect_chance;
+
+public:
+    std::vector<weather_modifier_move> weather_modifiers;
 
 public:
     string name;
@@ -193,6 +212,15 @@ public:
     u8 attacker_type_id;
     u8 defender_type_id;
     type_effectiveness effectiveness;
+    bool foresight;
+};
+
+class weather_modifier
+{
+public:
+    u8 type_id;
+    battle_weather weather;
+    type_effectiveness effectiveness;
 };
 
 class type
@@ -200,10 +228,9 @@ class type
 public:
     string name;
 
-    // TODO: 업데이트 필요...
 public:
     std::vector<type_matchup> matchups;
-    std::vector<type_matchup> foresight_matchups;
+    std::vector<weather_modifier> weather_modifiers;
 };
 
 } // namespace pokegold::data

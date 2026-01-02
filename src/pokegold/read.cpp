@@ -28,7 +28,7 @@ void pokegold::read(const std::filesystem::path &filepath)
 
     auto &data = pokegold::rom = filepath;
 
-    workspace_path = utils::files::get_app_data_path() / "works" / utils::crypto::hash(filepath.string());
+    workspace_path = utils::files::get_app_data_path() / "workspaces" / utils::crypto::hash(filepath.string());
     is_rom_opened = true;
     config::read();
 
@@ -93,6 +93,8 @@ void pokegold::read(const std::filesystem::path &filepath)
             move.accuracy = bytes[4];
             move.pp = bytes[5];
             move.effect_chance = bytes[6];
+
+            move.weather_modifiers.clear();
         }
 
         debug_log("pokegold::read", "  - names");
@@ -336,13 +338,78 @@ void pokegold::read(const std::filesystem::path &filepath)
     debug_log("pokegold::read", "types");
     for (size_t i = 0; i < 28; i++)
     {
+        types[i].matchups.clear();
+        types[i].weather_modifiers.clear();
+
         const size_t name_addr = addr::calc(0x14, data.get_bytes(0x50a57 + i * 2, 2));
         types[i].name = data.get_bytes_until(name_addr, [&](size_t idx, u8 b) { return b == 0x50; }, true);
 
-        debug_log("pokegold::read", "  - idx={}, name = \"{}\"", i, types[i].name.u8string());
+        // debug_log("pokegold::read", "  - idx={}, name = \"{}\"", i, types[i].name.u8string());
+    }
+
+    const bool hacked_type_matchups = utils::match_bytes(data.data(), 0x34890, {0x21, 0x01, 0x4d, 0x2a});
+    size_t type_matchups_addr = hacked_type_matchups ? 0x34d01 : addr::calc(data.get_bytes(0x348a7, 3));
+    size_t weather_type_modifiers_addr = hacked_type_matchups ? 0xfbe68 : addr::calc(data.get_bytes(0x348aa, 3));
+    size_t weather_move_modifiers_addr = hacked_type_matchups ? 0xfbe75 : addr::calc(data.get_bytes(0x348ad, 3));
+
+    debug_log("pokegold::read", "type matchups");
+    bool foresight = false;
+    while (true)
+    {
+        const u8 attacker = data.get_byte(type_matchups_addr++);
+        if (attacker == 0xff)
+            break;
+
+        if (attacker == 0xfe)
+        {
+            foresight = true;
+            continue;
+        }
+
+        const u8 defender = data.get_byte(type_matchups_addr++);
+        const u8 effectiveness = data.get_byte(type_matchups_addr++);
+
+        type_matchup new_matchup;
+        new_matchup.attacker_type_id = attacker;
+        new_matchup.defender_type_id = defender;
+        new_matchup.effectiveness = type_effectiveness(effectiveness);
+        new_matchup.foresight = foresight;
+        types[attacker].matchups.push_back(new_matchup);
+    }
+
+    debug_log("pokegold::read", "weather type modifiers");
+    while (true)
+    {
+        const u8 weather = data.get_byte(weather_type_modifiers_addr++);
+        if (weather == 0xff)
+            break;
+
+        const u8 type_id = data.get_byte(weather_type_modifiers_addr++);
+        const u8 effectiveness = data.get_byte(weather_type_modifiers_addr++);
+
+        weather_modifier new_weather_modifier;
+        new_weather_modifier.weather = battle_weather(weather);
+        new_weather_modifier.type_id = type_id;
+        new_weather_modifier.effectiveness = type_effectiveness(effectiveness);
+        types[type_id].weather_modifiers.push_back(new_weather_modifier);
+    }
+
+    debug_log("pokegold::read", "weather move modifiers");
+    while (true)
+    {
+        const u8 weather = data.get_byte(weather_move_modifiers_addr++);
+        if (weather == 0xff)
+            break;
+
+        const u8 move_id = data.get_byte(weather_move_modifiers_addr++);
+        const u8 effectiveness = data.get_byte(weather_move_modifiers_addr++);
+
+        weather_modifier_move new_weather_modifier;
+        new_weather_modifier.weather = battle_weather(weather);
+        new_weather_modifier.move_id = move_id;
+        new_weather_modifier.effectiveness = type_effectiveness(effectiveness);
+        moves[move_id].weather_modifiers.push_back(new_weather_modifier);
     }
 
     debug_log("pokegold::read", "done");
 }
-
-// 0x34d01 ~ 0x34e4c : type matchups

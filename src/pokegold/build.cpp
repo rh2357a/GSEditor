@@ -187,16 +187,18 @@ void generate_cleanup_source(const std::filesystem::path &workdir, std::ofstream
         << asm_line("ds $4000")
         << asm_section(0x1a4000, "GSEditor_Cleanup_Pokedex_1")
         << asm_line("ds $4000")
+
         << asm_section(0x1b0000, "GSEditor_Cleanup_Strings_0")
         << asm_line("ds $4000")
-
         << asm_section(0x1b4000, "GSEditor_Cleanup_Strings_1")
         << asm_line("ds $4000")
         << asm_section(0x1b8000, "GSEditor_Cleanup_Strings_2")
         << asm_line("ds $4000")
 
-        << asm_section(0x53b57, "GSEditor_Cleanup_EggImage")
-        << asm_line("ds 146");
+        << asm_section(0x34d01, "GSEditor_Cleanup_TypeMatchups_0")
+        << asm_line("ds 332")
+        << asm_section(0x1fc7d4, "GSEditor_Cleanup_TypeMatchups_1")
+        << asm_line("ds $382c");
 
     for (auto free_space : TYPE_NAME_FREE_SPACES)
     {
@@ -529,22 +531,22 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
                 const auto &e = pokegold::data::pokemons[i];
                 if (e.type == pokegold::data::pokemon_type::POKEMON)
                 {
-                    src << asm_line("gsepics Pokemon,{}", i);
+                    src << asm_line("gse@pics Pokemon,{}", i);
                 }
                 else
                 {
-                    src << asm_line("dbw -1,-1");
-                    src << asm_line("dbw -1,-1");
+                    src << asm_line("gse@dbw -1,-1");
+                    src << asm_line("gse@dbw -1,-1");
                 }
             }
 
             src << asm_section(0x7c000, "GSEditor_Unown_Image_Pointers");
             for (size_t i = 0; i < 26; i++)
-                src << asm_line("gsepics Unown,{}", i);
+                src << asm_line("gse@pics Unown,{}", i);
 
             src << asm_section(0x80000, "GSEditor_TrainerGroup_Image_Pointers");
             for (size_t i = 0; i < 66; i++)
-                src << asm_line("gsepic TrainerGroup,{}", i);
+                src << asm_line("gse@pic TrainerGroup,{}", i);
         }
     }
 
@@ -734,13 +736,90 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
             src << asm_line("dw GSEditor_Type_Name_{}", i);
     }
 
+    // type matchups
+    {
+        // hacking
+        std::string_view hacking_code(
+            reinterpret_cast<const char *>(embed::pokegold_type_matchups_asm.data()),
+            embed::pokegold_type_matchups_asm.size());
+        src << hacking_code;
+
+        // matchups
+        std::vector<std::reference_wrapper<pokegold::data::type_matchup>> matchups;
+        std::vector<std::reference_wrapper<pokegold::data::type_matchup>> foresights;
+        for (size_t i = 0; i < 28; i++)
+        {
+            for (auto &e : pokegold::data::types[i].matchups)
+            {
+                if (e.foresight)
+                    foresights.push_back(e);
+                else
+                    matchups.push_back(e);
+            }
+        }
+
+        src << asm_line("GSEditor_TypeMatchups:");
+
+        for (const auto &e : matchups)
+        {
+            src << asm_bytes({
+                e.get().attacker_type_id,
+                e.get().defender_type_id,
+                u8(e.get().effectiveness),
+            });
+        }
+
+        src << asm_bytes({0xfe});
+
+        for (const auto &e : foresights)
+        {
+            src << asm_bytes({
+                e.get().attacker_type_id,
+                e.get().defender_type_id,
+                u8(e.get().effectiveness),
+            });
+        }
+
+        src << asm_bytes({0xff});
+
+        src << asm_line("GSEditor_WeatherTypeModifiers:");
+        for (const auto &e : pokegold::data::types)
+        {
+            for (const auto &modifier : e.weather_modifiers)
+            {
+                src << asm_bytes({
+                    u8(modifier.weather),
+                    modifier.type_id,
+                    u8(modifier.effectiveness),
+                });
+            }
+        }
+
+        src << asm_bytes({0xff});
+
+        src << asm_line("GSEditor_WeatherMoveModifiers:");
+        for (const auto &e : pokegold::data::moves)
+        {
+            for (const auto &modifier : e.weather_modifiers)
+            {
+                src << asm_bytes({
+                    u8(modifier.weather),
+                    modifier.move_id,
+                    u8(modifier.effectiveness),
+                });
+            }
+        }
+
+        src << asm_bytes({0xff});
+    }
+
     src.close();
 }
 
 std::vector<u8> pokegold::build()
 {
-    const auto base_path = workspace_path / "base.bin";
-    const auto target_path = workspace_path / "target.bin";
+    const auto base_path = workspace_path / "base.gbc";
+    const auto target_path = workspace_path / "target.gbc";
     const auto target_map_path = workspace_path / "target.map";
     const auto target_sym_path = workspace_path / "target.sym";
     const auto src_path = workspace_path / "gs_editor.asm";
