@@ -4,8 +4,8 @@
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 VS_VERSION_INFO VERSIONINFO
-    PRODUCTVERSION  1, 2, 8, 0
-    FILEVERSION     1, 2, 8, 0
+    PRODUCTVERSION  1, 2, 8, 1
+    FILEVERSION     1, 2, 8, 1
     FILEOS          0x40004
     FILETYPE        0x1
     FILESUBTYPE     0x0
@@ -19,7 +19,7 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "LegalCopyright", "rh2357a"
             VALUE "ProductName", "GSEditor"
             VALUE "FileDescription", "포켓몬스터 금 버전 에디터"
-            VALUE "ProductVersion", "1.2.8.0"
+            VALUE "ProductVersion", "1.2.8.1"
             VALUE "OriginalFilename", "GSEditor.exe"
         }
     }

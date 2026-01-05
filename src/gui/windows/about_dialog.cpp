@@ -3,7 +3,7 @@
 #include "embed.h"
 #include "utils.h"
 
-AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(parent)
+gui::windows::AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(parent)
 {
     const auto &html = utils::strings::to_wx_string(embed::app_version_html);
     m_versionHtml->SetPage(html);

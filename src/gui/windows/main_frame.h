@@ -1,9 +1,9 @@
-#ifndef _GUI_MAIN_FRAME_H_
-#define _GUI_MAIN_FRAME_H_
+#ifndef _GUI_WINDOWS_MAIN_FRAME_H_
+#define _GUI_WINDOWS_MAIN_FRAME_H_
 
-#include "generated/gui_base.h"
+#include "gui/generated/gui_base.h"
 
-namespace gui {
+namespace gui::windows {
 
 class MainFrame : public MainFrameBase
 {
@@ -14,6 +14,6 @@ private:
     void OnMenuSelected(wxCommandEvent &event) override;
 };
 
-} // namespace gui
+} // namespace gui::windows
 
 #endif

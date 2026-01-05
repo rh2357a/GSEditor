@@ -2,6 +2,10 @@
 #include "utils.h"
 #include <array>
 
+constexpr size_t IMG_55_SIZE = 400;
+constexpr size_t IMG_66_SIZE = 576;
+constexpr size_t IMG_77_SIZE = 784;
+
 const std::array<u8, 8> BITS{
     0b00000001,
     0b00000010,
@@ -22,7 +26,7 @@ inline void image_addr_log(size_t addr, size_t len)
     }
 }
 
-void pokegold::read(const std::filesystem::path &filepath)
+std::vector<pokegold::data::bad_data> pokegold::read(const std::filesystem::path &filepath)
 {
     using namespace pokegold::data;
 
@@ -32,6 +36,7 @@ void pokegold::read(const std::filesystem::path &filepath)
     is_rom_opened = true;
     config::read();
 
+    std::vector<bad_data> bad_data_list;
     std::vector<u8> image_buffer(0x400);
 
     debug_log("pokegold::read", "parse items");
@@ -143,8 +148,6 @@ void pokegold::read(const std::filesystem::path &filepath)
             props_addr += 32;
 
             auto &mon = pokemons[i];
-            mon.evolution_methods.clear();
-            mon.learn_moves.clear();
 
             if (i == 200)
                 mon.type = pokemon_type::UNOWN;
@@ -189,9 +192,16 @@ void pokegold::read(const std::filesystem::path &filepath)
                 size_t evo_addr = addr::calc(evos_bank, data.get_bytes(evos_addr, 2));
                 evos_addr += 2;
 
+                mon.evolution_methods.clear();
+                mon.learn_moves.clear();
+
                 const auto evo_bytes = data.get_bytes_until(evo_addr, [&](size_t idx, u8 b) { return b == 0; }, true);
-                for (size_t j = 0; j < evo_bytes.size() - 1;)
+                bool bad_evolution_data = false;
+                for (size_t j = 0; j < evo_bytes.size();)
                 {
+                    if (bad_evolution_data)
+                        break;
+
                     evolution_method new_evolve;
                     new_evolve.evolution_type = evo_bytes[j++];
 
@@ -200,36 +210,56 @@ void pokegold::read(const std::filesystem::path &filepath)
                     case 1:
                         new_evolve.level = evo_bytes[j++];
                         new_evolve.pokemon_id = evo_bytes[j++];
+                        mon.evolution_methods.push_back(new_evolve);
                         break;
 
                     case 2:
                     case 3:
                         new_evolve.item_id = evo_bytes[j++];
                         new_evolve.pokemon_id = evo_bytes[j++];
+                        mon.evolution_methods.push_back(new_evolve);
                         break;
 
                     case 4:
                         new_evolve.happiness = evo_bytes[j++];
                         new_evolve.pokemon_id = evo_bytes[j++];
+                        mon.evolution_methods.push_back(new_evolve);
                         break;
 
                     case 5:
                         new_evolve.level = evo_bytes[j++];
                         new_evolve.stats = evo_bytes[j++];
                         new_evolve.pokemon_id = evo_bytes[j++];
+                        mon.evolution_methods.push_back(new_evolve);
+                        break;
+
+                    case 0:
+                        break;
+
+                    default:
+                        // debug_log("pokegold::read", "bad evolution");
+                        bad_evolution_data = true;
+                        mon.evolution_methods.clear();
+                        mon.learn_moves.clear();
+                        bad_data_list.push_back({bad_data_reason::EVOLUTION_MOVES, i});
                         break;
                     }
-
-                    mon.evolution_methods.push_back(new_evolve);
                 }
 
-                const auto move_bytes = data.get_bytes_until(evo_addr + evo_bytes.size(), [&](size_t idx, u8 b) { return b == 0; }, true);
-                for (size_t j = 0; j < (move_bytes.size() - 1) / 2; j++)
+                if (!bad_evolution_data)
                 {
-                    learn_move new_item;
-                    new_item.level = move_bytes[j * 2 + 0];
-                    new_item.move_id = move_bytes[j * 2 + 1];
-                    mon.learn_moves.push_back(new_item);
+                    const auto move_bytes = data.get_bytes_until(evo_addr + evo_bytes.size(), [&](size_t idx, u8 b) { return b == 0; }, true);
+                    for (size_t j = 0; j < move_bytes.size();)
+                    {
+                        const u8 b = move_bytes[j++];
+                        if (b == 0 || j >= move_bytes.size())
+                            break;
+
+                        learn_move new_item;
+                        new_item.level = b;
+                        new_item.move_id = move_bytes[j++];
+                        mon.learn_moves.push_back(new_item);
+                    }
                 }
 
                 size_t addr;
@@ -274,21 +304,44 @@ void pokegold::read(const std::filesystem::path &filepath)
             {
                 const size_t front_addr = addr::calc(data.get_byte(0x5189a), data.get_bytes(0x51897, 2));
                 const auto front_size = data.read_lz_decompressed(image_buffer, front_addr, 0x400);
-                pokemons[i].front_image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
+
+                if (front_size == 0)
+                    bad_data_list.push_back({bad_data_reason::EGG_IMAGE, nullptr});
+
+                pokemons[i].front_image = (front_size == 0)
+                                              ? std::vector<u8>(IMG_55_SIZE, 0)
+                                              : std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
             }
             else
             {
                 const auto front_ptr = data.get_bytes(0x48000 + i * 6, 3);
                 const auto front_addr = addr::calc_from_encoded_bank(front_ptr);
                 const auto front_size = data.read_lz_decompressed(image_buffer, front_addr, 0x400);
+
                 image_addr_log(front_addr, data.calc_lz_size(front_addr, 0x400));
-                pokemons[i].front_image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
+
+                if (front_size == 0)
+                {
+                    pokemons[i].image_dimens = image_dimens::SIZE_40;
+                    bad_data_list.push_back({bad_data_reason::POKEMON_FRONT_IMAGE, i});
+                }
+
+                pokemons[i].front_image = (front_size == 0)
+                                              ? std::vector<u8>(IMG_55_SIZE, 0)
+                                              : std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
 
                 const auto back_ptr = data.get_bytes(0x48000 + i * 6 + 3, 3);
                 const auto back_addr = addr::calc_from_encoded_bank(back_ptr);
                 const auto back_size = data.read_lz_decompressed(image_buffer, back_addr, 0x400);
+
                 image_addr_log(back_addr, data.calc_lz_size(back_addr, 0x400));
-                pokemons[i].back_image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + back_size);
+
+                if (back_size == 0)
+                    bad_data_list.push_back({bad_data_reason::POKEMON_BACK_IMAGE, i});
+
+                pokemons[i].back_image = (back_size == 0)
+                                             ? std::vector<u8>(IMG_66_SIZE, 0)
+                                             : std::vector<u8>(image_buffer.begin(), image_buffer.begin() + back_size);
             }
         }
     }
@@ -301,14 +354,28 @@ void pokegold::read(const std::filesystem::path &filepath)
         const auto front_ptr = data.get_bytes(0x7c000 + i * 6, 3);
         const auto front_addr = addr::calc_from_encoded_bank(front_ptr);
         const auto front_size = data.read_lz_decompressed(image_buffer, front_addr, 0x400);
+
         image_addr_log(front_addr, data.calc_lz_size(front_addr, 0x400));
-        unown_images[i].front = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
+
+        if (front_size == 0)
+            bad_data_list.push_back({bad_data_reason::UNOWN_FRONT_IMAGE, i});
+
+        unown_images[i].front = (front_size == 0)
+                                    ? std::vector<u8>(IMG_55_SIZE, 0)
+                                    : std::vector<u8>(image_buffer.begin(), image_buffer.begin() + front_size);
 
         const auto back_ptr = data.get_bytes(0x7c000 + i * 6 + 3, 3);
         const auto back_addr = addr::calc_from_encoded_bank(back_ptr);
         const auto back_size = data.read_lz_decompressed(image_buffer, back_addr, 0x400);
+
         image_addr_log(back_addr, data.calc_lz_size(back_addr, 0x400));
-        unown_images[i].back = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + back_size);
+
+        if (back_size == 0)
+            bad_data_list.push_back({bad_data_reason::UNOWN_BACK_IMAGE, i});
+
+        unown_images[i].back = (back_size == 0)
+                                   ? std::vector<u8>(IMG_66_SIZE, 0)
+                                   : std::vector<u8>(image_buffer.begin(), image_buffer.begin() + back_size);
     }
 
     debug_log("pokegold::read", "trainers");
@@ -325,8 +392,15 @@ void pokegold::read(const std::filesystem::path &filepath)
         {
             const auto img_addr = addr::calc_from_encoded_bank(data.get_bytes(0x80000 + (i * 3), 3));
             const auto img_size = data.read_lz_decompressed(image_buffer, img_addr, 0x400);
+
             image_addr_log(img_addr, data.calc_lz_size(img_addr, 0x400));
-            trainer_groups[i].image = std::vector<u8>(image_buffer.begin(), image_buffer.begin() + img_size);
+
+            if (img_size == 0)
+                bad_data_list.push_back({bad_data_reason::TRAINER_IMAGE, i});
+
+            trainer_groups[i].image = (img_size == 0)
+                                          ? std::vector<u8>(IMG_77_SIZE, 0)
+                                          : std::vector<u8>(image_buffer.begin(), image_buffer.begin() + img_size);
 
             trainer_groups[i].colors[0] = color(data.get_bytes(0xb511 + (i * 4) + 0, 2));
             trainer_groups[i].colors[1] = color(data.get_bytes(0xb511 + (i * 4) + 2, 2));
@@ -412,4 +486,5 @@ void pokegold::read(const std::filesystem::path &filepath)
     }
 
     debug_log("pokegold::read", "done");
+    return bad_data_list;
 }

@@ -1,4 +1,4 @@
-#include "gui/main_frame.h"
+#include "gui.h"
 #include "pokegold.h"
 #include "utils.h"
 
@@ -20,7 +20,7 @@ public:
         const auto legacy_data_path = utils::files::get_app_data_path_legacy();
         std::filesystem::remove_all(legacy_data_path);
 
-        gui::MainFrame *frame = new gui::MainFrame(nullptr);
+        gui::windows::MainFrame *frame = new gui::windows::MainFrame(nullptr);
         frame->Show();
 
         return true;

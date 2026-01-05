@@ -24,7 +24,8 @@ namespace pokegold {
 
 /// @brief 롬 파일 열기
 /// @param filepath 파일 경로
-void read(const std::filesystem::path &filepath);
+/// @return 로딩 문제 벡터
+std::vector<data::bad_data> read(const std::filesystem::path &filepath);
 
 /// @brief 롬 빌드
 /// @return 빌드 바이너리

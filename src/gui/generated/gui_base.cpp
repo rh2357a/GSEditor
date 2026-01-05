@@ -141,3 +141,64 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 AboutDialogBase::~AboutDialogBase()
 {
 }
+
+BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_TopPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_TopPanel->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* listSizer;
+	listSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_messageLabel = new wxStaticText( m_TopPanel, wxID_ANY, wxT("아래 목록과 같이 롬 파일의 데이터가 일부 손상되었습니다."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_messageLabel->Wrap( -1 );
+	listSizer->Add( m_messageLabel, 0, wxALL|wxEXPAND, 16 );
+
+	m_badDataList = new wxListCtrl( m_TopPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL );
+	listSizer->Add( m_badDataList, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_TopPanel->SetSizer( listSizer );
+	m_TopPanel->Layout();
+	listSizer->Fit( m_TopPanel );
+	mainSizer->Add( m_TopPanel, 1, wxEXPAND | wxALL, 0 );
+
+	m_bottomPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonSizer;
+	buttonSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_ConfirmButton = new wxButton( m_bottomPanel, wxID_ANY, wxT("확인"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	buttonSizer->Add( m_ConfirmButton, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	m_bottomPanel->SetSizer( buttonSizer );
+	m_bottomPanel->Layout();
+	buttonSizer->Fit( m_bottomPanel );
+	mainSizer->Add( m_bottomPanel, 0, wxEXPAND | wxALL, 8 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_ConfirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BadDataDialogBase::OnConfirmButtonClick ), NULL, this );
+}
+
+BadDataDialogBase::~BadDataDialogBase()
+{
+}
+
+DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+}
+
+DatabasePanelBase::~DatabasePanelBase()
+{
+}

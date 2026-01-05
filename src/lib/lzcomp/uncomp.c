@@ -8,22 +8,21 @@ unsigned short get_compressed_size(const unsigned char *data, unsigned short *re
     while (1)
     {
         if (rp >= end)
-            return 0; // 데이터 부족
+            return 0;
 
         unsigned cmd = *rp >> 5;
         unsigned count = *(rp++) & 31;
 
-        if (cmd == 7) // long command
+        if (cmd == 7)
         {
             cmd = count >> 2;
             count = (count & 3) << 8;
 
             if (cmd == 7)
             {
-                // 종료 조건: 0xff 원래 바이트
                 if (count == 0x300)
                     break;
-                return 0; // 잘못된 명령
+                return 0;
             }
 
             if (rp >= end)
@@ -35,20 +34,20 @@ unsigned short get_compressed_size(const unsigned char *data, unsigned short *re
 
         switch (cmd)
         {
-        case 0: // literal
+        case 0:
             if (rp + count > end)
                 return 0;
             rp += count;
             break;
         case 1:
-        case 2: // copy
+        case 2:
             if (rp + cmd > end)
-                return 0; // 실제 데이터는 여기서 value 계산 필요
+                return 0;
             rp += cmd;
             break;
         case 3:
             break;
-        default: // other long commands
+        default:
             if (rp >= end)
                 return 0;
             if (*rp & 128)
@@ -63,7 +62,6 @@ unsigned short get_compressed_size(const unsigned char *data, unsigned short *re
         }
     }
 
-    // 최종적으로 rp - data가 실제 압축 데이터 바이트 수
     return rp - data;
 }
 

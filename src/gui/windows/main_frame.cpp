@@ -1,13 +1,13 @@
 #include "main_frame.h"
 
+#include "gui.h"
 #include "utils.h"
 #include "embed.h"
 #include "pokegold.h"
-#include "gui/about_dialog.h"
 
 #include <wx/wx.h>
 
-gui::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
+gui::windows::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
 {
     const auto &bmp = embed::app_ico_to_wx_bitmap();
     wxIcon icon;
@@ -20,7 +20,7 @@ gui::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
     // m_toolBar->Realize();
 }
 
-void gui::MainFrame::OnMenuSelected(wxCommandEvent &event)
+void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
 {
     const auto id = event.GetId();
 
@@ -32,7 +32,7 @@ void gui::MainFrame::OnMenuSelected(wxCommandEvent &event)
 
     if (id == wxID_ABOUT)
     {
-        AboutDialog dialog(this);
+        windows::AboutDialog dialog(this);
         dialog.ShowModal();
         return;
     }
@@ -43,7 +43,12 @@ void gui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (openDlg.ShowModal() == wxID_CANCEL)
             return;
 
-        pokegold::read(openDlg.GetPath().ToStdString());
+        const auto result = pokegold::read(openDlg.GetPath().ToStdString());
+        if (!result.empty())
+        {
+            windows::BadDataDialog dialog(this, result);
+            dialog.ShowModal();
+        }
 
         return;
     }

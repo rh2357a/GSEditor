@@ -4,6 +4,7 @@
 #include "pokegold/string.h"
 #include "pokegold/color.h"
 
+#include <any>
 #include <array>
 #include <vector>
 
@@ -85,9 +86,27 @@ enum class battle_weather : u8
     SANDSTORM,
 };
 
+enum class bad_data_reason
+{
+    EVOLUTION_MOVES,
+    POKEMON_FRONT_IMAGE,
+    POKEMON_BACK_IMAGE,
+    UNOWN_FRONT_IMAGE,
+    UNOWN_BACK_IMAGE,
+    TRAINER_IMAGE,
+    EGG_IMAGE,
+};
+
 } // namespace pokegold::data
 
 namespace pokegold::data {
+
+class bad_data
+{
+public:
+    bad_data_reason reason;
+    std::any data;
+};
 
 class item
 {

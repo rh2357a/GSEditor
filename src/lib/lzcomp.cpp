@@ -68,6 +68,9 @@ size_t lzcomp::uncompress(std::span<u8> dst, std::span<const u8> src, size_t src
     unsigned short original_size = size, remainder;
 
     struct command *commands = get_commands_from_file(src.data() + src_offset, &size, &remainder);
+    if (commands == nullptr)
+        return 0;
+
     write_uncompressed_data(dst.data(), commands, src.data() + src_offset, &size);
     free(commands);
 

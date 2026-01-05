@@ -27,6 +27,9 @@
 #include <wx/statline.h>
 #include <wx/html/htmlwin.h>
 #include <wx/dialog.h>
+#include <wx/listctrl.h>
+#include <wx/panel.h>
+#include <wx/button.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -78,6 +81,49 @@ class AboutDialogBase : public wxDialog
 		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 552,538 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
 
 		~AboutDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class BadDataDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class BadDataDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxPanel* m_TopPanel;
+		wxStaticText* m_messageLabel;
+		wxListCtrl* m_badDataList;
+		wxPanel* m_bottomPanel;
+		wxButton* m_ConfirmButton;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		BadDataDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("데이터 손상 알림"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 565,449 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~BadDataDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class DatabasePanelBase
+///////////////////////////////////////////////////////////////////////////////
+class DatabasePanelBase : public wxPanel
+{
+	private:
+
+	protected:
+
+	public:
+
+		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~DatabasePanelBase();
 
 };
 

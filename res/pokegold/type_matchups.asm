@@ -24,7 +24,7 @@ GSEditor_NewDoWeatherModifiers::
     ld a, [$d20e]
     ld c, a
 
-.check_weather_type:
+.check_weather_type
     ld a, [de]
     inc de
 
@@ -38,7 +38,7 @@ GSEditor_NewDoWeatherModifiers::
     cp c
     jr z, .apply_modifier
 
-.next_weather_type:
+.next_weather_type
     inc de
     inc de
     jr .check_weather_type
@@ -50,7 +50,7 @@ GSEditor_NewDoWeatherModifiers::
     call $3bd0
     ld c, a
 
-.check_weather_move:
+.check_weather_move
     ld a, [de]
     inc de
 
@@ -64,12 +64,12 @@ GSEditor_NewDoWeatherModifiers::
     cp c
     jr z, .apply_modifier
 
-.next_weather_move:
+.next_weather_move
     inc de
     inc de
     jr .check_weather_move
 
-.apply_modifier:
+.apply_modifier
     xor a
     ldh [$ffb6], a
     ld a, [$d1fe]
@@ -102,7 +102,7 @@ GSEditor_NewDoWeatherModifiers::
 
     ld bc, 1
 
-.update:
+.update
     ld a, b
     ld [$d1fe], a
     ld a, c
@@ -114,7 +114,7 @@ GSEditor_NewDoWeatherModifiers::
 GSEditor_NewBattleCommand_Stab::
     ld hl, GSEditor_TypeMatchups
 
-.loop:
+.loop
     ld a, [hli]
 
     cp $ff
@@ -129,7 +129,7 @@ GSEditor_NewBattleCommand_Stab::
     jr nz, .end
     jr .loop
 
-.skip_foresight:
+.skip_foresight
     cp b
     jr nz, .skip_type
     ld a, [hl]
@@ -139,7 +139,7 @@ GSEditor_NewBattleCommand_Stab::
     jr z, .got_matchup
     jr .skip_type
 
-.got_matchup:
+.got_matchup
     push hl
     push bc
     inc hl
@@ -153,7 +153,7 @@ GSEditor_NewBattleCommand_Stab::
     ld [$cb4d], a
     xor a
 
-.not_immune:
+.not_immune
     ldh [$ffb9], a
     add b
     ld [$cb4b], a
@@ -198,7 +198,7 @@ GSEditor_NewBattleCommand_Stab::
     pop bc
     pop hl
 
-.skip_type:
+.skip_type
     inc hl
     inc hl
     jr .loop
@@ -232,7 +232,7 @@ GSEditor_NewCheckTypeMatchup::
     ld a, $a
     ld [$d20e], a
     ld hl, GSEditor_TypeMatchups
-.loop:
+.loop
     ld a, [hli]
     cp $ff
     jr z, .end
@@ -244,7 +244,7 @@ GSEditor_NewCheckTypeMatchup::
     jr nz, .end
     jr .loop
 
-.next:
+.next
     cp d
     jr nz, .nope
     ld a, [hli]
@@ -254,13 +254,13 @@ GSEditor_NewCheckTypeMatchup::
     jr z, .yup
     jr .nope_2
 
-.nope:
+.nope
     inc hl
-.nope_2:
+.nope_2
     inc hl
     jr .loop
 
-.yup:
+.yup
     xor a
     ldh [$ffb5], a
     ldh [$ffb6], a
@@ -280,7 +280,7 @@ GSEditor_NewCheckTypeMatchup::
     ld [$d20e], a
     jr .loop
 
-.end:
+.end
     pop bc
     pop de
     pop hl
