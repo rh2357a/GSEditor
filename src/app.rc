@@ -1,11 +1,12 @@
+#include "resources.h"
 #include <windows.h>
 
 #pragma code_page(65001)
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 VS_VERSION_INFO VERSIONINFO
-    PRODUCTVERSION  1, 2, 8, 1
-    FILEVERSION     1, 2, 8, 1
+    PRODUCTVERSION  APP_VERSION
+    FILEVERSION     APP_VERSION
     FILEOS          0x40004
     FILETYPE        0x1
     FILESUBTYPE     0x0
@@ -19,7 +20,7 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "LegalCopyright", "rh2357a"
             VALUE "ProductName", "GSEditor"
             VALUE "FileDescription", "포켓몬스터 금 버전 에디터"
-            VALUE "ProductVersion", "1.2.8.1"
+            VALUE "ProductVersion", APP_VERSION_STR
             VALUE "OriginalFilename", "GSEditor.exe"
         }
     }
@@ -29,8 +30,8 @@ VS_VERSION_INFO VERSIONINFO
     }
 }
 
-1   RT_MANIFEST "app.manifest"
-101 ICON        "app.ico"
-102 RCDATA      "exe/rgbasm.exe"
-103 RCDATA      "exe/rgblink.exe"
-104 RCDATA      "exe/rgbfix.exe"
+RES_ID_APP_MANIFEST RT_MANIFEST "app.manifest"
+RES_ID_APP_ICON     ICON        "app.ico"
+RES_ID_RGBASM       RCDATA      "exe/rgbasm.exe"
+RES_ID_RGBLINK      RCDATA      "exe/rgblink.exe"
+RES_ID_RGBFIX       RCDATA      "exe/rgbfix.exe"

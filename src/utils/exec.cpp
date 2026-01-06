@@ -1,5 +1,6 @@
 #include "exec.h"
 
+#include "resources.h"
 #include "utils.h"
 
 #include <windows.h>
@@ -131,7 +132,7 @@ utils::exec_result utils::rgbfix(const std::string &args, const std::string &cwd
 void utils::init_exec()
 {
     const auto bin_path = utils::files::get_app_data_path() / "bin";
-    prepare_bin_file(bin_path / "rgbasm.exe", 102);
-    prepare_bin_file(bin_path / "rgblink.exe", 103);
-    prepare_bin_file(bin_path / "rgbfix.exe", 104);
+    prepare_bin_file(bin_path / "rgbasm.exe", RES_ID_RGBASM);
+    prepare_bin_file(bin_path / "rgblink.exe", RES_ID_RGBLINK);
+    prepare_bin_file(bin_path / "rgbfix.exe", RES_ID_RGBFIX);
 }

@@ -89,11 +89,15 @@ enum class battle_weather : u8
 enum class bad_data_reason
 {
     EVOLUTION_MOVES,
+
     POKEMON_FRONT_IMAGE,
     POKEMON_BACK_IMAGE,
+
     UNOWN_FRONT_IMAGE,
     UNOWN_BACK_IMAGE,
+
     TRAINER_IMAGE,
+
     EGG_IMAGE,
 };
 

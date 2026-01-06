@@ -27,6 +27,7 @@ public:
 public:
     static void init_charmap();
     static bool is_charmap_string(std::string_view str);
+
     std::string u8string();
     std::vector<u8> data() const { return m_bytes; };
 
