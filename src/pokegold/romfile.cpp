@@ -3,40 +3,60 @@
 #include "lib/lzcomp.h"
 #include "utils.h"
 
-pokegold::romfile::romfile(std::filesystem::path filepath)
-    : m_path(std::move(filepath)), m_build_data_path(m_path.parent_path() / (m_path.stem().string() + ".gsb"))
+void pokegold::romfile::open(const std::filesystem::path &filepath)
 {
-    const auto bytes = utils::files::read_bytes_from_file(m_path);
-    m_bytes.insert(m_bytes.end(), bytes.begin(), bytes.end());
+    path = filepath;
+
+    const auto filename = filepath.stem().string();
+    save_path = filepath.parent_path() / (filename + ".sav");
+    build_data_path = filepath.parent_path() / (filename + ".gsb");
+
+    workspace_path = utils::files::get_app_data_path() / "workspaces" / utils::crypto::hash(filepath.string());
+
+    const auto bytes = utils::files::read_bytes_from_file(path);
+    data.insert(data.end(), bytes.begin(), bytes.end());
+
+    is_opened = true;
+}
+
+void pokegold::romfile::close()
+{
+    path = "";
+    save_path = "";
+    build_data_path = "";
+
+    data.clear();
+
+    is_opened = false;
 }
 
 u8 pokegold::romfile::get_byte(size_t addr)
 {
-    return m_bytes[addr];
+    return data[addr];
 }
 
 std::vector<u8> pokegold::romfile::get_bytes(size_t addr, size_t len)
 {
-    if (len == 0 || addr >= m_bytes.size() || len > m_bytes.size() - addr)
+    if (len == 0 || addr >= data.size() || len > data.size() - addr)
         return {};
 
     std::vector<u8> result;
     for (size_t i = 0; i < len; i++)
-        result.push_back(m_bytes[addr + i]);
+        result.push_back(data[addr + i]);
 
     return result;
 }
 
 std::vector<u8> pokegold::romfile::get_bytes_until(size_t addr, std::function<bool(size_t, u8)> predicate, bool include_end)
 {
-    if (addr >= m_bytes.size())
+    if (addr >= data.size())
         return {};
 
     std::vector<u8> result;
     size_t i = 0;
-    while (addr + i < m_bytes.size())
+    while (addr + i < data.size())
     {
-        u8 b = m_bytes[addr + i];
+        u8 b = data[addr + i];
         if (predicate(i, b))
         {
             if (include_end)
@@ -53,40 +73,40 @@ std::vector<u8> pokegold::romfile::get_bytes_until(size_t addr, std::function<bo
 
 size_t pokegold::romfile::calc_lz_size(size_t offset, size_t buffer_size)
 {
-    if (buffer_size == 0 || offset >= m_bytes.size() || buffer_size > m_bytes.size() - offset)
+    if (buffer_size == 0 || offset >= data.size() || buffer_size > data.size() - offset)
         return 0;
 
-    std::span<const u8> buf(m_bytes.data() + offset, buffer_size);
+    std::span<const u8> buf(data.data() + offset, buffer_size);
     return lzcomp::scan_lz_size(buf);
 }
 
 size_t pokegold::romfile::read_lz_decompressed(std::span<u8> dst, size_t offset, size_t size)
 {
-    if (size == 0 || offset >= m_bytes.size() || size > m_bytes.size() - offset)
+    if (size == 0 || offset >= data.size() || size > data.size() - offset)
         return 0;
 
-    return lzcomp::uncompress(dst, m_bytes, offset, size);
+    return lzcomp::uncompress(dst, data, offset, size);
 }
 
 void pokegold::romfile::set_byte(size_t addr, u8 byte)
 {
-    m_bytes[addr] = byte;
+    data[addr] = byte;
 }
 
-void pokegold::romfile::set_bytes(size_t addr, std::span<const u8> bytes)
+void pokegold::romfile::set_bytes(size_t addr, const std::vector<u8> &bytes)
 {
-    if (addr >= m_bytes.size() || bytes.size() > m_bytes.size() - addr)
+    if (addr >= data.size() || bytes.size() > data.size() - addr)
         return;
 
     for (size_t i = 0; i < bytes.size(); i++)
-        m_bytes[addr + i] = bytes[i];
+        data[addr + i] = bytes[i];
 }
 
 void pokegold::romfile::fill_bytes(u8 byte, size_t addr, size_t len)
 {
-    if (addr >= m_bytes.size() || len > m_bytes.size() - addr)
+    if (addr >= data.size() || len > data.size() - addr)
         return;
 
     for (size_t i = 0; i < len; i++)
-        m_bytes[addr + i] = byte;
+        data[addr + i] = byte;
 }

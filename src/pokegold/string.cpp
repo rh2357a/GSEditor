@@ -201,10 +201,39 @@ std::string pokegold::string::u8string()
         }
 
         // hex
-        ss << '[' << std::format("{:x}", b) << ']';
+        ss << '[' << std::format("{:02x}", b) << ']';
     }
 
     return m_cached_str = ss.str();
+}
+
+bool pokegold::string::has_bad_code()
+{
+    for (size_t i = 0; i < m_bytes.size(); i++)
+    {
+        u8 b = m_bytes[i];
+
+        // 한글
+        if (b >= 1 && b <= 0xb)
+        {
+            if (i + 1 >= m_bytes.size())
+                return true;
+            i++;
+            continue;
+        }
+
+        // 영숫자 + 특수 문자
+        if (charmap.contains(b))
+            continue;
+
+        // 허용 코드
+        if (b == 0x50 || b == 0x59)
+            continue;
+
+        return true;
+    }
+
+    return false;
 }
 
 pokegold::string pokegold::string::operator+(const string &rhs) const

@@ -1,11 +1,16 @@
 #include "main_frame.h"
 
+#include "resources.h"
 #include "gui.h"
 #include "utils.h"
 #include "embed.h"
 #include "pokegold.h"
 
 #include <wx/wx.h>
+
+#include <string>
+#include <format>
+#include <filesystem>
 
 gui::windows::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
 {
@@ -14,10 +19,28 @@ gui::windows::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
     icon.CopyFromBitmap(bmp);
     SetIcon(icon);
 
-    // 툴바 항목 비활성화는 직접 코드로 변경 필요, 그 후 `Realize` 호출 필요
-    // m_tool9->Enable(false);
-    // m_tool10->Enable(false);
-    // m_toolBar->Realize();
+    const auto title = std::format("GS 에디터 v{}", APP_VERSION_STR);
+    SetTitle(wxString::FromUTF8(title));
+
+    m_subscriptions.subscribe(pokegold::event::rom_changed, [this] {
+        m_mainPanel->Enable(pokegold::romfile::is_opened);
+        m_fileSaveMenuItem->Enable(pokegold::romfile::is_opened);
+        m_gameTestPlayMenuItem->Enable(pokegold::romfile::is_opened);
+        m_gameSetEmulatorMenuItem->Enable(pokegold::romfile::is_opened);
+        m_saveToolbarItem->Enable(pokegold::romfile::is_opened);
+        m_testPlayToolbarItem->Enable(pokegold::romfile::is_opened);
+        m_fileExportToIpsMenuItem->Enable(pokegold::romfile::is_opened);
+        m_fileExportToXdeltaMenuItem->Enable(pokegold::romfile::is_opened);
+        m_toolBar->Realize();
+
+        const auto state = pokegold::romfile::is_opened
+                               ? wxString::FromUTF8(pokegold::romfile::path.string())
+                               : wxT("-");
+        m_statusBar->SetStatusText(state);
+    });
+
+    // 앱의 초기 상태를 알림
+    pokegold::event::rom_changed.emit();
 }
 
 void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
@@ -39,23 +62,129 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
 
     if (id == wxID_OPEN)
     {
-        wxFileDialog openDlg(this, wxT("롬 열기..."), "", "", wxT("GBC 파일|*.gbc"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+        if (pokegold::romfile::is_opened)
+        {
+            const auto result = wxMessageBox(wxT("이미 다른 롬 파일이 열려있습니다!\n계속하겠습니까?"), wxT("경고"), wxYES_NO | wxICON_WARNING);
+            if (result == wxNO)
+                return;
+        }
+
+        wxFileDialog openDlg(this, wxT("롬 열기..."), "", "", wxT("GBC 파일|*.gbc|BIN 바일|*.bin"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
         if (openDlg.ShowModal() == wxID_CANCEL)
             return;
 
-        const auto result = pokegold::read(openDlg.GetPath().ToStdString());
+        if (!utils::strings::is_valid_path_by_wxstr(openDlg.GetPath()))
+        {
+            wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
+            return;
+        }
+
+        // TODO: pokegold를 인스턴스화 시켜, 독립적으로 열 수 있게 해야하는가??
+        pokegold::close();
+
+        const auto result = pokegold::open(openDlg.GetPath().ToStdString());
         if (!result.empty())
         {
             windows::BadDataDialog dialog(this, result);
-            dialog.ShowModal();
+            if (dialog.ShowModal() == wxID_NO)
+                pokegold::close();
         }
-
         return;
     }
 
     if (id == wxID_SAVE)
     {
-        pokegold::build();
+        const auto outputRomPath = pokegold::build();
+        const auto romPath = pokegold::romfile::path;
+        std::filesystem::copy_file(outputRomPath, romPath, std::filesystem::copy_options::overwrite_existing);
+        pokegold::config::write();
+        return;
+    }
+
+    if (id == wxID_TEST_PLAY)
+    {
+        const auto outputPath = pokegold::build();
+
+        // sav 복사
+        if (std::filesystem::exists(pokegold::romfile::save_path))
+        {
+            const auto saveBytes = utils::files::read_bytes_from_file(pokegold::romfile::save_path);
+            const auto savePath = pokegold::romfile::workspace_path / "target.sav";
+            utils::files::write_bytes_to_file(savePath, saveBytes);
+        }
+
+        if (pokegold::config::emulator_path == "" || !std::filesystem::exists(pokegold::config::emulator_path))
+        {
+            const auto result = wxMessageBox(wxT("등록된 에뮬레이터가 없습니다!\n찾아보겠습니까?"), wxT("경고"), wxYES_NO | wxICON_WARNING);
+            if (result == wxNO)
+                return;
+
+            wxFileDialog dialog(this, wxT("에뮬레이터 찾기..."), "", "", wxT("exe 파일|*.exe"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            if (dialog.ShowModal() == wxID_CANCEL)
+                return;
+
+            if (!utils::strings::is_valid_path_by_wxstr(dialog.GetPath()))
+            {
+                wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
+                return;
+            }
+
+            pokegold::config::emulator_path = dialog.GetPath().ToStdString();
+            if (pokegold::config::emulator_path == "" || !std::filesystem::exists(pokegold::config::emulator_path))
+                return;
+        }
+
+        utils::run_process(pokegold::config::emulator_path, outputPath.string(), pokegold::romfile::workspace_path.string());
+        return;
+    }
+
+    if (id == wxID_EMULATOR)
+    {
+        wxFileDialog dialog(this, wxT("에뮬레이터 찾기..."), "", "", wxT("exe 파일|*.exe"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+        if (dialog.ShowModal() == wxID_CANCEL)
+            return;
+
+        if (!utils::strings::is_valid_path_by_wxstr(dialog.GetPath()))
+        {
+            wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
+            return;
+        }
+
+        pokegold::config::emulator_path = dialog.GetPath().ToStdString();
+        return;
+    }
+
+    if (id == wxID_IPS)
+    {
+        wxFileDialog dialog(this, wxT("IPS 패치 생성..."), "", "", wxT("IPS 파일|*.ips"), wxFD_SAVE);
+        if (dialog.ShowModal() == wxID_CANCEL)
+            return;
+
+        if (!utils::strings::is_valid_path_by_wxstr(dialog.GetPath()))
+        {
+            wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
+            return;
+        }
+
+        const auto inputBytes = utils::files::read_bytes_from_file(pokegold::romfile::path);
+        const auto outputBytes = utils::files::read_bytes_from_file(pokegold::build());
+        const auto ipsBytes = utils::patch::create_ips_patch(inputBytes, outputBytes);
+        const auto patchPath = dialog.GetPath().ToStdString();
+        utils::files::write_bytes_to_file(patchPath, ipsBytes);
+        return;
+    }
+
+    if (id == wxID_XDELTA)
+    {
+        wxFileDialog dialog(this, wxT("xdelta 패치 생성..."), "", "", wxT("xdelta 파일|*.xdelta"), wxFD_SAVE);
+        if (dialog.ShowModal() == wxID_CANCEL)
+            return;
+
+        const auto inputBytes = utils::files::read_bytes_from_file(pokegold::romfile::path);
+        const auto outputBytes = utils::files::read_bytes_from_file(pokegold::build());
+        const auto patchBytes = utils::patch::create_xdelta_patch(inputBytes, outputBytes);
+        const auto patchPath = dialog.GetPath().ToStdString();
+        utils::files::write_bytes_to_file(patchPath, patchBytes);
         return;
     }
 }

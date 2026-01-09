@@ -14,7 +14,9 @@ public:
     BadDataDialog(wxWindow *parent, std::span<const pokegold::data::bad_data> badDataList);
 
 public:
-    void OnConfirmButtonClick(wxCommandEvent &event) override;
+    void OnDialogShow(wxShowEvent &event) override;
+    void OnYesButtonClick(wxCommandEvent &event) override;
+    void OnNoButtonClick(wxCommandEvent &event) override;
 };
 
 } // namespace gui::windows

@@ -1,6 +1,9 @@
 #ifndef _POKEGOLD_CONFIG_H_
 #define _POKEGOLD_CONFIG_H_
 
+#include <string>
+#include <vector>
+
 namespace pokegold::config {
 
 class asset_info
@@ -25,6 +28,10 @@ namespace pokegold::config {
 
 inline std::vector<asset_info> assets;
 inline std::vector<script_info> scripts;
+
+inline std::string emulator_path = "";
+
+void close();
 
 void read();
 void write();

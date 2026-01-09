@@ -558,6 +558,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
         {
             src << asm_section(0x35cc, "GSEditor_Item_Names_Pointer_0")
                 << asm_line("db BANK(GSEditor_Item_Names)")
+                << asm_line("dw GSEditor_Item_Names")
                 << asm_section(0x515cd, "GSEditor_Item_Names_Pointer_1")
                 << asm_line("dw GSEditor_Item_Names")
                 << asm_section(0x515d7, "GSEditor_Item_Names_Pointer_2")
@@ -593,6 +594,7 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
         {
             src << asm_section(0x35c3, "GSEditor_Pokemon_Names_Pointer_0")
                 << asm_line("db BANK(GSEditor_Pokemon_Names)")
+                << asm_line("dw GSEditor_Pokemon_Names")
                 << asm_section(0x3667, "GSEditor_Pokemon_Names_Pointer_1")
                 << asm_line("dw GSEditor_Pokemon_Names")
                 << asm_section(0x515bf, "GSEditor_Pokemon_Names_Pointer_2")
@@ -816,32 +818,32 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
     src.close();
 }
 
-std::vector<u8> pokegold::build()
+std::filesystem::path pokegold::build()
 {
-    const auto base_path = workspace_path / "base.gbc";
-    const auto target_path = workspace_path / "target.gbc";
-    const auto target_map_path = workspace_path / "target.map";
-    const auto target_sym_path = workspace_path / "target.sym";
-    const auto src_path = workspace_path / "gs_editor.asm";
-    const auto obj_path = workspace_path / "gs_editor.o";
+    const auto base_path = romfile::workspace_path / "base.gbc";
+    const auto target_path = romfile::workspace_path / "target.gbc";
+    const auto target_map_path = romfile::workspace_path / "target.map";
+    const auto target_sym_path = romfile::workspace_path / "target.sym";
+    const auto src_path = romfile::workspace_path / "gs_editor.asm";
+    const auto obj_path = romfile::workspace_path / "gs_editor.o";
 
-    debug_log("pokegold::build", "cleanup (path=\"{}\")", workspace_path.string());
-    std::filesystem::remove_all(workspace_path);
-    std::filesystem::create_directories(workspace_path);
+    debug_log("pokegold::build", "cleanup (path=\"{}\")", romfile::workspace_path.string());
+    std::filesystem::remove_all(romfile::workspace_path);
+    std::filesystem::create_directories(romfile::workspace_path);
 
     debug_log("pokegold::build", "copy baserom");
-    utils::files::write_bytes_to_file(base_path, rom.data());
+    utils::files::write_bytes_to_file(base_path, romfile::data);
 
     debug_log("pokegold::build", "generate sources");
     std::ofstream src(src_path);
-    generate_macros_source(workspace_path, src);
-    generate_cleanup_source(workspace_path, src);
-    generate_pokegold_source(workspace_path, src);
+    generate_macros_source(romfile::workspace_path, src);
+    generate_cleanup_source(romfile::workspace_path, src);
+    generate_pokegold_source(romfile::workspace_path, src);
     src.close();
 
     const auto rgbasm_args = std::format("-o {} {}", obj_path.string(), src_path.string());
     debug_log("pokegold::build", "rgbasm {}", rgbasm_args);
-    const auto rgbasm_result = utils::rgbasm(rgbasm_args, workspace_path.string());
+    const auto rgbasm_result = utils::rgbasm(rgbasm_args, romfile::workspace_path.string());
     debug_log("pokegold::build", "\n{}", rgbasm_result.output);
 
     const auto rgblink_args = std::format(
@@ -852,13 +854,13 @@ std::vector<u8> pokegold::build()
         base_path.string(),
         obj_path.string());
     debug_log("pokegold::build", "rgblink {}", rgblink_args);
-    const auto rgblink_result = utils::rgblink(rgblink_args, workspace_path.string());
+    const auto rgblink_result = utils::rgblink(rgblink_args, romfile::workspace_path.string());
     debug_log("pokegold::build", "\n{}", rgblink_result.output);
 
     const auto rgbfix_args = std::format("-v -Wno-overwrite {}", target_path.string());
     debug_log("pokegold::build", "rgbfix {}", rgbfix_args);
-    const auto rgbfix_result = utils::rgbfix(rgbfix_args, workspace_path.string());
+    const auto rgbfix_result = utils::rgbfix(rgbfix_args, romfile::workspace_path.string());
     debug_log("pokegold::build", "\n{}", rgbfix_result.output);
 
-    return utils::files::read_bytes_from_file(target_path);
+    return target_path;
 }

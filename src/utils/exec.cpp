@@ -48,7 +48,7 @@ void prepare_bin_file(const std::filesystem::path &exe_path, int res_id)
     }
 }
 
-utils::exec_result run_process(const std::filesystem::path &exe_path, const std::string &args, const std::string &cwd)
+utils::exec_result utils::run_process(const std::filesystem::path &exe_path, const std::string &args, const std::string &cwd)
 {
     SECURITY_ATTRIBUTES sa{};
     sa.nLength = sizeof(sa);

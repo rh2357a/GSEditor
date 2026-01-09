@@ -1,0 +1,13 @@
+#ifndef _POKEGOLD_EVENT_H_
+#define _POKEGOLD_EVENT_H_
+
+#include "utils.h"
+
+namespace pokegold::event {
+
+inline utils::event rom_changed;
+inline utils::event pokemon_changed;
+
+} // namespace pokegold::event
+
+#endif

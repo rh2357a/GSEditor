@@ -60,6 +60,37 @@ inline std::wstring to_wstring(const UCHAR *c_str)
     return name;
 }
 
+/// @brief 문자열 치환
+/// @param s 원본 문자열
+/// @param from 찾을 문자열
+/// @param to 변경 문자열
+/// @return 변겨된 문자열
+inline std::string replace_all(std::string s, const std::string &from, const std::string &to)
+{
+    if (from.empty())
+        return s;
+
+    size_t pos = 0;
+    while ((pos = s.find(from, pos)) != std::string::npos)
+    {
+        s.replace(pos, from.length(), to);
+        pos += to.length();
+    }
+
+    return s;
+}
+
+/// @brief 올바른 경로 문자열인지 체크
+/// @param wxstr 경로 문자열
+/// @return true/flase
+inline bool is_valid_path_by_wxstr(const wxString &wxstr)
+{
+    std::wstring wstr = wxstr.ToStdWstring();
+    std::string str = wxstr.ToStdString();
+    wxString restored = wxString::From8BitData(str.c_str());
+    return restored == wxstr;
+}
+
 } // namespace utils::strings
 
 #endif

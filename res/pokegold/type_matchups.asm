@@ -17,6 +17,9 @@ GSEditor_DoWeatherModifiers:
     ret
 
 SECTION "GSEditor_HackingCodes", ROMX[$47d4], BANK[$7f]
+GSEditor_HackingFlags::
+    db $fe, $ff ; TypeMatchups
+
 GSEditor_NewDoWeatherModifiers::
     ld de, GSEditor_WeatherTypeModifiers
     ld a, [$cbf0]

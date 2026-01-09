@@ -1,6 +1,8 @@
 #ifndef _POKEGOLD_STRING_H_
 #define _POKEGOLD_STRING_H_
 
+#include <wx/wx.h>
+
 #include <string>
 #include <vector>
 #include <filesystem>
@@ -29,7 +31,10 @@ public:
     static bool is_charmap_string(std::string_view str);
 
     std::string u8string();
+    wxString wxstr() { return wxString::FromUTF8(u8string()); }
     std::vector<u8> data() const { return m_bytes; };
+
+    bool has_bad_code();
 
 public:
     auto begin() { return m_bytes.begin(); }

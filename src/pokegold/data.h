@@ -99,6 +99,14 @@ enum class bad_data_reason
     TRAINER_IMAGE,
 
     EGG_IMAGE,
+
+    POKEMON_NAME,
+    TRAINER_GROUP_NAME,
+    TYPE_NAME,
+
+    TYPE_MATCHUPS,
+    WEATHER_TYPE_MODIFIERS,
+    WEATHER_MOVE_MODIFIERS,
 };
 
 } // namespace pokegold::data
