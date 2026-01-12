@@ -24,7 +24,7 @@ gui::windows::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         {
         case bad_data_reason::EVOLUTION_MOVES: {
             const size_t idx = std::any_cast<size_t>(e.data);
-            const auto name = utils::strings::replace_all(pokemons[idx].name.u8string(), "[50]", "");
+            const auto name = pokemons[idx].name.editor_str();
             m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
             m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("진화·자력기 데이터 손상 (번호: {}, 이름: '{}')", idx, name)));
             m_badDataList->SetItem(i, 2, wxT("해당 포켓몬의 진화·자력기를 비움"));
@@ -40,7 +40,7 @@ gui::windows::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
 
         case bad_data_reason::POKEMON_FRONT_IMAGE: {
             const size_t idx = std::any_cast<size_t>(e.data);
-            const auto name = utils::strings::replace_all(pokemons[idx].name.u8string(), "[50]", "");
+            const auto name = pokemons[idx].name.editor_str();
             m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
             m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("포켓몬 앞모습 이미지 손상 (번호: {}, 이름: '{}')", idx, name)));
             m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
@@ -48,7 +48,7 @@ gui::windows::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         }
         case bad_data_reason::POKEMON_BACK_IMAGE: {
             const size_t idx = std::any_cast<size_t>(e.data);
-            const auto name = utils::strings::replace_all(pokemons[idx].name.u8string(), "[50]", "");
+            const auto name = pokemons[idx].name.editor_str();
             m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
             m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("포켓몬 뒷모습 이미지 손상 (번호: {}, 이름: '{}')", idx, name)));
             m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
@@ -72,7 +72,7 @@ gui::windows::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
 
         case bad_data_reason::TRAINER_IMAGE: {
             const size_t idx = std::any_cast<size_t>(e.data);
-            const auto name = utils::strings::replace_all(trainer_groups[idx].name.u8string(), "[50]", "");
+            const auto name = trainer_groups[idx].name.editor_str();
             m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
             m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("트레이너 이미지 손상 (그룹명: '{}')", name)));
             m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
@@ -133,11 +133,15 @@ void gui::windows::BadDataDialog::OnDialogShow(wxShowEvent &event)
         wxBell();
 }
 
+void gui::windows::BadDataDialog::OnConfirmButtonClick(wxCommandEvent &event)
+{
+    Close();
+}
+
 void gui::windows::BadDataDialog::OnYesButtonClick(wxCommandEvent &event)
 {
     EndModal(wxID_YES);
 }
-
 void gui::windows::BadDataDialog::OnNoButtonClick(wxCommandEvent &event)
 {
     EndModal(wxID_NO);

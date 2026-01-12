@@ -30,8 +30,8 @@ public:
     static void init_charmap();
     static bool is_charmap_string(std::string_view str);
 
-    std::string u8string();
-    wxString wxstr() { return wxString::FromUTF8(u8string()); }
+    std::string editor_str();
+    wxString editor_wxstr() { return wxString::FromUTF8(editor_str()); }
     std::vector<u8> data() const { return m_bytes; };
 
     bool has_bad_code();

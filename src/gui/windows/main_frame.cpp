@@ -24,23 +24,45 @@ gui::windows::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
 
     m_subscriptions.subscribe(pokegold::event::rom_changed, [this] {
         m_mainPanel->Enable(pokegold::romfile::is_opened);
+
         m_fileSaveMenuItem->Enable(pokegold::romfile::is_opened);
-        m_gameTestPlayMenuItem->Enable(pokegold::romfile::is_opened);
-        m_gameSetEmulatorMenuItem->Enable(pokegold::romfile::is_opened);
-        m_saveToolbarItem->Enable(pokegold::romfile::is_opened);
-        m_testPlayToolbarItem->Enable(pokegold::romfile::is_opened);
         m_fileExportToIpsMenuItem->Enable(pokegold::romfile::is_opened);
         m_fileExportToXdeltaMenuItem->Enable(pokegold::romfile::is_opened);
-        m_toolBar->Realize();
+        m_gameTestPlayMenuItem->Enable(pokegold::romfile::is_opened);
+        m_gameSetEmulatorMenuItem->Enable(pokegold::romfile::is_opened);
 
-        const auto state = pokegold::romfile::is_opened
-                               ? wxString::FromUTF8(pokegold::romfile::path.string())
-                               : wxT("-");
-        m_statusBar->SetStatusText(state);
+        m_saveToolbarItem->Enable(pokegold::romfile::is_opened);
+        m_testPlayToolbarItem->Enable(pokegold::romfile::is_opened);
+        m_toolBar->Realize();
+    });
+
+    m_subscriptions.subscribe(pokegold::event::rom_data_changed, [this] {
+        if (pokegold::romfile::is_opened)
+        {
+            const auto state = pokegold::romfile::is_changed ? "[변경됨] " : "";
+            const auto path = std::format("{}{}", state, pokegold::romfile::path.string());
+            m_statusBar->SetStatusText(wxString::FromUTF8(path));
+        }
+        else
+        {
+            m_statusBar->SetStatusText(wxT("-"));
+        }
     });
 
     // 앱의 초기 상태를 알림
+    pokegold::event::rom_data_changed.emit();
     pokegold::event::rom_changed.emit();
+}
+
+void SaveInternal()
+{
+    const auto outputRomPath = pokegold::build();
+    const auto romPath = pokegold::romfile::path;
+    std::filesystem::copy_file(outputRomPath, romPath, std::filesystem::copy_options::overwrite_existing);
+    pokegold::config::write();
+
+    pokegold::romfile::is_changed = false;
+    pokegold::event::rom_data_changed.emit();
 }
 
 void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
@@ -49,7 +71,8 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
 
     if (id == wxID_EXIT)
     {
-        wxExit();
+        // wxExit();
+        Close();
         return;
     }
 
@@ -62,9 +85,11 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
 
     if (id == wxID_OPEN)
     {
-        if (pokegold::romfile::is_opened)
+        if (pokegold::romfile::is_opened && pokegold::romfile::is_changed)
         {
-            const auto result = wxMessageBox(wxT("이미 다른 롬 파일이 열려있습니다!\n계속하겠습니까?"), wxT("경고"), wxYES_NO | wxICON_WARNING);
+            wxBell();
+
+            const auto result = gui::dialog::ShowConfirm(this, "경고", "이미 다른 롬 파일이 열려있습니다!\n계속하겠습니까?");
             if (result == wxNO)
                 return;
         }
@@ -73,31 +98,20 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (openDlg.ShowModal() == wxID_CANCEL)
             return;
 
-        if (!utils::strings::is_valid_path_by_wxstr(openDlg.GetPath()))
-        {
-            wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
-            return;
-        }
-
-        // TODO: pokegold를 인스턴스화 시켜, 독립적으로 열 수 있게 해야하는가??
         pokegold::close();
 
-        const auto result = pokegold::open(openDlg.GetPath().ToStdString());
+        const auto result = pokegold::open(openDlg.GetPath().utf8_string());
         if (!result.empty())
         {
             windows::BadDataDialog dialog(this, result);
-            if (dialog.ShowModal() == wxID_NO)
-                pokegold::close();
+            dialog.ShowModal();
         }
         return;
     }
 
     if (id == wxID_SAVE)
     {
-        const auto outputRomPath = pokegold::build();
-        const auto romPath = pokegold::romfile::path;
-        std::filesystem::copy_file(outputRomPath, romPath, std::filesystem::copy_options::overwrite_existing);
-        pokegold::config::write();
+        SaveInternal();
         return;
     }
 
@@ -115,7 +129,9 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
 
         if (pokegold::config::emulator_path == "" || !std::filesystem::exists(pokegold::config::emulator_path))
         {
-            const auto result = wxMessageBox(wxT("등록된 에뮬레이터가 없습니다!\n찾아보겠습니까?"), wxT("경고"), wxYES_NO | wxICON_WARNING);
+            wxBell();
+
+            const auto result = gui::dialog::ShowConfirm(this, "경고", "등록된 에뮬레이터가 없습니다!\n찾아보겠습니까?");
             if (result == wxNO)
                 return;
 
@@ -123,13 +139,7 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
             if (dialog.ShowModal() == wxID_CANCEL)
                 return;
 
-            if (!utils::strings::is_valid_path_by_wxstr(dialog.GetPath()))
-            {
-                wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
-                return;
-            }
-
-            pokegold::config::emulator_path = dialog.GetPath().ToStdString();
+            pokegold::config::emulator_path = dialog.GetPath().utf8_string();
             if (pokegold::config::emulator_path == "" || !std::filesystem::exists(pokegold::config::emulator_path))
                 return;
         }
@@ -144,36 +154,26 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (dialog.ShowModal() == wxID_CANCEL)
             return;
 
-        if (!utils::strings::is_valid_path_by_wxstr(dialog.GetPath()))
-        {
-            wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
-            return;
-        }
-
-        pokegold::config::emulator_path = dialog.GetPath().ToStdString();
+        pokegold::config::emulator_path = dialog.GetPath().utf8_string();
         return;
     }
 
+    // TODO: 원본 롬을 열어 비교하여 생성해야함..
     if (id == wxID_IPS)
     {
         wxFileDialog dialog(this, wxT("IPS 패치 생성..."), "", "", wxT("IPS 파일|*.ips"), wxFD_SAVE);
         if (dialog.ShowModal() == wxID_CANCEL)
             return;
 
-        if (!utils::strings::is_valid_path_by_wxstr(dialog.GetPath()))
-        {
-            wxMessageBox(wxT("올바른 경로가 아닙니다.\n띄어쓰기, 특수문자가 있는지 확인해 주세요."), wxT("오류"), wxOK | wxICON_ERROR);
-            return;
-        }
-
         const auto inputBytes = utils::files::read_bytes_from_file(pokegold::romfile::path);
         const auto outputBytes = utils::files::read_bytes_from_file(pokegold::build());
         const auto ipsBytes = utils::patch::create_ips_patch(inputBytes, outputBytes);
-        const auto patchPath = dialog.GetPath().ToStdString();
+        const auto patchPath = dialog.GetPath().utf8_string();
         utils::files::write_bytes_to_file(patchPath, ipsBytes);
         return;
     }
 
+    // TODO: 원본 롬을 열어 비교하여 생성해야함..
     if (id == wxID_XDELTA)
     {
         wxFileDialog dialog(this, wxT("xdelta 패치 생성..."), "", "", wxT("xdelta 파일|*.xdelta"), wxFD_SAVE);
@@ -187,4 +187,35 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
         utils::files::write_bytes_to_file(patchPath, patchBytes);
         return;
     }
+}
+
+void gui::windows::MainFrame::OnClose(wxCloseEvent &event)
+{
+    if (pokegold::romfile::is_changed)
+    {
+        wxBell();
+
+        const auto selected = gui::dialog::ShowYesNoCancel(this, "알림", "변경 사항을 롬 파일에 저장하시겠습니까?");
+        if (selected == wxYES)
+        {
+            debug_log("main", "close app (save: yes)");
+            SaveInternal();
+            event.Skip();
+        }
+        else if (selected == wxNO)
+        {
+            debug_log("main", "close app (save: no)");
+            event.Skip();
+        }
+        else
+        {
+            debug_log("main", "close app (save: cancel)");
+            event.Veto();
+        }
+
+        return;
+    }
+
+    debug_log("main", "close app");
+    event.Skip();
 }

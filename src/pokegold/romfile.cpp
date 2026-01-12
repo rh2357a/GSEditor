@@ -28,6 +28,7 @@ void pokegold::romfile::close()
     data.clear();
 
     is_opened = false;
+    is_changed = false;
 }
 
 u8 pokegold::romfile::get_byte(size_t addr)

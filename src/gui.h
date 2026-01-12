@@ -6,5 +6,6 @@
 
 #include "gui/controls.h"
 #include "gui/windows.h"
+#include "gui/dialogs.h"
 
 #endif

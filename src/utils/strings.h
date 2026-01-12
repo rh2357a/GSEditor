@@ -80,17 +80,6 @@ inline std::string replace_all(std::string s, const std::string &from, const std
     return s;
 }
 
-/// @brief 올바른 경로 문자열인지 체크
-/// @param wxstr 경로 문자열
-/// @return true/flase
-inline bool is_valid_path_by_wxstr(const wxString &wxstr)
-{
-    std::wstring wstr = wxstr.ToStdWstring();
-    std::string str = wxstr.ToStdString();
-    wxString restored = wxString::From8BitData(str.c_str());
-    return restored == wxstr;
-}
-
 } // namespace utils::strings
 
 #endif

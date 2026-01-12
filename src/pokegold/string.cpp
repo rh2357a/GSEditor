@@ -83,7 +83,7 @@ pokegold::string::string(const std::string &str)
 pokegold::string::string(std::vector<u8> bytes) : m_bytes(std::move(bytes))
 {
     if constexpr (DEBUG_MODE)
-        u8string();
+        editor_str();
 }
 
 void pokegold::string::init_charmap()
@@ -170,7 +170,7 @@ bool pokegold::string::is_charmap_string(std::string_view str)
     return true;
 }
 
-std::string pokegold::string::u8string()
+std::string pokegold::string::editor_str()
 {
     if (m_cached_str != s_unk_string)
         return m_cached_str;
@@ -204,7 +204,10 @@ std::string pokegold::string::u8string()
         ss << '[' << std::format("{:02x}", b) << ']';
     }
 
-    return m_cached_str = ss.str();
+    auto temp_str = ss.str();
+    temp_str = utils::strings::replace_all(temp_str, "[50]", "");
+
+    return m_cached_str = temp_str;
 }
 
 bool pokegold::string::has_bad_code()
@@ -251,7 +254,7 @@ pokegold::string &pokegold::string::operator+=(const string &rhs)
     m_cached_str = s_unk_string;
 
     if constexpr (DEBUG_MODE)
-        u8string();
+        editor_str();
 
     return *this;
 }

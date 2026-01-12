@@ -9,6 +9,7 @@
 namespace pokegold::romfile {
 
 inline bool is_opened = false;
+inline bool is_changed = false;
 inline std::filesystem::path path, save_path, build_data_path;
 inline std::filesystem::path workspace_path;
 inline std::vector<u8> data;

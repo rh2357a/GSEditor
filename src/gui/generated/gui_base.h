@@ -33,6 +33,9 @@ namespace gui{ namespace controls{ class DatabasePanel; } }
 #include <wx/listctrl.h>
 #include <wx/button.h>
 #include <wx/listbox.h>
+#include <wx/textctrl.h>
+#include <wx/combobox.h>
+#include <wx/spinctrl.h>
 #include <wx/scrolwin.h>
 #include <wx/notebook.h>
 
@@ -54,7 +57,6 @@ class MainFrameBase : public wxFrame
 			wxID_EMULATOR,
 		};
 
-		wxMenuBar* m_menuBar;
 		wxMenu* m_fileMenu;
 		wxMenuItem* m_fileSaveMenuItem;
 		wxMenuItem* m_fileExportToIpsMenuItem;
@@ -64,20 +66,19 @@ class MainFrameBase : public wxFrame
 		wxMenuItem* m_gameSetEmulatorMenuItem;
 		wxMenu* m_helpMenu;
 		wxToolBar* m_toolBar;
-		wxToolBarToolBase* m_openToolbarItem;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
-		wxToolBarToolBase* m_exitToolbarItem;
 		wxStatusBar* m_statusBar;
 		gui::controls::DatabasePanel* m_mainPanel;
 
 		// Virtual event handlers, override them in your derived class
+		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 720,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_FRAME_STYLE|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 720,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMINIMIZE_BOX|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~MainFrameBase();
 
@@ -91,11 +92,8 @@ class AboutDialogBase : public wxDialog
 	private:
 
 	protected:
-		wxStaticBitmap* m_appIconBitmap;
 		wxStaticText* m_authorText;
 		wxStaticText* m_versionText;
-		wxStaticText* m_separatorText;
-		wxStaticLine* m_appInfoLine;
 		wxHtmlWindow* m_versionHtml;
 
 	public:
@@ -114,15 +112,11 @@ class BadDataDialogBase : public wxDialog
 	private:
 
 	protected:
-		wxPanel* m_TopPanel;
-		wxStaticText* m_messageLabel;
 		wxListCtrl* m_badDataList;
-		wxPanel* m_bottomPanel;
-		wxButton* m_YesButton;
-		wxButton* m_NoButton;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnDialogShow( wxShowEvent& event ) { event.Skip(); }
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnYesButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnNoButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
@@ -143,10 +137,34 @@ class DatabasePanelBase : public wxPanel
 	private:
 
 	protected:
-		wxNotebook* m_mainTabs;
-		wxPanel* m_pokemonPanel;
 		wxListBox* m_pokemonList;
 		wxScrolledWindow* m_pokemonContainer;
+		wxTextCtrl* m_pokemonNoText;
+		wxTextCtrl* m_pokemonNameText;
+		wxComboBox* m_pokemonGenderRateComboBox;
+		wxComboBox* m_pokemonGrowthRateComboBox;
+		wxComboBox* m_pokemonType1ComboBox;
+		wxComboBox* m_pokemonType2ComboBox;
+		wxComboBox* m_pokemonItem1ComboBox;
+		wxComboBox* m_pokemonItem2ComboBox;
+		wxComboBox* m_pokemonEggGroup1ComboBox;
+		wxComboBox* m_pokemonEggGroup2ComboBox;
+		wxSpinCtrlDouble* m_pokemonStatsHpValue;
+		wxSpinCtrlDouble* m_pokemonStatsAtkValue;
+		wxSpinCtrlDouble* m_pokemonStatsDefValue;
+		wxSpinCtrlDouble* m_pokemonStatsSpAtkValue;
+		wxSpinCtrlDouble* m_pokemonStatsSpDefValue;
+		wxSpinCtrlDouble* m_pokemonStatsSpdValue;
+		wxSpinCtrlDouble* m_pokemonStatsExpValue;
+		wxSpinCtrlDouble* m_pokemonStatsCatchRateValue;
+		wxStaticText* m_pokemonCatchRatePercentage;
+		wxTextCtrl* m_pokemonDexSpeciesNameText;
+		wxSpinCtrlDouble* m_pokemonDexHeightValue;
+		wxSpinCtrlDouble* m_pokemonDexWeightValue;
+		wxStaticText* m_pokemonDexDescriptionLabel;
+		wxTextCtrl* m_pokemonDexDescriptionText;
+		wxListCtrl* m_pokemonEvolutionsList;
+		wxListCtrl* m_pokemonLearnMovesList;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonSelected( wxCommandEvent& event ) { event.Skip(); }
@@ -154,7 +172,7 @@ class DatabasePanelBase : public wxPanel
 
 	public:
 
-		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 753,554 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,1200 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~DatabasePanelBase();
 

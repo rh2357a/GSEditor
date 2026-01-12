@@ -17,6 +17,7 @@ public:
 
 private:
     void OnMenuSelected(wxCommandEvent &event) override;
+    void OnClose(wxCloseEvent &event) override;
 };
 
 } // namespace gui::windows

@@ -647,16 +647,16 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
             const auto label = std::format("GSEditor_Item_Description_{}", i);
             auto &e = pokegold::data::items[i].description;
 
-            if (item_label_map.contains(e.u8string()))
+            if (item_label_map.contains(e.editor_str()))
             {
-                item_labels[i] = item_label_map[e.u8string()];
+                item_labels[i] = item_label_map[e.editor_str()];
             }
             else
             {
                 src << asm_line("{}:", label)
                     << asm_bytes(e);
                 item_addr += e.size();
-                item_label_map[e.u8string()] = label;
+                item_label_map[e.editor_str()] = label;
                 item_labels[i] = label;
             }
         }
@@ -683,16 +683,16 @@ void generate_pokegold_source(const std::filesystem::path &workdir, std::ofstrea
             const auto label = std::format("GSEditor_Move_Description_{}", i + 1);
             auto &e = pokegold::data::moves[i].description;
 
-            if (move_label_map.contains(e.u8string()))
+            if (move_label_map.contains(e.editor_str()))
             {
-                move_labels[i] = move_label_map[e.u8string()];
+                move_labels[i] = move_label_map[e.editor_str()];
             }
             else
             {
                 src << asm_line("{}:", label)
                     << asm_bytes(e);
                 move_addr += e.size();
-                move_label_map[e.u8string()] = label;
+                move_label_map[e.editor_str()] = label;
                 move_labels[i] = label;
             }
         }

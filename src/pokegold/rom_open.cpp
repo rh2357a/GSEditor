@@ -432,7 +432,7 @@ std::vector<pokegold::data::bad_data> pokegold::open(const std::filesystem::path
             bad_data_list.push_back({data::bad_data_reason::TYPE_NAME, i});
         }
 
-        // debug_log("pokegold::open", "  - idx={}, name = \"{}\"", i, types[i].name.u8string());
+        // debug_log("pokegold::open", "  - idx={}, name = \"{}\"", i, types[i].name.editor_str());
     }
 
     const bool hacked_type_matchups = utils::match_bytes(romfile::data, 0x1fc7d4, {0xfe, 0xff});
@@ -527,7 +527,14 @@ std::vector<pokegold::data::bad_data> pokegold::open(const std::filesystem::path
     }
 
     debug_log("pokegold::open", "done");
-    event::pokemon_changed.emit();
+    event::item_names_changed.emit(-1);
+    event::pokemon_names_changed.emit(-1);
+    event::type_names_changed.emit(-1);
+
+    // MEMO: 손상 데이터를 내부적으로 처리하기 때문에 변경된 상태를 알림
+    pokegold::romfile::is_changed = !bad_data_list.empty();
+
+    event::rom_data_changed.emit();
     event::rom_changed.emit();
 
     return bad_data_list;

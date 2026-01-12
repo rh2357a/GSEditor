@@ -15,6 +15,7 @@ public:
 
 public:
     void OnDialogShow(wxShowEvent &event) override;
+    void OnConfirmButtonClick(wxCommandEvent &event) override;
     void OnYesButtonClick(wxCommandEvent &event) override;
     void OnNoButtonClick(wxCommandEvent &event) override;
 };

@@ -89,21 +89,22 @@ public:
     }
 };
 
+template <typename... Args>
 class event
 {
 private:
     size_t m_current_id = 0;
-    std::unordered_map<size_t, std::function<void()>> m_observers;
+    std::unordered_map<size_t, std::function<void(Args...)>> m_observers;
 
 public:
-    subscription subscribe(std::function<void()> observer)
+    subscription subscribe(std::function<void(Args...)> observer)
     {
         const size_t id = m_current_id++;
         m_observers.emplace(id, std::move(observer));
         return subscription([this, id]() { m_observers.erase(id); });
     }
 
-    void emit()
+    void emit(Args... args)
     {
         std::vector<size_t> ids;
         ids.reserve(m_observers.size());
@@ -114,11 +115,14 @@ public:
         for (size_t id : ids)
         {
             if (auto it = m_observers.find(id); it != m_observers.end())
-                it->second();
+                it->second(args...);
         }
     }
 
-    void operator()() { emit(); }
+    void operator()(Args... args)
+    {
+        emit(args...);
+    }
 };
 
 } // namespace utils

@@ -5,8 +5,11 @@
 
 namespace pokegold::event {
 
-inline utils::event rom_changed;
-inline utils::event pokemon_changed;
+inline utils::event<> rom_changed;
+inline utils::event<> rom_data_changed;
+inline utils::event<int> pokemon_names_changed;
+inline utils::event<int> item_names_changed;
+inline utils::event<int> type_names_changed;
 
 } // namespace pokegold::event
 

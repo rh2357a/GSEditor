@@ -23,7 +23,10 @@ void pokegold::close()
     // TODO: ...
 
     debug_log("pokegold::close", "done");
+
     config::close();
     romfile::close();
+
+    event::rom_data_changed.emit();
     event::rom_changed.emit();
 }
