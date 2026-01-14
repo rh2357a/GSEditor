@@ -27,17 +27,17 @@ namespace gui{ namespace controls{ class DatabasePanel; } }
 #include <wx/frame.h>
 #include <wx/statbmp.h>
 #include <wx/stattext.h>
-#include <wx/statline.h>
 #include <wx/html/htmlwin.h>
+#include <wx/textctrl.h>
+#include <wx/notebook.h>
 #include <wx/dialog.h>
 #include <wx/listctrl.h>
 #include <wx/button.h>
 #include <wx/listbox.h>
-#include <wx/textctrl.h>
+#include <wx/statline.h>
 #include <wx/combobox.h>
 #include <wx/spinctrl.h>
 #include <wx/scrolwin.h>
-#include <wx/notebook.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -95,10 +95,11 @@ class AboutDialogBase : public wxDialog
 		wxStaticText* m_authorText;
 		wxStaticText* m_versionText;
 		wxHtmlWindow* m_versionHtml;
+		wxTextCtrl* m_openSourceLicensesText;
 
 	public:
 
-		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 552,538 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
+		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 616,538 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
 
 		~AboutDialogBase();
 

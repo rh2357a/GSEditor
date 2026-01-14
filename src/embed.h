@@ -5,6 +5,7 @@
 
 EMBED_WX_BITMAP(app_ico, wxBITMAP_TYPE_ICO, "app.ico")
 EMBED_BINARY(app_version_html, "app_versions.html")
+EMBED_BINARY(open_source_licenses_txt, "../LICENSE.txt")
 
 EMBED_BINARY(charmap_txt, "charmap.txt")
 

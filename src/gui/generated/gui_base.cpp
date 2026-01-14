@@ -169,23 +169,38 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 
 	mainBSizer->Add( appInfoSizer, 0, wxALL|wxEXPAND, 5 );
 
-	wxBoxSizer* appInfoLabelSizer;
-	appInfoLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+	wxNotebook* aboutContentTabs;
+	aboutContentTabs = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	wxPanel* versionPanel;
+	versionPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* versionSizer;
+	versionSizer = new wxBoxSizer( wxVERTICAL );
 
-	wxStaticText* appInfoLabel;
-	appInfoLabel = new wxStaticText( this, wxID_ANY, wxT("버전 기록"), wxDefaultPosition, wxDefaultSize, 0 );
-	appInfoLabel->Wrap( -1 );
-	appInfoLabelSizer->Add( appInfoLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	wxStaticLine* appInfoLine;
-	appInfoLine = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	appInfoLabelSizer->Add( appInfoLine, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	m_versionHtml = new wxHtmlWindow( versionPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxBORDER_STATIC );
+	versionSizer->Add( m_versionHtml, 1, wxALL|wxEXPAND, 5 );
 
 
-	mainBSizer->Add( appInfoLabelSizer, 0, wxEXPAND, 5 );
+	versionPanel->SetSizer( versionSizer );
+	versionPanel->Layout();
+	versionSizer->Fit( versionPanel );
+	aboutContentTabs->AddPage( versionPanel, wxT("버전 기록"), true );
+	wxPanel* openSourceLicensesPanel;
+	openSourceLicensesPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* openSourceLicensesSizer;
+	openSourceLicensesSizer = new wxBoxSizer( wxVERTICAL );
 
-	m_versionHtml = new wxHtmlWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxBORDER_THEME );
-	mainBSizer->Add( m_versionHtml, 1, wxALL|wxEXPAND, 5 );
+	m_openSourceLicensesText = new wxTextCtrl( openSourceLicensesPanel, wxID_ANY, wxT("{open_source_licenses}"), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxBORDER_STATIC );
+	m_openSourceLicensesText->SetFont( wxFont( 10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
+
+	openSourceLicensesSizer->Add( m_openSourceLicensesText, 1, wxALL|wxEXPAND, 5 );
+
+
+	openSourceLicensesPanel->SetSizer( openSourceLicensesSizer );
+	openSourceLicensesPanel->Layout();
+	openSourceLicensesSizer->Fit( openSourceLicensesPanel );
+	aboutContentTabs->AddPage( openSourceLicensesPanel, wxT("오픈소스 라이선스"), false );
+
+	mainBSizer->Add( aboutContentTabs, 1, wxEXPAND | wxALL, 5 );
 
 
 	this->SetSizer( mainBSizer );
