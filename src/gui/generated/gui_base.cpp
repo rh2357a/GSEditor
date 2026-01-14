@@ -753,7 +753,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonPanel->SetSizer( pokemonPanelSizer );
 	pokemonPanel->Layout();
 	pokemonPanelSizer->Fit( pokemonPanel );
-	mainTabs->AddPage( pokemonPanel, wxT("포켓몬"), false );
+	mainTabs->AddPage( pokemonPanel, wxT("포켓몬"), true );
 	wxPanel* movesPanel;
 	movesPanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	mainTabs->AddPage( movesPanel, wxT("기술"), false );

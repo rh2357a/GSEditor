@@ -10,6 +10,7 @@ SOURCE_DIR       := src
 RESOURCE_DIR     := res
 LIB_DIR          := lib
 BUILD_DIR        := build
+TOOLS_DIR        := tools
 BUILD_TARGET_DIR := $(BUILD_DIR)/$(BUILD_TARGET)
 BUILD_OBJ_DIR    := $(BUILD_TARGET_DIR)/obj
 BUILD_TOOLS_DIR  := $(BUILD_TARGET_DIR)/tools
@@ -77,6 +78,7 @@ endif
 ################################################################################
 
 SOURCES := $(shell find $(SOURCE_DIR) -type f \( -name "*.cpp" -o -name "*.c" \) )
+TOOLSRC := $(shell find $(TOOLS_DIR) -type f \( -name "*.cpp" -o -name "*.c" \) )
 OBJECTS := $(patsubst $(SOURCE_DIR)/%.cpp,$(BUILD_OBJ_DIR)/%.o,$(SOURCES))
 OBJECTS := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_OBJ_DIR)/%.o,$(OBJECTS))
 
@@ -84,7 +86,7 @@ RESOURCES := $(shell find $(RESOURCE_DIR) -type f)
 
 ################################################################################
 
-.PHONY: all clean
+.PHONY: all clean build
 
 all: $(TARGET)
 
@@ -103,9 +105,9 @@ $(BUILD_OBJ_DIR)/%.o: $(SOURCE_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
-$(BUILD_TOOLS_DIR)/%: tools/%.cpp
+$(BUILD_TOOLS_DIR)/%: $(TOOLS_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -o $@ $<
+	$(CXX) -std=c++20 -o $@ $<
 
 $(BUILD_OBJ_DIR)/%.rc.o: $(SOURCE_DIR)/%.rc $(RESOURCES)
 	@mkdir -p $(dir $@)
@@ -118,6 +120,19 @@ $(BUILD_OBJ_DIR)/embed.o: $(BUILD_OBJ_DIR)/embed.g.cpp $(SOURCE_DIR)/embed.h $(R
 $(BUILD_OBJ_DIR)/embed.g.cpp: $(BUILD_TOOLS_DIR)/embed $(SOURCE_DIR)/embed.h $(RESOURCES)
 	@mkdir -p $(dir $@)
 	$(BUILD_TOOLS_DIR)/embed $(SOURCE_DIR)/embed.h $@
+
+build:
+	@mkdir -p $(BUILD_TARGET_DIR)/bin
+	@$(CXX) -std=c++20 -o $(BUILD_TARGET_DIR)/bin/generate_compile_commands.exe $(TOOLS_DIR)/generate_compile_commands.cpp
+	$(BUILD_TARGET_DIR)/bin/generate_compile_commands.exe \
+		--workdir $(shell cygpath -m $(CURDIR)) \
+		--output $(shell cygpath -m $(CURDIR)/$(BUILD_DIR)/compile_commands.json) \
+		--cxx $(shell cygpath -m $(shell which $(CXX))) \
+		--cc $(shell cygpath -m $(shell which $(CC))) \
+		--cxx-flags "\"$(CXXFLAGS) $(DEFINES) $(INCLUDES)\"" \
+		--cc-flags "\"$(CCFLAGS) $(DEFINES) $(INCLUDES)\"" \
+		--sources $(foreach f,$(SOURCES),"$(f)") $(foreach f,$(TOOLSRC),"$(f)") \
+		--toolchain-includes $(shell $(CXX) -xc++ -E -v /dev/null 2>&1 | awk '/#include <...> search starts here:/ {flag=1; next} /End of search list./ {flag=0} flag {print $1}')
 
 clean:
 	rm -rf $(BUILD_DIR)
