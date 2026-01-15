@@ -29,8 +29,6 @@ namespace pokegold::config {
 inline std::vector<asset_info> assets;
 inline std::vector<script_info> scripts;
 
-inline std::string emulator_path = "";
-
 void close();
 
 void read();

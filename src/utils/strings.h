@@ -6,6 +6,7 @@
 
 #include <string>
 #include <span>
+#include <vector>
 
 namespace utils::strings {
 
@@ -78,6 +79,22 @@ inline std::string replace_all(std::string s, const std::string &from, const std
     }
 
     return s;
+}
+
+/// @brief 문자열 분리
+/// @param s 원본 문자열
+/// @param delimiter 분리 문자
+/// @return 분리된 문자열 벡터
+inline std::vector<std::string> split(const std::string &str, char delimiter)
+{
+    std::vector<std::string> result;
+    std::stringstream ss(str);
+    std::string item;
+
+    while (std::getline(ss, item, delimiter))
+        result.push_back(item);
+
+    return result;
 }
 
 } // namespace utils::strings

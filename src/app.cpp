@@ -1,3 +1,4 @@
+#include "core.h"
 #include "gui.h"
 #include "pokegold.h"
 #include "utils.h"
@@ -13,7 +14,9 @@ public:
     {
         init_logging();
         wxInitAllImageHandlers();
+
         pokegold::string::init_charmap();
+        app_settings::init();
         utils::init_exec();
 
         // 구버전 데이터 제거

@@ -4,6 +4,8 @@
 #include "gui.h"
 #include "utils.h"
 
+#include <utf8cpp/utf8.h>
+
 #include <array>
 #include <unordered_map>
 
@@ -114,6 +116,15 @@ void gui::controls::DatabasePanel::InitPokemonTab()
 
         m_pokemonEvolutionsList,
         m_pokemonLearnMovesList,
+
+        m_pokemonHmTmList1,
+        m_pokemonHmTmList2,
+        m_pokemonHmTmList3,
+        m_pokemonHmTmList4,
+        m_pokemonHmTmList5,
+        m_pokemonHmTmList6,
+        m_pokemonHmTmList7,
+        m_pokemonHmTmList8,
     });
 
     m_subscriptions.subscribe(pokegold::event::rom_changed, [&] {
@@ -143,6 +154,35 @@ void gui::controls::DatabasePanel::InitPokemonTab()
             m_pokemonList->SetString(idx, e.name.editor_wxstr());
         }
     });
+
+    auto hmtms = std::make_shared<std::vector<wxCheckListBox *>>(std::vector<wxCheckListBox *>{
+        m_pokemonHmTmList1,
+        m_pokemonHmTmList2,
+        m_pokemonHmTmList3,
+        m_pokemonHmTmList4,
+        m_pokemonHmTmList5,
+        m_pokemonHmTmList6,
+        m_pokemonHmTmList7,
+        m_pokemonHmTmList8,
+    });
+
+    auto hmtmChangedFunc = [hmtms](int idx) {
+        for (size_t i = 0; i < 57; i++)
+        {
+            auto &e = pokegold::data::moves[pokegold::data::tmhms[i] - 1];
+            auto ctrl = (*hmtms)[i / 8];
+            ctrl->SetString(
+                i % 8,
+                wxString::Format(
+                    wxT("%s%02d [%s]"),
+                    i < 50 ? wxT("기술") : wxT("비전"),
+                    int(i < 50 ? i + 1 : i - 49),
+                    e.name.editor_wxstr()));
+        }
+    };
+
+    m_subscriptions.subscribe(pokegold::event::move_names_changed, hmtmChangedFunc);
+    m_subscriptions.subscribe(pokegold::event::hmtms_changed, hmtmChangedFunc);
 
     m_subscriptions.subscribe(pokegold::event::type_names_changed, [this](int idx) {
         if (m_pokemonType1ComboBox->GetCount() == 0)
@@ -224,12 +264,10 @@ void gui::controls::DatabasePanel::InitPokemonTab()
 
             pokegold::romfile::is_changed = true;
             pokegold::event::rom_data_changed.emit();
-
-            debug_log("database", "pokemon name changed (idx={}, name={})", pokemon, str);
         }
     });
 
-    const auto &infoBindFunc = [&](const auto &ev) {
+    const auto &comboBoxBindFunc = [&](const auto &ev) {
         if (m_eventGuard.is_guarded())
             return;
 
@@ -260,17 +298,17 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         }
     };
 
-    m_pokemonGenderRateComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
-    m_pokemonGrowthRateComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
-    m_pokemonType1ComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
-    m_pokemonType2ComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
-    m_pokemonItem1ComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
-    m_pokemonItem2ComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
-    m_pokemonEggGroup1ComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
-    m_pokemonEggGroup2ComboBox->Bind(wxEVT_COMBOBOX, infoBindFunc);
+    m_pokemonGenderRateComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    m_pokemonGrowthRateComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    m_pokemonType1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    m_pokemonType2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    m_pokemonItem1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    m_pokemonItem2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    m_pokemonEggGroup1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    m_pokemonEggGroup2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
 
-    const auto &statsBindFunc = [&](const auto &ev) {
-        const auto catchRatePercentage = wxString::Format("(%.2lf%%)", m_pokemonStatsCatchRateValue->GetValue() / 255.0 * 100.0);
+    const auto &spinCtrlBindFunc = [&](const auto &ev) {
+        const auto catchRatePercentage = wxString::Format(wxT("(%.2lf%%)"), m_pokemonStatsCatchRateValue->GetValue() / 255.0 * 100.0);
         m_pokemonCatchRatePercentage->SetLabelText(catchRatePercentage);
 
         if (m_eventGuard.is_guarded())
@@ -297,6 +335,20 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         hasChanged |= bindStats(pokemon.base_exp, m_pokemonStatsExpValue);
         hasChanged |= bindStats(pokemon.catch_rate, m_pokemonStatsCatchRateValue);
 
+        u8 height = u8(m_pokemonDexHeightValue->GetValue() * 10);
+        if (height != pokemon.height)
+        {
+            pokemon.height = height;
+            hasChanged = true;
+        }
+
+        u16 weight = u16(m_pokemonDexWeightValue->GetValue() * 10);
+        if (weight != pokemon.weight)
+        {
+            pokemon.weight = weight;
+            hasChanged = true;
+        }
+
         if (hasChanged)
         {
             pokegold::romfile::is_changed = true;
@@ -304,14 +356,55 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         }
     };
 
-    m_pokemonStatsHpValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
-    m_pokemonStatsAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
-    m_pokemonStatsDefValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
-    m_pokemonStatsSpAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
-    m_pokemonStatsSpDefValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
-    m_pokemonStatsSpdValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
-    m_pokemonStatsExpValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
-    m_pokemonStatsCatchRateValue->Bind(wxEVT_SPINCTRLDOUBLE, statsBindFunc);
+    m_pokemonStatsHpValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonStatsAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonStatsDefValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonStatsSpAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonStatsSpDefValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonStatsSpdValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonStatsExpValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonStatsCatchRateValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonDexHeightValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    m_pokemonDexWeightValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+
+    m_pokemonDexSpeciesNameText->Bind(wxEVT_TEXT, [&](const auto ev) {
+        if (m_eventGuard.is_guarded())
+            return;
+
+        auto str = m_pokemonDexSpeciesNameText->GetValue().utf8_string();
+        if (pokegold::string::is_charmap_string(str))
+        {
+            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+            pokemon.species_name = str;
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed.emit();
+        }
+    });
+
+    m_pokemonDexDescriptionText->Bind(wxEVT_TEXT, [&](const auto ev) {
+        auto str = m_pokemonDexDescriptionText->GetValue().utf8_string();
+        const auto lines = utils::strings::split(str, '\n');
+
+        size_t maxLen = 0;
+        for (const auto &line : lines)
+            maxLen = std::max(maxLen, size_t(utf8::distance(line.begin(), line.end())));
+
+        const auto dexDescLabel = wxString::Format(wxT("설명 (너비: %d/18)："), int(maxLen));
+        m_pokemonDexDescriptionLabel->SetLabel(dexDescLabel);
+
+        if (m_eventGuard.is_guarded())
+            return;
+
+        if (pokegold::string::is_charmap_string(str))
+        {
+            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+            pokemon.description = str;
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed.emit();
+        }
+    });
 }
 
 void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
@@ -344,13 +437,18 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
             gui::controls::SetValue(m_pokemonStatsExpValue, 0);
             gui::controls::SetValue(m_pokemonStatsCatchRateValue, 0);
 
+            m_pokemonDexSpeciesNameText->SetValue(wxT(""));
+            gui::controls::SetValue(m_pokemonDexHeightValue, 0);
+            gui::controls::SetValue(m_pokemonDexWeightValue, 0);
+            m_pokemonDexDescriptionText->SetValue(wxT(""));
+
             // TODO: ...
         }
         else
         {
             auto &e = pokegold::data::pokemons[selected];
 
-            m_pokemonNoText->SetValue(wxString::Format("%d", e.id));
+            m_pokemonNoText->SetValue(wxString::Format(wxT("%d"), e.id));
             m_pokemonNameText->SetValue(e.name.editor_wxstr());
             gui::controls::Select(m_pokemonGenderRateComboBox, genderRateIndexes[e.gender_rate]);
             gui::controls::Select(m_pokemonGrowthRateComboBox, growthRateIndexes[e.growth_rate]);
@@ -369,6 +467,11 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
             gui::controls::SetValue(m_pokemonStatsSpdValue, e.spd);
             gui::controls::SetValue(m_pokemonStatsExpValue, e.base_exp);
             gui::controls::SetValue(m_pokemonStatsCatchRateValue, e.catch_rate);
+
+            m_pokemonDexSpeciesNameText->SetValue(e.species_name.editor_wxstr());
+            gui::controls::SetValue(m_pokemonDexHeightValue, double(e.height / 10.0));
+            gui::controls::SetValue(m_pokemonDexWeightValue, double(e.weight / 10.0));
+            m_pokemonDexDescriptionText->SetValue(e.description.editor_wxstr());
 
             // TODO: ...
         }

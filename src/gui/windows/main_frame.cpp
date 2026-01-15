@@ -1,6 +1,7 @@
 #include "main_frame.h"
 
 #include "resources.h"
+#include "core.h"
 #include "gui.h"
 #include "utils.h"
 #include "embed.h"
@@ -29,7 +30,6 @@ gui::windows::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
         m_fileExportToIpsMenuItem->Enable(pokegold::romfile::is_opened);
         m_fileExportToXdeltaMenuItem->Enable(pokegold::romfile::is_opened);
         m_gameTestPlayMenuItem->Enable(pokegold::romfile::is_opened);
-        m_gameSetEmulatorMenuItem->Enable(pokegold::romfile::is_opened);
 
         m_saveToolbarItem->Enable(pokegold::romfile::is_opened);
         m_testPlayToolbarItem->Enable(pokegold::romfile::is_opened);
@@ -127,7 +127,8 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
             utils::files::write_bytes_to_file(savePath, saveBytes);
         }
 
-        if (pokegold::config::emulator_path == "" || !std::filesystem::exists(pokegold::config::emulator_path))
+        auto emulator_path = app_settings::get_emulator_path();
+        if (!std::filesystem::exists(emulator_path))
         {
             wxBell();
 
@@ -139,12 +140,13 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
             if (dialog.ShowModal() == wxID_CANCEL)
                 return;
 
-            pokegold::config::emulator_path = dialog.GetPath().utf8_string();
-            if (pokegold::config::emulator_path == "" || !std::filesystem::exists(pokegold::config::emulator_path))
+            app_settings::set_emulator_path(dialog.GetPath().utf8_string());
+            emulator_path = app_settings::get_emulator_path();
+            if (!std::filesystem::exists(emulator_path))
                 return;
         }
 
-        utils::run_process(pokegold::config::emulator_path, outputPath.string(), pokegold::romfile::workspace_path.string());
+        utils::run_process(emulator_path, outputPath.string(), pokegold::romfile::workspace_path.string());
         return;
     }
 
@@ -154,7 +156,7 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (dialog.ShowModal() == wxID_CANCEL)
             return;
 
-        pokegold::config::emulator_path = dialog.GetPath().utf8_string();
+        app_settings::set_emulator_path(dialog.GetPath().utf8_string());
         return;
     }
 
@@ -213,9 +215,11 @@ void gui::windows::MainFrame::OnClose(wxCloseEvent &event)
             event.Veto();
         }
 
+        app_settings::write();
         return;
     }
 
     debug_log("main", "close app");
     event.Skip();
+    app_settings::write();
 }

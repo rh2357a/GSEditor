@@ -1,5 +1,5 @@
-#ifndef _EMBED_TYPES_H_
-#define _EMBED_TYPES_H_
+#ifndef _CORE_EMBED_TYPES_H_
+#define _CORE_EMBED_TYPES_H_
 
 #include <wx/mstream.h>
 #include <wx/wx.h>

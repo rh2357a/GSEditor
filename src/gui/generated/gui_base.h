@@ -37,6 +37,8 @@ namespace gui{ namespace controls{ class DatabasePanel; } }
 #include <wx/statline.h>
 #include <wx/combobox.h>
 #include <wx/spinctrl.h>
+#include <wx/checklst.h>
+#include <wx/wrapsizer.h>
 #include <wx/scrolwin.h>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -78,7 +80,7 @@ class MainFrameBase : public wxFrame
 
 	public:
 
-		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 720,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMINIMIZE_BOX|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~MainFrameBase();
 
@@ -166,6 +168,14 @@ class DatabasePanelBase : public wxPanel
 		wxTextCtrl* m_pokemonDexDescriptionText;
 		wxListCtrl* m_pokemonEvolutionsList;
 		wxListCtrl* m_pokemonLearnMovesList;
+		wxCheckListBox* m_pokemonHmTmList1;
+		wxCheckListBox* m_pokemonHmTmList2;
+		wxCheckListBox* m_pokemonHmTmList3;
+		wxCheckListBox* m_pokemonHmTmList4;
+		wxCheckListBox* m_pokemonHmTmList5;
+		wxCheckListBox* m_pokemonHmTmList6;
+		wxCheckListBox* m_pokemonHmTmList7;
+		wxCheckListBox* m_pokemonHmTmList8;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonSelected( wxCommandEvent& event ) { event.Skip(); }
@@ -173,7 +183,7 @@ class DatabasePanelBase : public wxPanel
 
 	public:
 
-		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,1200 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,1500 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~DatabasePanelBase();
 

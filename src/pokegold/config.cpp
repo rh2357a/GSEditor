@@ -10,7 +10,6 @@ using json = nlohmann::json;
 
 void pokegold::config::close()
 {
-    emulator_path = "";
     assets.clear();
     scripts.clear();
 }
@@ -36,8 +35,6 @@ void pokegold::config::read()
         std::ifstream ifs(data_path, std::ios::binary);
         std::vector<std::uint8_t> bson((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
         json data = json::from_bson(bson);
-
-        emulator_path = data.at("emulator").get<std::string>();
 
         debug_log("pokegold::parse_build_data", "assets size={}", data["assets"].size());
         for (const auto &e : data["assets"])
@@ -71,8 +68,6 @@ void pokegold::config::write()
         return;
 
     auto data = json::object();
-
-    data["emulator"] = emulator_path;
     data["assets"] = json::array();
     data["scripts"] = json::array();
 

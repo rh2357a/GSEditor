@@ -19,7 +19,7 @@
 
 MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	this->SetSizeHints( wxSize( 720,560 ), wxDefaultSize );
+	this->SetSizeHints( wxSize( 740,560 ), wxDefaultSize );
 
 	wxMenuBar* menuBar;
 	menuBar = new wxMenuBar( 0 );
@@ -339,7 +339,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	wxFlexGridSizer* pokemonInfoGrid;
 	pokemonInfoGrid = new wxFlexGridSizer( 7, 2, 0, 0 );
-	pokemonInfoGrid->AddGrowableCol( 1 );
+	pokemonInfoGrid->AddGrowableCol( 0 );
 	pokemonInfoGrid->SetFlexibleDirection( wxBOTH );
 	pokemonInfoGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
@@ -348,7 +348,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonNoLabel->Wrap( -1 );
 	pokemonInfoGrid->Add( pokemonNoLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_pokemonNoText = new wxTextCtrl( m_pokemonContainer, wxID_ANY, wxT("-"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	m_pokemonNoText = new wxTextCtrl( m_pokemonContainer, wxID_ANY, wxT("-"), wxDefaultPosition, wxSize( 220,-1 ), wxTE_READONLY );
 	#ifdef __WXGTK__
 	if ( !m_pokemonNoText->HasFlag( wxTE_MULTILINE ) )
 	{
@@ -357,14 +357,17 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	#else
 	m_pokemonNoText->SetMaxLength( 5 );
 	#endif
-	pokemonInfoGrid->Add( m_pokemonNoText, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 4 );
+	m_pokemonNoText->SetMinSize( wxSize( 220,-1 ) );
+	m_pokemonNoText->SetMaxSize( wxSize( 220,-1 ) );
+
+	pokemonInfoGrid->Add( m_pokemonNoText, 0, wxALIGN_CENTER_VERTICAL|wxALL, 4 );
 
 	wxStaticText* pokemonNameLabel;
 	pokemonNameLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("이름："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonNameLabel->Wrap( -1 );
 	pokemonInfoGrid->Add( pokemonNameLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_pokemonNameText = new wxTextCtrl( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonNameText = new wxTextCtrl( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 220,-1 ), 0 );
 	#ifdef __WXGTK__
 	if ( !m_pokemonNameText->HasFlag( wxTE_MULTILINE ) )
 	{
@@ -373,14 +376,17 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	#else
 	m_pokemonNameText->SetMaxLength( 5 );
 	#endif
-	pokemonInfoGrid->Add( m_pokemonNameText, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 4 );
+	m_pokemonNameText->SetMinSize( wxSize( 220,-1 ) );
+	m_pokemonNameText->SetMaxSize( wxSize( 220,-1 ) );
+
+	pokemonInfoGrid->Add( m_pokemonNameText, 0, wxALIGN_CENTER_VERTICAL|wxALL, 4 );
 
 	wxStaticText* pokemonGenderRateLabel;
 	pokemonGenderRateLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("성비율："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonGenderRateLabel->Wrap( -1 );
 	pokemonInfoGrid->Add( pokemonGenderRateLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_pokemonGenderRateComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_pokemonGenderRateComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 220,-1 ), 0, NULL, wxCB_READONLY );
 	m_pokemonGenderRateComboBox->Append( wxT("00.0% (수컷)") );
 	m_pokemonGenderRateComboBox->Append( wxT("12.5%") );
 	m_pokemonGenderRateComboBox->Append( wxT("25.0%") );
@@ -392,15 +398,17 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonGenderRateComboBox->Append( wxT("100% (암컷)") );
 	m_pokemonGenderRateComboBox->Append( wxT("없음") );
 	m_pokemonGenderRateComboBox->SetFont( wxFont( 10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
+	m_pokemonGenderRateComboBox->SetMinSize( wxSize( 220,-1 ) );
+	m_pokemonGenderRateComboBox->SetMaxSize( wxSize( 220,-1 ) );
 
-	pokemonInfoGrid->Add( m_pokemonGenderRateComboBox, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 4 );
+	pokemonInfoGrid->Add( m_pokemonGenderRateComboBox, 0, wxALIGN_CENTER_VERTICAL|wxALL, 4 );
 
 	wxStaticText* pokemonGrowthRateLabel;
 	pokemonGrowthRateLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("성장률："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonGrowthRateLabel->Wrap( -1 );
 	pokemonInfoGrid->Add( pokemonGrowthRateLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_pokemonGrowthRateComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_pokemonGrowthRateComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 220,-1 ), 0, NULL, wxCB_READONLY );
 	m_pokemonGrowthRateComboBox->Append( wxT("중간 빠름 (125 ~ 1,000,000)") );
 	m_pokemonGrowthRateComboBox->Append( wxT("약간 빠름 (313 ~ 849,970)") );
 	m_pokemonGrowthRateComboBox->Append( wxT("약간 느림 (523 ~ 949,930)") );
@@ -408,52 +416,91 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonGrowthRateComboBox->Append( wxT("빠름 (100 ~ 800,000)") );
 	m_pokemonGrowthRateComboBox->Append( wxT("느림 (156 ~ 1,250,000)") );
 	m_pokemonGrowthRateComboBox->SetFont( wxFont( 10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
+	m_pokemonGrowthRateComboBox->SetMinSize( wxSize( 220,-1 ) );
+	m_pokemonGrowthRateComboBox->SetMaxSize( wxSize( 220,-1 ) );
 
-	pokemonInfoGrid->Add( m_pokemonGrowthRateComboBox, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 4 );
+	pokemonInfoGrid->Add( m_pokemonGrowthRateComboBox, 0, wxALIGN_CENTER_VERTICAL|wxALL, 4 );
 
 	wxStaticText* pokemonTypeLabel;
 	pokemonTypeLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("타입："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonTypeLabel->Wrap( -1 );
 	pokemonInfoGrid->Add( pokemonTypeLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
+	wxPanel* pokemonTypePanel;
+	pokemonTypePanel = new wxPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 220,-1 ), wxTAB_TRAVERSAL );
+	pokemonTypePanel->SetMinSize( wxSize( 220,-1 ) );
+	pokemonTypePanel->SetMaxSize( wxSize( 220,-1 ) );
+
 	wxBoxSizer* pokemonTypeSizer;
 	pokemonTypeSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_pokemonType1ComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	pokemonTypeSizer->Add( m_pokemonType1ComboBox, 1, wxALL, 2 );
+	m_pokemonType1ComboBox = new wxComboBox( pokemonTypePanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 108,-1 ), 0, NULL, wxCB_READONLY );
+	m_pokemonType1ComboBox->SetMinSize( wxSize( 108,-1 ) );
+	m_pokemonType1ComboBox->SetMaxSize( wxSize( 108,-1 ) );
 
-	m_pokemonType2ComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	pokemonTypeSizer->Add( m_pokemonType2ComboBox, 1, wxALL, 2 );
+	pokemonTypeSizer->Add( m_pokemonType1ComboBox, 0, wxALL, 0 );
 
 
-	pokemonInfoGrid->Add( pokemonTypeSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 2 );
+	pokemonTypeSizer->Add( 4, 0, 0, 0, 0 );
+
+	m_pokemonType2ComboBox = new wxComboBox( pokemonTypePanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 108,-1 ), 0, NULL, wxCB_READONLY );
+	m_pokemonType2ComboBox->SetMinSize( wxSize( 108,-1 ) );
+	m_pokemonType2ComboBox->SetMaxSize( wxSize( 108,-1 ) );
+
+	pokemonTypeSizer->Add( m_pokemonType2ComboBox, 0, wxALL, 0 );
+
+
+	pokemonTypePanel->SetSizer( pokemonTypeSizer );
+	pokemonTypePanel->Layout();
+	pokemonInfoGrid->Add( pokemonTypePanel, 0, wxALL, 4 );
 
 	wxStaticText* pokemonItemsLabel;
 	pokemonItemsLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("지닌물건："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonItemsLabel->Wrap( -1 );
 	pokemonInfoGrid->Add( pokemonItemsLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
+	wxPanel* pokemonItemsPanel;
+	pokemonItemsPanel = new wxPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 220,-1 ), wxTAB_TRAVERSAL );
+	pokemonItemsPanel->SetMinSize( wxSize( 220,-1 ) );
+	pokemonItemsPanel->SetMaxSize( wxSize( 220,-1 ) );
+
 	wxBoxSizer* pokemonItemsSizer;
 	pokemonItemsSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_pokemonItem1ComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	pokemonItemsSizer->Add( m_pokemonItem1ComboBox, 1, wxALL, 2 );
+	m_pokemonItem1ComboBox = new wxComboBox( pokemonItemsPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 108,-1 ), 0, NULL, wxCB_READONLY );
+	m_pokemonItem1ComboBox->SetMinSize( wxSize( 108,-1 ) );
+	m_pokemonItem1ComboBox->SetMaxSize( wxSize( 108,-1 ) );
 
-	m_pokemonItem2ComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	pokemonItemsSizer->Add( m_pokemonItem2ComboBox, 1, wxALL, 2 );
+	pokemonItemsSizer->Add( m_pokemonItem1ComboBox, 0, wxALL, 0 );
 
 
-	pokemonInfoGrid->Add( pokemonItemsSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 2 );
+	pokemonItemsSizer->Add( 4, 0, 0, 0, 0 );
+
+	m_pokemonItem2ComboBox = new wxComboBox( pokemonItemsPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 108,-1 ), 0, NULL, wxCB_READONLY );
+	m_pokemonItem2ComboBox->SetMinSize( wxSize( 108,-1 ) );
+	m_pokemonItem2ComboBox->SetMaxSize( wxSize( 108,-1 ) );
+
+	pokemonItemsSizer->Add( m_pokemonItem2ComboBox, 0, wxALL, 0 );
+
+
+	pokemonItemsPanel->SetSizer( pokemonItemsSizer );
+	pokemonItemsPanel->Layout();
+	pokemonInfoGrid->Add( pokemonItemsPanel, 0, wxALL, 4 );
 
 	wxStaticText* pokemonEggGroupLabel;
 	pokemonEggGroupLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("알 그룹："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonEggGroupLabel->Wrap( -1 );
 	pokemonInfoGrid->Add( pokemonEggGroupLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
+	wxPanel* pokemonEggGroupPanel;
+	pokemonEggGroupPanel = new wxPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 220,-1 ), wxTAB_TRAVERSAL );
+	pokemonEggGroupPanel->SetMinSize( wxSize( 220,-1 ) );
+	pokemonEggGroupPanel->SetMaxSize( wxSize( 220,-1 ) );
+
 	wxBoxSizer* pokemonEggGroupSizer;
 	pokemonEggGroupSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_pokemonEggGroup1ComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_pokemonEggGroup1ComboBox = new wxComboBox( pokemonEggGroupPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 108,-1 ), 0, NULL, wxCB_READONLY );
 	m_pokemonEggGroup1ComboBox->Append( wxT("괴물") );
 	m_pokemonEggGroup1ComboBox->Append( wxT("양서류") );
 	m_pokemonEggGroup1ComboBox->Append( wxT("벌레") );
@@ -469,9 +516,15 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonEggGroup1ComboBox->Append( wxT("메타몽") );
 	m_pokemonEggGroup1ComboBox->Append( wxT("드래곤") );
 	m_pokemonEggGroup1ComboBox->Append( wxT("불명") );
-	pokemonEggGroupSizer->Add( m_pokemonEggGroup1ComboBox, 1, wxALL, 2 );
+	m_pokemonEggGroup1ComboBox->SetMinSize( wxSize( 108,-1 ) );
+	m_pokemonEggGroup1ComboBox->SetMaxSize( wxSize( 108,-1 ) );
 
-	m_pokemonEggGroup2ComboBox = new wxComboBox( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	pokemonEggGroupSizer->Add( m_pokemonEggGroup1ComboBox, 0, wxALL, 0 );
+
+
+	pokemonEggGroupSizer->Add( 4, 0, 0, 0, 0 );
+
+	m_pokemonEggGroup2ComboBox = new wxComboBox( pokemonEggGroupPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 108,-1 ), 0, NULL, wxCB_READONLY );
 	m_pokemonEggGroup2ComboBox->Append( wxT("괴물") );
 	m_pokemonEggGroup2ComboBox->Append( wxT("양서류") );
 	m_pokemonEggGroup2ComboBox->Append( wxT("벌레") );
@@ -487,13 +540,18 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonEggGroup2ComboBox->Append( wxT("메타몽") );
 	m_pokemonEggGroup2ComboBox->Append( wxT("드래곤") );
 	m_pokemonEggGroup2ComboBox->Append( wxT("불명") );
-	pokemonEggGroupSizer->Add( m_pokemonEggGroup2ComboBox, 1, wxALL, 2 );
+	m_pokemonEggGroup2ComboBox->SetMinSize( wxSize( 108,-1 ) );
+	m_pokemonEggGroup2ComboBox->SetMaxSize( wxSize( 108,-1 ) );
+
+	pokemonEggGroupSizer->Add( m_pokemonEggGroup2ComboBox, 0, wxALL, 0 );
 
 
-	pokemonInfoGrid->Add( pokemonEggGroupSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 2 );
+	pokemonEggGroupPanel->SetSizer( pokemonEggGroupSizer );
+	pokemonEggGroupPanel->Layout();
+	pokemonInfoGrid->Add( pokemonEggGroupPanel, 0, wxALL, 4 );
 
 
-	pokemonStatsSizer->Add( pokemonInfoGrid, 0, wxEXPAND, 5 );
+	pokemonStatsSizer->Add( pokemonInfoGrid, 0, 0, 5 );
 
 
 	pokemonStatsSizer->Add( 8, 0, 0, wxEXPAND, 5 );
@@ -611,7 +669,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonImageLabelSizer = new wxBoxSizer( wxHORIZONTAL );
 
 	wxStaticText* pokemonImageLabel;
-	pokemonImageLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("이미지"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonImageLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("이미지 && 색상"), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonImageLabel->Wrap( -1 );
 	pokemonImageLabelSizer->Add( pokemonImageLabel, 0, wxALL, 5 );
 
@@ -687,12 +745,12 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonDexDescriptionLabel->Wrap( -1 );
 	pokemonDexSizer->Add( m_pokemonDexDescriptionLabel, 0, wxALL, 5 );
 
-	m_pokemonDexDescriptionText = new wxTextCtrl( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( -1,72 ), wxTE_MULTILINE|wxTE_NO_VSCROLL );
+	m_pokemonDexDescriptionText = new wxTextCtrl( m_pokemonContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 320,72 ), wxTE_MULTILINE|wxTE_NO_VSCROLL|wxBORDER_SIMPLE );
 	m_pokemonDexDescriptionText->SetFont( wxFont( 14, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
-	m_pokemonDexDescriptionText->SetMinSize( wxSize( -1,72 ) );
-	m_pokemonDexDescriptionText->SetMaxSize( wxSize( -1,72 ) );
+	m_pokemonDexDescriptionText->SetMinSize( wxSize( 320,72 ) );
+	m_pokemonDexDescriptionText->SetMaxSize( wxSize( 320,72 ) );
 
-	pokemonDexSizer->Add( m_pokemonDexDescriptionText, 0, wxALL|wxEXPAND, 5 );
+	pokemonDexSizer->Add( m_pokemonDexDescriptionText, 0, wxALL, 5 );
 
 
 	pokemonPanelContentSizer->Add( pokemonDexSizer, 0, wxALL|wxEXPAND, 5 );
@@ -736,6 +794,68 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 
 	pokemonPanelContentSizer->Add( pokemonTMHMsLabelSizer, 0, wxEXPAND, 5 );
+
+	wxWrapSizer* hmTmSizer;
+	hmTmSizer = new wxWrapSizer( wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS );
+
+	wxString m_pokemonHmTmList1Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList1NChoices = sizeof( m_pokemonHmTmList1Choices ) / sizeof( wxString );
+	m_pokemonHmTmList1 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList1NChoices, m_pokemonHmTmList1Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList1->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList1, 0, wxALL|wxEXPAND, 2 );
+
+	wxString m_pokemonHmTmList2Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList2NChoices = sizeof( m_pokemonHmTmList2Choices ) / sizeof( wxString );
+	m_pokemonHmTmList2 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList2NChoices, m_pokemonHmTmList2Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList2->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList2, 0, wxALL|wxEXPAND, 2 );
+
+	wxString m_pokemonHmTmList3Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList3NChoices = sizeof( m_pokemonHmTmList3Choices ) / sizeof( wxString );
+	m_pokemonHmTmList3 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList3NChoices, m_pokemonHmTmList3Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList3->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList3, 0, wxALL|wxEXPAND, 2 );
+
+	wxString m_pokemonHmTmList4Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList4NChoices = sizeof( m_pokemonHmTmList4Choices ) / sizeof( wxString );
+	m_pokemonHmTmList4 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList4NChoices, m_pokemonHmTmList4Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList4->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList4, 0, wxALL|wxEXPAND, 2 );
+
+	wxString m_pokemonHmTmList5Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList5NChoices = sizeof( m_pokemonHmTmList5Choices ) / sizeof( wxString );
+	m_pokemonHmTmList5 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList5NChoices, m_pokemonHmTmList5Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList5->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList5, 0, wxALL|wxEXPAND, 2 );
+
+	wxString m_pokemonHmTmList6Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList6NChoices = sizeof( m_pokemonHmTmList6Choices ) / sizeof( wxString );
+	m_pokemonHmTmList6 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList6NChoices, m_pokemonHmTmList6Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList6->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList6, 0, wxALL|wxEXPAND, 2 );
+
+	wxString m_pokemonHmTmList7Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList7NChoices = sizeof( m_pokemonHmTmList7Choices ) / sizeof( wxString );
+	m_pokemonHmTmList7 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList7NChoices, m_pokemonHmTmList7Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList7->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList7, 0, wxALL|wxEXPAND, 2 );
+
+	wxString m_pokemonHmTmList8Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
+	int m_pokemonHmTmList8NChoices = sizeof( m_pokemonHmTmList8Choices ) / sizeof( wxString );
+	m_pokemonHmTmList8 = new wxCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList8NChoices, m_pokemonHmTmList8Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList8->SetMinSize( wxSize( 160,-1 ) );
+
+	hmTmSizer->Add( m_pokemonHmTmList8, 0, wxALL|wxEXPAND, 2 );
+
+
+	pokemonPanelContentSizer->Add( hmTmSizer, 1, wxALL|wxEXPAND, 4 );
 
 
 	m_pokemonContainer->SetSizer( pokemonPanelContentSizer );

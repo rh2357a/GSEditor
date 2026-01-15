@@ -529,6 +529,8 @@ std::vector<pokegold::data::bad_data> pokegold::open(const std::filesystem::path
     debug_log("pokegold::open", "done");
     event::item_names_changed.emit(-1);
     event::pokemon_names_changed.emit(-1);
+    event::move_names_changed.emit(-1);
+    event::hmtms_changed.emit(-1);
     event::type_names_changed.emit(-1);
 
     // MEMO: 손상 데이터를 내부적으로 처리하기 때문에 변경된 상태를 알림

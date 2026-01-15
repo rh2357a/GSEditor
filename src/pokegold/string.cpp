@@ -50,6 +50,13 @@ pokegold::string::string(const std::string &str)
                 break;
             }
 
+            if (ch == "\n")
+            {
+                m_bytes.push_back(0x59);
+                matched = true;
+                break;
+            }
+
             if (!ch.empty() && ch.front() == '[' && ch.back() == ']')
             {
                 try
@@ -139,6 +146,12 @@ bool pokegold::string::is_charmap_string(std::string_view str)
                 break;
             }
 
+            if (ch == "\n")
+            {
+                matched = true;
+                break;
+            }
+
             if (!ch.empty() && ch.front() == '[' && ch.back() == ']')
             {
                 try
@@ -206,6 +219,7 @@ std::string pokegold::string::editor_str()
 
     auto temp_str = ss.str();
     temp_str = utils::strings::replace_all(temp_str, "[50]", "");
+    temp_str = utils::strings::replace_all(temp_str, "[59]", "\n");
 
     return m_cached_str = temp_str;
 }
