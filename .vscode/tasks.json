@@ -2,28 +2,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "GSEditor.exe",
+      "label": "build",
       "type": "shell",
       "command": "${env:MSYS2_HOME}\\msys2_shell.cmd",
       "args": ["-defterm", "-here", "-no-start", "-mingw64", "-c", "make"],
-      "options": {
-        "env": {
-          "DEBUG": "1"
-        }
-      }
-    },
-    {
-      "label": "generate_compile_commands.exe",
-      "type": "shell",
-      "command": "${env:MSYS2_HOME}\\msys2_shell.cmd",
-      "args": [
-        "-defterm",
-        "-here",
-        "-no-start",
-        "-mingw64",
-        "-c",
-        "make build"
-      ],
       "options": {
         "env": {
           "DEBUG": "1"

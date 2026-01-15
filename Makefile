@@ -6,11 +6,17 @@ else
 BUILD_TARGET := release
 endif
 
-SOURCE_DIR       := src
-RESOURCE_DIR     := res
-LIB_DIR          := lib
-BUILD_DIR        := build
-TOOLS_DIR        := tools
+ifeq ($(CXXSYNC), 1)
+WORK_DIR := $(shell cygpath -m $(CURDIR))/
+else
+WORK_DIR :=
+endif
+
+SOURCE_DIR       := $(WORK_DIR)src
+RESOURCE_DIR     := $(WORK_DIR)res
+LIB_DIR          := $(WORK_DIR)lib
+BUILD_DIR        := $(WORK_DIR)build
+TOOLS_DIR        := $(WORK_DIR)tools
 BUILD_TARGET_DIR := $(BUILD_DIR)/$(BUILD_TARGET)
 BUILD_OBJ_DIR    := $(BUILD_TARGET_DIR)/obj
 BUILD_TOOLS_DIR  := $(BUILD_TARGET_DIR)/tools
@@ -57,7 +63,7 @@ CXXFLAGS := -std=c++20 -fpermissive \
 
 DEFINES := -DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN
 
-INCLUDES := -Isrc \
+INCLUDES := -I$(SOURCE_DIR) \
             -I$(RESOURCE_DIR)
 
 LDFLAGS := -static -static-libgcc -static-libstdc++ \
@@ -86,7 +92,7 @@ RESOURCES := $(shell find $(RESOURCE_DIR) -type f)
 
 ################################################################################
 
-.PHONY: all clean build
+.PHONY: all clean cxxsync
 
 all: $(TARGET)
 
@@ -107,7 +113,7 @@ $(BUILD_OBJ_DIR)/%.o: $(SOURCE_DIR)/%.c
 
 $(BUILD_TOOLS_DIR)/%: $(TOOLS_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -std=c++20 -o $@ $<
+	$(CXX) -s -Wl,--gc-sections -static -static-libgcc -static-libstdc++ -lmsvcrt -std=c++20 -fpermissive -O3 -ffunction-sections -fdata-sections -DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN -o $@ $<
 
 $(BUILD_OBJ_DIR)/%.rc.o: $(SOURCE_DIR)/%.rc $(RESOURCES)
 	@mkdir -p $(dir $@)
@@ -121,20 +127,24 @@ $(BUILD_OBJ_DIR)/embed.g.cpp: $(BUILD_TOOLS_DIR)/embed $(SOURCE_DIR)/embed.h $(R
 	@mkdir -p $(dir $@)
 	$(BUILD_TOOLS_DIR)/embed $(SOURCE_DIR)/embed.h $@
 
-build:
+ifneq ($(DEBUG), 1)
+cxxsync:
+	@$(MAKE) cxxsync DEBUG=1 CXXSYNC=1
+else
+cxxsync: $(BUILD_TOOLS_DIR)/cxxsync
 	@mkdir -p $(BUILD_TARGET_DIR)/bin
-	@$(CXX) -std=c++20 -o $(BUILD_TARGET_DIR)/bin/generate_compile_commands.exe $(TOOLS_DIR)/generate_compile_commands.cpp
-	$(BUILD_TARGET_DIR)/bin/generate_compile_commands.exe \
-		--workdir $(shell cygpath -m $(CURDIR)) \
-		--output $(shell cygpath -m $(CURDIR)/$(BUILD_DIR)/compile_commands.json) \
+	@$(BUILD_TOOLS_DIR)/cxxsync \
+		--workspace-dir $(WORK_DIR) \
+		--output-dir $(WORK_DIR).vscode \
 		--cxx $(shell cygpath -m $(shell which $(CXX))) \
 		--cc $(shell cygpath -m $(shell which $(CC))) \
 		--cxx-flags "\"$(CXXFLAGS) $(DEFINES) $(INCLUDES)\"" \
 		--cc-flags "\"$(CCFLAGS) $(DEFINES) $(INCLUDES)\"" \
-		--sources $(foreach f,$(SOURCES),"$(f)") $(foreach f,$(TOOLSRC),"$(f)") \
 		--toolchain-includes $(shell $(CXX) -xc++ -E -v /dev/null 2>&1 | awk '/#include <...> search starts here:/ {flag=1; next} /End of search list./ {flag=0} flag {print $1}')
+endif
 
 clean:
+	rm -rf .vscode/c_cpp_properties.json .vscode/compile_commands.json
 	rm -rf $(BUILD_DIR)
 
 -include $(OBJECTS:.o=.d)

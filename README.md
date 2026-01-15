@@ -14,15 +14,12 @@
 
 ### VSCode 확장
 
-* `C/C++`: .clang-format, 인텔리센스, 디버그 구성
+* `C/C++`: .clang-format, 인텔리센스, 디버그 구성,
 
 ### 빌드 설명
 
-* 이미지 (선택)
-![타겟 선택](./docs/build_target.png)
-
-* `GSEditor.exe`: 앱 빌드 및 디버깅 실행
-* `generate_compile_commands.exe`: 인텔리센스 전용 `compile_commands.json` 생성
+* `make`: 프로젝트를 빌드합니다. `build/release/bin/GSEditor.exe`가 생성됩니다.
+* `make cxxsync`: 인텔리센스를 위한 `compile_commands.json`을 생성합니다.
 
 ## 프로젝트 의존성
 
@@ -35,6 +32,7 @@
 ### 라이브러리
 
 * mingw-w64-x86_64-wxwidgets3.2-msw
+* mingw-w64-x86_64-utf8cpp
 * xxhash
 * xdelta3
 * lz, lzma

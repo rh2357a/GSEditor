@@ -1,4 +1,5 @@
 {
+  "editor.formatOnSave": true,
   "C_Cpp.autoAddFileAssociations": false,
-  "editor.formatOnSave": true
+  "C_Cpp.formatting": "clangFormat"
 }
