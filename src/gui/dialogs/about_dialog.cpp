@@ -7,7 +7,7 @@
 #include <string>
 #include <format>
 
-gui::windows::AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(parent)
+gui::dialogs::AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(parent)
 {
     m_authorText->SetLabel(wxT("rh2357a (rh2357a@gmail.com)"));
 

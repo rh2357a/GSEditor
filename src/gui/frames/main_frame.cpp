@@ -13,7 +13,7 @@
 #include <format>
 #include <filesystem>
 
-gui::windows::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
+gui::frames::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
 {
     const auto &bmp = embed::app_ico_to_wx_bitmap();
     wxIcon icon;
@@ -27,8 +27,8 @@ gui::windows::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
         m_mainPanel->Enable(pokegold::romfile::is_opened);
 
         m_fileSaveMenuItem->Enable(pokegold::romfile::is_opened);
-        m_fileExportToIpsMenuItem->Enable(pokegold::romfile::is_opened);
-        m_fileExportToXdeltaMenuItem->Enable(pokegold::romfile::is_opened);
+        m_gameExportToIpsMenuItem->Enable(pokegold::romfile::is_opened);
+        m_gameExportToXdeltaMenuItem->Enable(pokegold::romfile::is_opened);
         m_gameTestPlayMenuItem->Enable(pokegold::romfile::is_opened);
 
         m_saveToolbarItem->Enable(pokegold::romfile::is_opened);
@@ -65,20 +65,19 @@ void SaveInternal()
     pokegold::event::rom_data_changed.emit();
 }
 
-void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
+void gui::frames::MainFrame::OnMenuSelected(wxCommandEvent &event)
 {
     const auto id = event.GetId();
 
     if (id == wxID_EXIT)
     {
-        // wxExit();
         Close();
         return;
     }
 
     if (id == wxID_ABOUT)
     {
-        windows::AboutDialog dialog(this);
+        dialogs::AboutDialog dialog(this);
         dialog.ShowModal();
         return;
     }
@@ -103,7 +102,7 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
         const auto result = pokegold::open(openDlg.GetPath().utf8_string());
         if (!result.empty())
         {
-            windows::BadDataDialog dialog(this, result);
+            dialogs::BadDataDialog dialog(this, result);
             dialog.ShowModal();
         }
         return;
@@ -191,7 +190,7 @@ void gui::windows::MainFrame::OnMenuSelected(wxCommandEvent &event)
     }
 }
 
-void gui::windows::MainFrame::OnClose(wxCloseEvent &event)
+void gui::frames::MainFrame::OnClose(wxCloseEvent &event)
 {
     if (pokegold::romfile::is_changed)
     {

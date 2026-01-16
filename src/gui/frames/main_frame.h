@@ -1,11 +1,11 @@
-#ifndef _GUI_WINDOWS_MAIN_FRAME_H_
-#define _GUI_WINDOWS_MAIN_FRAME_H_
+#ifndef _GUI_FRAMES_MAIN_FRAME_H_
+#define _GUI_FRAMES_MAIN_FRAME_H_
 
 #include "gui/generated/gui_base.h"
 #include "utils.h"
 #include <vector>
 
-namespace gui::windows {
+namespace gui::frames {
 
 class MainFrame : public MainFrameBase
 {
@@ -20,6 +20,6 @@ private:
     void OnClose(wxCloseEvent &event) override;
 };
 
-} // namespace gui::windows
+} // namespace gui::frames
 
 #endif

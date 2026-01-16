@@ -1,5 +1,8 @@
-#ifndef _GUI_HELPERS_H_
-#define _GUI_HELPERS_H_
+#ifndef _GUI_DIALOGS_H_
+#define _GUI_DIALOGS_H_
+
+#include "gui/dialogs/about_dialog.h"
+#include "gui/dialogs/bad_data_dialog.h"
 
 #include <wx/wx.h>
 

@@ -1,7 +1,9 @@
 #ifndef _GUI_CONTROLS_H_
 #define _GUI_CONTROLS_H_
 
+#include "gui/controls/colored_lists.h"
 #include "gui/controls/database_panel.h"
+
 #include <initializer_list>
 
 namespace gui::controls {
@@ -10,7 +12,7 @@ inline void NestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
 {
     for (auto *ctrl : ctrls)
     {
-        if (!ctrl)
+        if (ctrl == nullptr)
             continue;
 
         if (auto *spin = wxDynamicCast(ctrl, wxSpinCtrlDouble))

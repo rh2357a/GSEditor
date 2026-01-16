@@ -9,6 +9,9 @@
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
+namespace gui{ namespace controls{ class ColoredCheckListBox; } }
+namespace gui{ namespace controls{ class ColoredListBox; } }
+namespace gui{ namespace controls{ class ColoredListCtrl; } }
 namespace gui{ namespace controls{ class DatabasePanel; } }
 
 #include <wx/string.h>
@@ -53,20 +56,16 @@ class MainFrameBase : public wxFrame
 	protected:
 		enum
 		{
-			wxID_IPS = 6000,
+			wxID_TEST_PLAY = 6000,
+			wxID_IPS,
 			wxID_XDELTA,
-			wxID_TEST_PLAY,
 			wxID_EMULATOR,
 		};
 
-		wxMenu* m_fileMenu;
 		wxMenuItem* m_fileSaveMenuItem;
-		wxMenuItem* m_fileExportToIpsMenuItem;
-		wxMenuItem* m_fileExportToXdeltaMenuItem;
-		wxMenu* m_gameMenu;
 		wxMenuItem* m_gameTestPlayMenuItem;
-		wxMenuItem* m_gameSetEmulatorMenuItem;
-		wxMenu* m_helpMenu;
+		wxMenuItem* m_gameExportToIpsMenuItem;
+		wxMenuItem* m_gameExportToXdeltaMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
@@ -80,7 +79,7 @@ class MainFrameBase : public wxFrame
 
 	public:
 
-		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,580 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~MainFrameBase();
 
@@ -133,6 +132,23 @@ class BadDataDialogBase : public wxDialog
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+/// Class FindDialog
+///////////////////////////////////////////////////////////////////////////////
+class FindDialog : public wxDialog
+{
+	private:
+
+	protected:
+
+	public:
+
+		FindDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("찾기"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~FindDialog();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
 /// Class DatabasePanelBase
 ///////////////////////////////////////////////////////////////////////////////
 class DatabasePanelBase : public wxPanel
@@ -140,7 +156,13 @@ class DatabasePanelBase : public wxPanel
 	private:
 
 	protected:
-		wxListBox* m_pokemonList;
+		enum
+		{
+			wxID_POKEMON_TMHMS_CHECK_ALL = 6000,
+			wxID_POKEMON_TMHMS_CLEAR,
+		};
+
+		gui::controls::ColoredListBox* m_pokemonList;
 		wxScrolledWindow* m_pokemonContainer;
 		wxTextCtrl* m_pokemonNoText;
 		wxTextCtrl* m_pokemonNameText;
@@ -166,19 +188,20 @@ class DatabasePanelBase : public wxPanel
 		wxSpinCtrlDouble* m_pokemonDexWeightValue;
 		wxStaticText* m_pokemonDexDescriptionLabel;
 		wxTextCtrl* m_pokemonDexDescriptionText;
-		wxListCtrl* m_pokemonEvolutionsList;
-		wxListCtrl* m_pokemonLearnMovesList;
-		wxCheckListBox* m_pokemonHmTmList1;
-		wxCheckListBox* m_pokemonHmTmList2;
-		wxCheckListBox* m_pokemonHmTmList3;
-		wxCheckListBox* m_pokemonHmTmList4;
-		wxCheckListBox* m_pokemonHmTmList5;
-		wxCheckListBox* m_pokemonHmTmList6;
-		wxCheckListBox* m_pokemonHmTmList7;
-		wxCheckListBox* m_pokemonHmTmList8;
+		gui::controls::ColoredListCtrl* m_pokemonEvolutionsList;
+		gui::controls::ColoredListCtrl* m_pokemonLearnMovesList;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList1;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList2;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList3;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList4;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList5;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList6;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList7;
+		gui::controls::ColoredCheckListBox* m_pokemonHmTmList8;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPokemonTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:

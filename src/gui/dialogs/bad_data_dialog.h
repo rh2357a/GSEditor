@@ -1,12 +1,12 @@
-#ifndef _GUI_WINDOWS_BAD_DATA_DIALOG_H_
-#define _GUI_WINDOWS_BAD_DATA_DIALOG_H_
+#ifndef _GUI_DIALOGS_BAD_DATA_DIALOG_H_
+#define _GUI_DIALOGS_BAD_DATA_DIALOG_H_
 
 #include "gui/generated/gui_base.h"
 #include "pokegold.h"
 
 #include <vector>
 
-namespace gui::windows {
+namespace gui::dialogs {
 
 class BadDataDialog : public BadDataDialogBase
 {
@@ -20,6 +20,6 @@ public:
     void OnNoButtonClick(wxCommandEvent &event) override;
 };
 
-} // namespace gui::windows
+} // namespace gui::dialogs
 
 #endif

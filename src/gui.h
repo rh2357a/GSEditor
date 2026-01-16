@@ -5,7 +5,7 @@
 // #include "gui/generated/gui_base.h"
 
 #include "gui/controls.h"
-#include "gui/windows.h"
 #include "gui/dialogs.h"
+#include "gui/frames.h"
 
 #endif

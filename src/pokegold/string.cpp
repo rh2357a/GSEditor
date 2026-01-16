@@ -17,8 +17,6 @@ std::unordered_map<std::string_view, u16> charmap_reverse;
 
 pokegold::string::string(const std::string &str)
 {
-    m_cached_str = str;
-
     for (size_t i = 0; i < str.size();)
     {
         size_t current_len = 0;
@@ -85,6 +83,9 @@ pokegold::string::string(const std::string &str)
 
         i += current_len;
     }
+
+    if constexpr (DEBUG_MODE)
+        editor_str();
 }
 
 pokegold::string::string(std::vector<u8> bytes) : m_bytes(std::move(bytes))

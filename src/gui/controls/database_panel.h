@@ -29,6 +29,7 @@ private:
 
 private:
     void OnPokemonSelected(wxCommandEvent &event) override;
+    void OnPokemonTMHMsButtonClick(wxCommandEvent &event) override;
 };
 
 } // namespace gui::controls

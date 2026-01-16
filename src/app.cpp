@@ -23,7 +23,7 @@ public:
         const auto legacy_data_path = utils::files::get_app_data_path_legacy();
         std::filesystem::remove_all(legacy_data_path);
 
-        gui::windows::MainFrame *frame = new gui::windows::MainFrame(nullptr);
+        gui::frames::MainFrame *frame = new gui::frames::MainFrame(nullptr);
         frame->Show();
 
         return true;

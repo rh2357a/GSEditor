@@ -155,7 +155,7 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         }
     });
 
-    auto hmtms = std::make_shared<std::vector<wxCheckListBox *>>(std::vector<wxCheckListBox *>{
+    auto tmhmCtrls = std::make_shared<std::vector<wxCheckListBox *>>(std::vector<wxCheckListBox *>{
         m_pokemonHmTmList1,
         m_pokemonHmTmList2,
         m_pokemonHmTmList3,
@@ -166,11 +166,11 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         m_pokemonHmTmList8,
     });
 
-    auto hmtmChangedFunc = [hmtms](int idx) {
+    auto hmtmChangedFunc = [tmhmCtrls](int idx) {
         for (size_t i = 0; i < 57; i++)
         {
             auto &e = pokegold::data::moves[pokegold::data::tmhms[i] - 1];
-            auto ctrl = (*hmtms)[i / 8];
+            auto ctrl = (*tmhmCtrls)[i / 8];
             ctrl->SetString(
                 i % 8,
                 wxString::Format(
@@ -375,7 +375,7 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         if (pokegold::string::is_charmap_string(str))
         {
             auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
-            pokemon.species_name = str;
+            pokemon.species_name = str + "[50]";
 
             pokegold::romfile::is_changed = true;
             pokegold::event::rom_data_changed.emit();
@@ -399,12 +399,31 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         if (pokegold::string::is_charmap_string(str))
         {
             auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
-            pokemon.description = str;
+            pokemon.description = str + "[50]";
 
             pokegold::romfile::is_changed = true;
             pokegold::event::rom_data_changed.emit();
         }
     });
+
+    for (auto *ctrl : *tmhmCtrls)
+    {
+        ctrl->Bind(wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, [&, tmhmCtrls](const auto ev) {
+            if (m_eventGuard.is_guarded())
+                return;
+
+            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+            size_t i = 0;
+            for (auto *ctrl2 : *tmhmCtrls)
+            {
+                for (unsigned j = 0; j < ctrl2->GetCount(); j++)
+                    pokemon.tmhms[i++] = ctrl2->IsChecked(j);
+            }
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed.emit();
+        });
+    }
 }
 
 void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
@@ -414,6 +433,17 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
 
     m_eventGuard([&] {
         m_pokemonContainer->Enable(selected != -1);
+
+        auto tmhmCtrls = std::vector<wxCheckListBox *>{
+            m_pokemonHmTmList1,
+            m_pokemonHmTmList2,
+            m_pokemonHmTmList3,
+            m_pokemonHmTmList4,
+            m_pokemonHmTmList5,
+            m_pokemonHmTmList6,
+            m_pokemonHmTmList7,
+            m_pokemonHmTmList8,
+        };
 
         if (selected == -1)
         {
@@ -443,6 +473,12 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
             m_pokemonDexDescriptionText->SetValue(wxT(""));
 
             // TODO: ...
+
+            for (auto *ctrl : tmhmCtrls)
+            {
+                for (unsigned int i = 0; i < ctrl->GetCount(); i++)
+                    ctrl->Check(i, false);
+            }
         }
         else
         {
@@ -474,6 +510,67 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
             m_pokemonDexDescriptionText->SetValue(e.description.editor_wxstr());
 
             // TODO: ...
+
+            size_t tmhmIdx = 0;
+            for (auto *ctrl : tmhmCtrls)
+            {
+                for (unsigned int i = 0; i < ctrl->GetCount(); i++)
+                    ctrl->Check(i, e.tmhms[tmhmIdx++]);
+            }
         }
     });
+}
+
+void gui::controls::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)
+{
+    int id = event.GetId();
+
+    auto tmhmCtrls = std::vector<wxCheckListBox *>{
+        m_pokemonHmTmList1,
+        m_pokemonHmTmList2,
+        m_pokemonHmTmList3,
+        m_pokemonHmTmList4,
+        m_pokemonHmTmList5,
+        m_pokemonHmTmList6,
+        m_pokemonHmTmList7,
+        m_pokemonHmTmList8,
+    };
+
+    if (id == wxID_POKEMON_TMHMS_CHECK_ALL)
+    {
+        m_eventGuard([&] {
+            for (auto *ctrl : tmhmCtrls)
+            {
+                for (unsigned int i = 0; i < ctrl->GetCount(); i++)
+                    ctrl->Check(i, true);
+            }
+
+            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+            for (auto &e : pokemon.tmhms)
+                e = true;
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed.emit();
+        });
+        return;
+    }
+
+    if (id == wxID_POKEMON_TMHMS_CLEAR)
+    {
+        m_eventGuard([&] {
+            for (auto *ctrl : tmhmCtrls)
+            {
+                for (unsigned int i = 0; i < ctrl->GetCount(); i++)
+                    ctrl->Check(i, false);
+            }
+
+            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+            for (auto &e : pokemon.tmhms)
+                e = false;
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed.emit();
+        });
+        return;
+    }
 }

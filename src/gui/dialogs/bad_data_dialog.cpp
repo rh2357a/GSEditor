@@ -6,7 +6,7 @@
 #include <string>
 #include <format>
 
-gui::windows::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pokegold::data::bad_data> badDataList) : BadDataDialogBase(parent)
+gui::dialogs::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pokegold::data::bad_data> badDataList) : BadDataDialogBase(parent)
 {
     using namespace pokegold::data;
 
@@ -127,22 +127,22 @@ gui::windows::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         m_badDataList->SetColumnWidth(i, wxLIST_AUTOSIZE);
 }
 
-void gui::windows::BadDataDialog::OnDialogShow(wxShowEvent &event)
+void gui::dialogs::BadDataDialog::OnDialogShow(wxShowEvent &event)
 {
     if (event.IsShown())
         wxBell();
 }
 
-void gui::windows::BadDataDialog::OnConfirmButtonClick(wxCommandEvent &event)
+void gui::dialogs::BadDataDialog::OnConfirmButtonClick(wxCommandEvent &event)
 {
     Close();
 }
 
-void gui::windows::BadDataDialog::OnYesButtonClick(wxCommandEvent &event)
+void gui::dialogs::BadDataDialog::OnYesButtonClick(wxCommandEvent &event)
 {
     EndModal(wxID_YES);
 }
-void gui::windows::BadDataDialog::OnNoButtonClick(wxCommandEvent &event)
+void gui::dialogs::BadDataDialog::OnNoButtonClick(wxCommandEvent &event)
 {
     EndModal(wxID_NO);
 }
