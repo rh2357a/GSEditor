@@ -1,7 +1,7 @@
 #ifndef _GUI_FRAMES_MAIN_FRAME_H_
 #define _GUI_FRAMES_MAIN_FRAME_H_
 
-#include "gui/generated/gui_base.h"
+#include "gui.h"
 #include "utils.h"
 #include <vector>
 

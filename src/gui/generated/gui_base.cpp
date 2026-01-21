@@ -19,7 +19,7 @@
 
 MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	this->SetSizeHints( wxSize( 760,580 ), wxDefaultSize );
+	this->SetSizeHints( wxSize( 740,560 ), wxDefaultSize );
 
 	wxMenuBar* menuBar;
 	menuBar = new wxMenuBar( 0 );
@@ -77,9 +77,8 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	wxMenu* settingsMenu;
 	settingsMenu = new wxMenu();
-	wxMenuItem* settingsSetEmulatorMenuItem;
-	settingsSetEmulatorMenuItem = new wxMenuItem( settingsMenu, wxID_EMULATOR, wxString( wxT("에뮬레이터 설정(&E)...") ) , wxT("테스트를 위해 에뮬레이터를 등록합니다."), wxITEM_NORMAL );
-	settingsMenu->Append( settingsSetEmulatorMenuItem );
+	m_settingsSetEmulatorMenuItem = new wxMenuItem( settingsMenu, wxID_EMULATOR, wxString( wxT("에뮬레이터 설정(&E)...") ) , wxEmptyString, wxITEM_NORMAL );
+	settingsMenu->Append( m_settingsSetEmulatorMenuItem );
 
 	menuBar->Append( settingsMenu, wxT("설정(&S)") );
 
@@ -132,7 +131,7 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameTestPlayMenuItem->GetId());
 	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameExportToIpsMenuItem->GetId());
 	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameExportToXdeltaMenuItem->GetId());
-	settingsMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, settingsSetEmulatorMenuItem->GetId());
+	settingsMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_settingsSetEmulatorMenuItem->GetId());
 	helpMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, helpAboutMenuItem->GetId());
 	this->Connect( openToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 	this->Connect( m_saveToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
@@ -245,7 +244,7 @@ BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxS
 	messageV2->Wrap( -1 );
 	listSizer->Add( messageV2, 0, wxALL|wxEXPAND, 16 );
 
-	m_badDataList = new wxListCtrl( topPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_STATIC );
+	m_badDataList = new gui::controls::ColoredListCtrl( topPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_STATIC );
 	listSizer->Add( m_badDataList, 1, wxALL|wxEXPAND, 5 );
 
 
@@ -327,11 +326,11 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* pokemonInnerPanelSizer;
 	pokemonInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_pokemonList = new gui::controls::ColoredListBox( pokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 144,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	m_pokemonList = new gui::controls::ColoredListBox( pokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
 	pokemonInnerPanelSizer->Add( m_pokemonList, 0, wxALL|wxEXPAND, 2 );
 
 	m_pokemonContainer = new wxScrolledWindow( pokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxVSCROLL );
-	m_pokemonContainer->SetScrollRate( 5, 20 );
+	m_pokemonContainer->SetScrollRate( 5, 16 );
 	m_pokemonContainer->SetBackgroundColour( wxColour( 255, 255, 255 ) );
 
 	wxBoxSizer* pokemonPanelContentSizer;
@@ -617,7 +616,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonStatsGrid->Add( 0, 0, 1, wxEXPAND, 5 );
 
 	wxStaticText* pokemonStatsSpAtkLabel;
-	pokemonStatsSpAtkLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("특수 공격："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonStatsSpAtkLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("특수공격："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonStatsSpAtkLabel->Wrap( -1 );
 	pokemonStatsGrid->Add( pokemonStatsSpAtkLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
@@ -629,7 +628,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonStatsGrid->Add( 0, 0, 1, wxEXPAND, 5 );
 
 	wxStaticText* pokemonStatsSpDefHpLabel;
-	pokemonStatsSpDefHpLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("특수 방어："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonStatsSpDefHpLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("특수방어："), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonStatsSpDefHpLabel->Wrap( -1 );
 	pokemonStatsGrid->Add( pokemonStatsSpDefHpLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
@@ -683,6 +682,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	pokemonPanelContentSizer->Add( pokemonStatsSizer, 0, wxALL|wxEXPAND, 5 );
 
+
+	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
+
 	wxBoxSizer* pokemonImageLabelSizer;
 	pokemonImageLabelSizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -697,6 +699,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 
 	pokemonPanelContentSizer->Add( pokemonImageLabelSizer, 0, wxEXPAND, 5 );
+
+
+	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
 
 	wxBoxSizer* pokemonDexLabelSizer;
 	pokemonDexLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -757,7 +762,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonDexInfoGrid->Add( m_pokemonDexWeightValue, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 4 );
 
 
-	pokemonDexSizer->Add( pokemonDexInfoGrid, 0, wxALL, 5 );
+	pokemonDexSizer->Add( pokemonDexInfoGrid, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
 
 	m_pokemonDexDescriptionLabel = new wxStaticText( m_pokemonContainer, wxID_ANY, wxT("{description_label}"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonDexDescriptionLabel->Wrap( -1 );
@@ -772,6 +777,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 
 	pokemonPanelContentSizer->Add( pokemonDexSizer, 0, wxALL|wxEXPAND, 5 );
+
+
+	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
 
 	wxBoxSizer* pokemonEvoLearnsLabelSizer;
 	pokemonEvoLearnsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -788,15 +796,104 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	pokemonPanelContentSizer->Add( pokemonEvoLearnsLabelSizer, 0, wxEXPAND, 5 );
 
-	m_pokemonEvolutionsList = new gui::controls::ColoredListCtrl( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_SIMPLE );
-	m_pokemonEvolutionsList->SetMinSize( wxSize( -1,128 ) );
 
-	pokemonPanelContentSizer->Add( m_pokemonEvolutionsList, 0, wxALL|wxEXPAND, 8 );
+	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
 
-	m_pokemonLearnMovesList = new gui::controls::ColoredListCtrl( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_SIMPLE );
-	m_pokemonLearnMovesList->SetMinSize( wxSize( -1,160 ) );
+	wxPanel* pokemonEvolutionsPanel;
+	pokemonEvolutionsPanel = new wxPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxTAB_TRAVERSAL );
+	wxBoxSizer* pokemonEvolutionsSizer;
+	pokemonEvolutionsSizer = new wxBoxSizer( wxVERTICAL );
 
-	pokemonPanelContentSizer->Add( m_pokemonLearnMovesList, 0, wxALL|wxEXPAND, 8 );
+	wxStaticText* pokemonEvolutionsLabel;
+	pokemonEvolutionsLabel = new wxStaticText( pokemonEvolutionsPanel, wxID_ANY, wxT("진화"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEvolutionsLabel->Wrap( -1 );
+	pokemonEvolutionsSizer->Add( pokemonEvolutionsLabel, 0, wxLEFT|wxTOP, 8 );
+
+	m_pokemonEvolutionsList = new gui::controls::ColoredListCtrl( pokemonEvolutionsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_SIMPLE );
+	m_pokemonEvolutionsList->SetMinSize( wxSize( 512,120 ) );
+
+	pokemonEvolutionsSizer->Add( m_pokemonEvolutionsList, 0, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 8 );
+
+	wxBoxSizer* pokemonEvolutionsButtonsSizer;
+	pokemonEvolutionsButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+
+	pokemonEvolutionsButtonsSizer->Add( 0, 0, 1, 0, 0 );
+
+	m_pokemonEvolutionAdd = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEvolutionsButtonsSizer->Add( m_pokemonEvolutionAdd, 0, wxALL, 2 );
+
+	m_pokemonEvolutionModify = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_MODIFY, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEvolutionsButtonsSizer->Add( m_pokemonEvolutionModify, 0, wxALL, 2 );
+
+	m_pokemonEvolutionRemove = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEvolutionsButtonsSizer->Add( m_pokemonEvolutionRemove, 0, wxALL, 2 );
+
+	m_pokemonEvolutionClear = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEvolutionClear->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
+	m_pokemonEvolutionClear->SetForegroundColour( wxColour( 255, 0, 0 ) );
+
+	pokemonEvolutionsButtonsSizer->Add( m_pokemonEvolutionClear, 0, wxALL, 2 );
+
+
+	pokemonEvolutionsSizer->Add( pokemonEvolutionsButtonsSizer, 0, wxALL|wxEXPAND, 5 );
+
+
+	pokemonEvolutionsPanel->SetSizer( pokemonEvolutionsSizer );
+	pokemonEvolutionsPanel->Layout();
+	pokemonEvolutionsSizer->Fit( pokemonEvolutionsPanel );
+	pokemonPanelContentSizer->Add( pokemonEvolutionsPanel, 0, 0, 0 );
+
+	wxPanel* pokemonLearnMovesPanel;
+	pokemonLearnMovesPanel = new wxPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* pokemonLearnMovesSizer;
+	pokemonLearnMovesSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxStaticText* pokemonLearnMovesLabel;
+	pokemonLearnMovesLabel = new wxStaticText( pokemonLearnMovesPanel, wxID_ANY, wxT("자력기"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonLearnMovesLabel->Wrap( -1 );
+	pokemonLearnMovesSizer->Add( pokemonLearnMovesLabel, 0, wxLEFT|wxTOP, 8 );
+
+	m_pokemonLearnMovesList = new gui::controls::ColoredListCtrl( pokemonLearnMovesPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_SIMPLE );
+	m_pokemonLearnMovesList->SetMinSize( wxSize( 512,180 ) );
+
+	pokemonLearnMovesSizer->Add( m_pokemonLearnMovesList, 0, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 8 );
+
+	wxBoxSizer* pokemonLearnMovesButtonsSizer;
+	pokemonLearnMovesButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+
+	pokemonLearnMovesButtonsSizer->Add( 0, 0, 1, 0, 0 );
+
+	m_pokemonLearnMovesImport = new wxButton( pokemonLearnMovesPanel, wxID_POKEMON_LEARN_MOVES_IMPORT, wxT("가져오기..."), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonLearnMovesButtonsSizer->Add( m_pokemonLearnMovesImport, 0, wxALL, 2 );
+
+	m_pokemonLearnMovesAdd = new wxButton( pokemonLearnMovesPanel, wxID_POKEMON_LEARN_MOVES_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonLearnMovesButtonsSizer->Add( m_pokemonLearnMovesAdd, 0, wxALL, 2 );
+
+	m_pokemonLearnMovesModify = new wxButton( pokemonLearnMovesPanel, wxID_POKEMON_LEARN_MOVES_MODIFY, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonLearnMovesButtonsSizer->Add( m_pokemonLearnMovesModify, 0, wxALL, 2 );
+
+	m_pokemonLearnMovesRemove = new wxButton( pokemonLearnMovesPanel, wxID_POKEMON_LEARN_MOVES_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonLearnMovesButtonsSizer->Add( m_pokemonLearnMovesRemove, 0, wxALL, 2 );
+
+	m_pokemonLearnMovesClear = new wxButton( pokemonLearnMovesPanel, wxID_POKEMON_LEARN_MOVES_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonLearnMovesClear->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
+	m_pokemonLearnMovesClear->SetForegroundColour( wxColour( 255, 0, 0 ) );
+
+	pokemonLearnMovesButtonsSizer->Add( m_pokemonLearnMovesClear, 0, wxALL, 2 );
+
+
+	pokemonLearnMovesSizer->Add( pokemonLearnMovesButtonsSizer, 0, wxALL|wxEXPAND, 5 );
+
+
+	pokemonLearnMovesPanel->SetSizer( pokemonLearnMovesSizer );
+	pokemonLearnMovesPanel->Layout();
+	pokemonLearnMovesSizer->Fit( pokemonLearnMovesPanel );
+	pokemonPanelContentSizer->Add( pokemonLearnMovesPanel, 0, 0, 0 );
+
+
+	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
 
 	wxBoxSizer* pokemonTMHMsLabelSizer;
 	pokemonTMHMsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -827,73 +924,72 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	pokemonPanelContentSizer->Add( pokemonTMHMsButtonsSizer, 0, wxALL, 4 );
 
-	wxWrapSizer* pokemonTMHMsSizer;
-	pokemonTMHMsSizer = new wxWrapSizer( wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS );
+	m_pokemonTMHMsSizer = new wxGridSizer( 3, 3, 0, 0 );
 
 	wxString m_pokemonHmTmList1Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList1NChoices = sizeof( m_pokemonHmTmList1Choices ) / sizeof( wxString );
 	m_pokemonHmTmList1 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList1NChoices, m_pokemonHmTmList1Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList1->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList1, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList1, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList2Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList2NChoices = sizeof( m_pokemonHmTmList2Choices ) / sizeof( wxString );
 	m_pokemonHmTmList2 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList2NChoices, m_pokemonHmTmList2Choices, wxLB_NO_SB );
 	m_pokemonHmTmList2->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList2, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList2, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList3Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList3NChoices = sizeof( m_pokemonHmTmList3Choices ) / sizeof( wxString );
 	m_pokemonHmTmList3 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList3NChoices, m_pokemonHmTmList3Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList3->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList3, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList3, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList4Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList4NChoices = sizeof( m_pokemonHmTmList4Choices ) / sizeof( wxString );
 	m_pokemonHmTmList4 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList4NChoices, m_pokemonHmTmList4Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList4->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList4, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList4, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList5Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList5NChoices = sizeof( m_pokemonHmTmList5Choices ) / sizeof( wxString );
 	m_pokemonHmTmList5 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList5NChoices, m_pokemonHmTmList5Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList5->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList5, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList5, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList6Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList6NChoices = sizeof( m_pokemonHmTmList6Choices ) / sizeof( wxString );
 	m_pokemonHmTmList6 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList6NChoices, m_pokemonHmTmList6Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList6->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList6, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList6, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList7Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList7NChoices = sizeof( m_pokemonHmTmList7Choices ) / sizeof( wxString );
 	m_pokemonHmTmList7 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList7NChoices, m_pokemonHmTmList7Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList7->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList7, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList7, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList8Choices[] = { wxEmptyString };
 	int m_pokemonHmTmList8NChoices = sizeof( m_pokemonHmTmList8Choices ) / sizeof( wxString );
 	m_pokemonHmTmList8 = new gui::controls::ColoredCheckListBox( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), m_pokemonHmTmList8NChoices, m_pokemonHmTmList8Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList8->SetMinSize( wxSize( 160,-1 ) );
 
-	pokemonTMHMsSizer->Add( m_pokemonHmTmList8, 0, wxALL|wxEXPAND, 2 );
+	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList8, 0, wxALL|wxEXPAND, 2 );
 
 
-	pokemonPanelContentSizer->Add( pokemonTMHMsSizer, 1, wxALL|wxEXPAND, 4 );
+	pokemonPanelContentSizer->Add( m_pokemonTMHMsSizer, 0, wxALL|wxEXPAND, 4 );
 
 
 	m_pokemonContainer->SetSizer( pokemonPanelContentSizer );
 	m_pokemonContainer->Layout();
 	pokemonPanelContentSizer->Fit( m_pokemonContainer );
-	pokemonInnerPanelSizer->Add( m_pokemonContainer, 1, wxEXPAND | wxALL, 2 );
+	pokemonInnerPanelSizer->Add( m_pokemonContainer, 1, wxALL|wxEXPAND, 2 );
 
 
 	pokemonInnerPanel->SetSizer( pokemonInnerPanelSizer );
@@ -918,6 +1014,15 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	// Connect Events
 	m_pokemonList->Connect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( DatabasePanelBase::OnPokemonSelected ), NULL, this );
+	m_pokemonEvolutionAdd->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEvolutionsButtonClick ), NULL, this );
+	m_pokemonEvolutionModify->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEvolutionsButtonClick ), NULL, this );
+	m_pokemonEvolutionRemove->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEvolutionsButtonClick ), NULL, this );
+	m_pokemonEvolutionClear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEvolutionsButtonClick ), NULL, this );
+	m_pokemonLearnMovesImport->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonLearnMovesButtonClick ), NULL, this );
+	m_pokemonLearnMovesAdd->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonLearnMovesButtonClick ), NULL, this );
+	m_pokemonLearnMovesModify->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonLearnMovesButtonClick ), NULL, this );
+	m_pokemonLearnMovesRemove->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonLearnMovesButtonClick ), NULL, this );
+	m_pokemonLearnMovesClear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonLearnMovesButtonClick ), NULL, this );
 	pokemonTMHMsCheckAllButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonTMHMsButtonClick ), NULL, this );
 	pokemonTMHMsClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonTMHMsButtonClick ), NULL, this );
 }

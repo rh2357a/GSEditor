@@ -1,15 +1,12 @@
-#ifndef _GUI_DIALOGS_H_
-#define _GUI_DIALOGS_H_
-
-#include "gui/dialogs/about_dialog.h"
-#include "gui/dialogs/bad_data_dialog.h"
+#ifndef _GUI_DIALOGS_ALERT_DIALOGS_H_
+#define _GUI_DIALOGS_ALERT_DIALOGS_H_
 
 #include <wx/wx.h>
 
 #include <string>
 #include <format>
 
-namespace gui::dialog {
+namespace gui::dialogs {
 
 template <typename... _Args>
 inline int ShowAlert(wxWindow *parent, const std::string &title, std::format_string<_Args...> fmt, _Args &&...args)
@@ -56,6 +53,6 @@ inline int ShowYesNoCancel(wxWindow *parent, const std::string &title, std::form
     return wxMessageBox(wxString::FromUTF8(message), wxString::FromUTF8(title), wxCENTRE | wxYES_NO | wxCANCEL | wxICON_WARNING, parent);
 }
 
-} // namespace gui::dialog
+} // namespace gui::dialogs
 
 #endif

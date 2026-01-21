@@ -1,7 +1,7 @@
 #ifndef _GUI_DIALOGS_BAD_DATA_DIALOG_H_
 #define _GUI_DIALOGS_BAD_DATA_DIALOG_H_
 
-#include "gui/generated/gui_base.h"
+#include "gui.h"
 #include "pokegold.h"
 
 #include <vector>

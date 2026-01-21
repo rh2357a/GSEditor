@@ -41,7 +41,6 @@ namespace gui{ namespace controls{ class DatabasePanel; } }
 #include <wx/combobox.h>
 #include <wx/spinctrl.h>
 #include <wx/checklst.h>
-#include <wx/wrapsizer.h>
 #include <wx/scrolwin.h>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -66,6 +65,7 @@ class MainFrameBase : public wxFrame
 		wxMenuItem* m_gameTestPlayMenuItem;
 		wxMenuItem* m_gameExportToIpsMenuItem;
 		wxMenuItem* m_gameExportToXdeltaMenuItem;
+		wxMenuItem* m_settingsSetEmulatorMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
@@ -79,7 +79,7 @@ class MainFrameBase : public wxFrame
 
 	public:
 
-		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,580 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~MainFrameBase();
 
@@ -114,7 +114,7 @@ class BadDataDialogBase : public wxDialog
 	private:
 
 	protected:
-		wxListCtrl* m_badDataList;
+		gui::controls::ColoredListCtrl* m_badDataList;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnDialogShow( wxShowEvent& event ) { event.Skip(); }
@@ -158,7 +158,16 @@ class DatabasePanelBase : public wxPanel
 	protected:
 		enum
 		{
-			wxID_POKEMON_TMHMS_CHECK_ALL = 6000,
+			wxID_POKEMON_EVOLUTION_ADD = 6000,
+			wxID_POKEMON_EVOLUTION_MODIFY,
+			wxID_POKEMON_EVOLUTION_REMOVE,
+			wxID_POKEMON_EVOLUTION_CLEAR,
+			wxID_POKEMON_LEARN_MOVES_IMPORT,
+			wxID_POKEMON_LEARN_MOVES_ADD,
+			wxID_POKEMON_LEARN_MOVES_MODIFY,
+			wxID_POKEMON_LEARN_MOVES_REMOVE,
+			wxID_POKEMON_LEARN_MOVES_CLEAR,
+			wxID_POKEMON_TMHMS_CHECK_ALL,
 			wxID_POKEMON_TMHMS_CLEAR,
 		};
 
@@ -189,7 +198,17 @@ class DatabasePanelBase : public wxPanel
 		wxStaticText* m_pokemonDexDescriptionLabel;
 		wxTextCtrl* m_pokemonDexDescriptionText;
 		gui::controls::ColoredListCtrl* m_pokemonEvolutionsList;
+		wxButton* m_pokemonEvolutionAdd;
+		wxButton* m_pokemonEvolutionModify;
+		wxButton* m_pokemonEvolutionRemove;
+		wxButton* m_pokemonEvolutionClear;
 		gui::controls::ColoredListCtrl* m_pokemonLearnMovesList;
+		wxButton* m_pokemonLearnMovesImport;
+		wxButton* m_pokemonLearnMovesAdd;
+		wxButton* m_pokemonLearnMovesModify;
+		wxButton* m_pokemonLearnMovesRemove;
+		wxButton* m_pokemonLearnMovesClear;
+		wxGridSizer* m_pokemonTMHMsSizer;
 		gui::controls::ColoredCheckListBox* m_pokemonHmTmList1;
 		gui::controls::ColoredCheckListBox* m_pokemonHmTmList2;
 		gui::controls::ColoredCheckListBox* m_pokemonHmTmList3;
@@ -201,12 +220,14 @@ class DatabasePanelBase : public wxPanel
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPokemonEvolutionsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPokemonLearnMovesButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPokemonTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,1500 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,1800 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~DatabasePanelBase();
 

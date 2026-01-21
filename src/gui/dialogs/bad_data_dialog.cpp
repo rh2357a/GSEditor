@@ -122,9 +122,8 @@ gui::dialogs::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         }
     }
 
+    gui::controls::AutoColumnsWidth(m_badDataList);
     m_badDataList->SetColumnWidth(0, 48);
-    for (int i = 1; i < m_badDataList->GetColumnCount(); i++)
-        m_badDataList->SetColumnWidth(i, wxLIST_AUTOSIZE);
 }
 
 void gui::dialogs::BadDataDialog::OnDialogShow(wxShowEvent &event)

@@ -1,7 +1,7 @@
 #ifndef _GUI_CONTROLS_DATABASE_PANEL_H_
 #define _GUI_CONTROLS_DATABASE_PANEL_H_
 
-#include "gui/generated/gui_base.h"
+#include "gui.h"
 #include "utils.h"
 
 namespace gui::controls {
@@ -26,9 +26,12 @@ public:
 
 private:
     void InitPokemonTab();
+    void UpdatePokemonEvolutions();
 
 private:
     void OnPokemonSelected(wxCommandEvent &event) override;
+    void OnPokemonEvolutionsButtonClick(wxCommandEvent &event) override;
+    void OnPokemonLearnMovesButtonClick(wxCommandEvent &event) override;
     void OnPokemonTMHMsButtonClick(wxCommandEvent &event) override;
 };
 

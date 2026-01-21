@@ -1,14 +1,61 @@
-#ifndef _GUI_CONTROLS_H_
-#define _GUI_CONTROLS_H_
+#include "wx_utils.h"
 
-#include "gui/controls/colored_lists.h"
-#include "gui/controls/database_panel.h"
+#include <windows.h>
+#include <commctrl.h>
 
-#include <initializer_list>
+#include <functional>
 
-namespace gui::controls {
+void gui::controls::AutoColumnsWidth(wxListCtrl *ctrl)
+{
+    for (int i = 0; i < ctrl->GetColumnCount(); i++)
+        ctrl->SetColumnWidth(i, wxLIST_AUTOSIZE_USEHEADER);
+}
 
-inline void NestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
+void gui::controls::FixedHeaderWidth(wxListCtrl *ctrl, const std::vector<ListCtrlColumn> columns)
+{
+    HWND listViewHwnd = ctrl->GetHWND();
+    HWND headerHwnd = (HWND)::SendMessage(listViewHwnd, LVM_GETHEADER, 0, 0);
+    LONG headerStyle = ::GetWindowLong(headerHwnd, GWL_STYLE);
+    headerStyle |= HDS_NOSIZING;
+    headerStyle &= ~HDS_DRAGDROP;
+    ::SetWindowLong(headerHwnd, GWL_STYLE, headerStyle);
+
+    double totalFlex = 0.0;
+    int totalPixels = 0;
+
+    int i = 0;
+    for (const auto &column : columns)
+    {
+        totalFlex += (column.width < 0.0 ? -column.width : 0.0);
+        totalPixels += (column.width >= 0.0 ? (int)column.width : 0);
+        ctrl->InsertColumn(i++, column.title);
+    }
+
+    auto resizedFunc = [ctrl, totalFlex, totalPixels, columns](auto &ev) {
+        int totalWidth = ctrl->GetClientSize().GetWidth();
+        int flexPixels = totalWidth - totalPixels;
+
+        for (int i = 0; i < ctrl->GetColumnCount(); i++)
+        {
+            const auto &column = columns[i];
+            if (column.width >= 0)
+            {
+                ctrl->SetColumnWidth(i, (int)column.width);
+            }
+            else
+            {
+                int flexPixel = (int)flexPixels * (-column.width / totalFlex);
+                ctrl->SetColumnWidth(i, flexPixel);
+            }
+        }
+
+        ctrl->Layout();
+    };
+
+    ctrl->Bind(wxEVT_SIZE, resizedFunc);
+}
+
+void gui::controls::NestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
 {
     for (auto *ctrl : ctrls)
     {
@@ -59,7 +106,7 @@ inline void NestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
                 bool scrollUp = event.GetWheelRotation() > 0;
                 bool scrollDown = event.GetWheelRotation() < 0;
                 bool canScrollToTop = pos > 0;
-                bool canScrollToBottom = pos < range - cntPage - 1;
+                bool canScrollToBottom = pos <= range - cntPage - 1;
                 if ((scrollUp && canScrollToTop) || (scrollDown && canScrollToBottom))
                 {
                     event.Skip();
@@ -80,7 +127,7 @@ inline void NestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
     }
 }
 
-inline void Select(wxWindow *ctrl, int selection)
+void gui::controls::Select(wxWindow *ctrl, int selection)
 {
     if (!ctrl)
         return;
@@ -111,7 +158,7 @@ inline void Select(wxWindow *ctrl, int selection)
     }
 }
 
-inline void SetValue(wxSpinCtrlDouble *ctrl, double value)
+void gui::controls::SetValue(wxSpinCtrlDouble *ctrl, double value)
 {
     if (ctrl != nullptr)
     {
@@ -123,7 +170,3 @@ inline void SetValue(wxSpinCtrlDouble *ctrl, double value)
         ctrl->GetEventHandler()->ProcessEvent(event);
     }
 }
-
-} // namespace gui::controls
-
-#endif

@@ -127,6 +127,29 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         m_pokemonHmTmList8,
     });
 
+    gui::controls::FixedHeaderWidth(
+        m_pokemonEvolutionsList,
+        {
+            {wxT("진화 후 포켓몬"), -2},
+            {wxT("진화 방법"), -2},
+            {wxT("조건 1"), -3},
+            {wxT("조건 2"), -3},
+        });
+
+    gui::controls::FixedHeaderWidth(
+        m_pokemonLearnMovesList,
+        {
+            {wxT("레벨"), 56},
+            {wxT("기술"), -1},
+        });
+
+    Bind(wxEVT_SIZE, [&](auto &ev) {
+        ev.Skip();
+
+        int newColumns = GetClientSize().GetWidth() / 220;
+        m_pokemonTMHMsSizer->SetCols(newColumns);
+    });
+
     m_subscriptions.subscribe(pokegold::event::rom_changed, [&] {
         m_eventGuard([&] { gui::controls::Select(m_pokemonList, -1); });
     });
@@ -426,6 +449,111 @@ void gui::controls::DatabasePanel::InitPokemonTab()
     }
 }
 
+void gui::controls::DatabasePanel::UpdatePokemonEvolutions()
+{
+    m_pokemonEvolutionsList->DeleteAllItems();
+    m_pokemonLearnMovesList->DeleteAllItems();
+
+    const auto selected = m_pokemonList->GetSelection();
+    if (selected == -1)
+        return;
+
+    auto &e = pokegold::data::pokemons[selected];
+
+    for (size_t i = 0; i < e.evolution_methods.size(); i++)
+    {
+        m_pokemonEvolutionsList->InsertItem(i, wxT(""));
+
+        const auto &ev = e.evolution_methods[i];
+        switch (ev.evolution_type)
+        {
+        case 1:
+            m_pokemonEvolutionsList->SetItem(i, 0, pokegold::data::pokemons[ev.pokemon_id - 1].name.editor_wxstr());
+            m_pokemonEvolutionsList->SetItem(i, 1, wxT("레벨 업"));
+            m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("레벨 %d 달성"), ev.level));
+            m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
+            break;
+
+        case 2:
+            m_pokemonEvolutionsList->SetItem(i, 0, pokegold::data::pokemons[ev.pokemon_id - 1].name.editor_wxstr());
+            m_pokemonEvolutionsList->SetItem(i, 1, wxT("도구 사용"));
+            m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("'%s' 사용"), pokegold::data::items[ev.item_id - 1].name.editor_wxstr()));
+            m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
+            break;
+
+        case 3:
+            m_pokemonEvolutionsList->SetItem(i, 0, pokegold::data::pokemons[ev.pokemon_id - 1].name.editor_wxstr());
+            m_pokemonEvolutionsList->SetItem(i, 1, wxT("통신교환"));
+
+            if (ev.item_id == 0xff)
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("-"));
+            else
+                m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("'%s' 지닌 상태"), pokegold::data::items[ev.item_id - 1].name.editor_wxstr()));
+            m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
+
+            break;
+
+        case 4:
+            m_pokemonEvolutionsList->SetItem(i, 0, pokegold::data::pokemons[ev.pokemon_id - 1].name.editor_wxstr());
+            m_pokemonEvolutionsList->SetItem(i, 1, wxT("레벨 업"));
+
+            switch (ev.happiness)
+            {
+            case 1:
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도 MAX"));
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
+                break;
+            case 2:
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도 MAX"));
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("낮 시간대"));
+                break;
+            case 3:
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도 MAX"));
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("밤 시간대"));
+                break;
+            default:
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("?"));
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("?"));
+                break;
+            }
+
+            break;
+
+        case 5:
+            m_pokemonEvolutionsList->SetItem(i, 0, pokegold::data::pokemons[ev.pokemon_id - 1].name.editor_wxstr());
+            m_pokemonEvolutionsList->SetItem(i, 1, wxT("레벨 업"));
+            m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("레벨 %d 달성"), ev.level));
+
+            switch (ev.stats)
+            {
+            case 1:
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("공격이 방어보다 높음"));
+                break;
+            case 2:
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("방어가 공격보다 높음"));
+                break;
+            case 3:
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("공격과 방어가 같음"));
+                break;
+            default:
+                m_pokemonEvolutionsList->SetItem(i, 3, wxT("?"));
+                break;
+            }
+
+            break;
+        }
+    }
+
+    for (size_t i = 0; i < e.learn_moves.size(); i++)
+    {
+        m_pokemonLearnMovesList->InsertItem(i, wxT(""));
+
+        const auto &learn = e.learn_moves[i];
+        m_pokemonLearnMovesList->SetItem(i, 0, wxString::Format(wxT("%d"), learn.level));
+        m_pokemonLearnMovesList->SetItem(i, 1, pokegold::data::moves[learn.move_id - 1].name.editor_wxstr());
+    }
+}
+
 void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
 {
     const auto selected = m_pokemonList->GetSelection();
@@ -467,12 +595,12 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
             gui::controls::SetValue(m_pokemonStatsExpValue, 0);
             gui::controls::SetValue(m_pokemonStatsCatchRateValue, 0);
 
+            // TODO: ...
+
             m_pokemonDexSpeciesNameText->SetValue(wxT(""));
             gui::controls::SetValue(m_pokemonDexHeightValue, 0);
             gui::controls::SetValue(m_pokemonDexWeightValue, 0);
             m_pokemonDexDescriptionText->SetValue(wxT(""));
-
-            // TODO: ...
 
             for (auto *ctrl : tmhmCtrls)
             {
@@ -504,12 +632,12 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
             gui::controls::SetValue(m_pokemonStatsExpValue, e.base_exp);
             gui::controls::SetValue(m_pokemonStatsCatchRateValue, e.catch_rate);
 
+            // TODO: ...
+
             m_pokemonDexSpeciesNameText->SetValue(e.species_name.editor_wxstr());
             gui::controls::SetValue(m_pokemonDexHeightValue, double(e.height / 10.0));
             gui::controls::SetValue(m_pokemonDexWeightValue, double(e.weight / 10.0));
             m_pokemonDexDescriptionText->SetValue(e.description.editor_wxstr());
-
-            // TODO: ...
 
             size_t tmhmIdx = 0;
             for (auto *ctrl : tmhmCtrls)
@@ -519,6 +647,16 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
             }
         }
     });
+
+    UpdatePokemonEvolutions();
+}
+
+void gui::controls::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
+{
+}
+
+void gui::controls::DatabasePanel::OnPokemonLearnMovesButtonClick(wxCommandEvent &event)
+{
 }
 
 void gui::controls::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)

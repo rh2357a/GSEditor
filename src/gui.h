@@ -1,11 +1,16 @@
 #ifndef _GUI_H_
 #define _GUI_H_
 
-// NOTE: 생성 코드는 아래 경로의 include를 직접 추가해야함
-// #include "gui/generated/gui_base.h"
+#include "gui/generated/gui_base.h"
 
-#include "gui/controls.h"
-#include "gui/dialogs.h"
-#include "gui/frames.h"
+#include "gui/controls/colored_lists.h"
+#include "gui/controls/database_panel.h"
+#include "gui/controls/wx_utils.h"
+
+#include "gui/dialogs/about_dialog.h"
+#include "gui/dialogs/bad_data_dialog.h"
+#include "gui/dialogs/alert_dialogs.h"
+
+#include "gui/frames/main_frame.h"
 
 #endif

@@ -2,7 +2,6 @@
 
 #include "resources.h"
 #include "core.h"
-#include "gui.h"
 #include "utils.h"
 #include "embed.h"
 #include "pokegold.h"
@@ -49,9 +48,16 @@ gui::frames::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
         }
     });
 
+    m_subscriptions.subscribe(app_settings::emulator_path_changed, [this](const std::filesystem::path &path) {
+        std::string realPath = path.string() == "" ? "없음" : path.string();
+        wxString help = wxString::Format(wxT("테스트 플레이를 위한 에뮬레이터를 등록합니다. (등록: '%s')"), wxString::FromUTF8(realPath));
+        m_settingsSetEmulatorMenuItem->SetHelp(help);
+    });
+
     // 앱의 초기 상태를 알림
     pokegold::event::rom_data_changed.emit();
     pokegold::event::rom_changed.emit();
+    app_settings::emulator_path_changed.emit(app_settings::get_emulator_path());
 }
 
 void SaveInternal()
@@ -88,7 +94,7 @@ void gui::frames::MainFrame::OnMenuSelected(wxCommandEvent &event)
         {
             wxBell();
 
-            const auto result = gui::dialog::ShowConfirm(this, "경고", "이미 다른 롬 파일이 열려있습니다!\n계속하겠습니까?");
+            const auto result = gui::dialogs::ShowConfirm(this, "경고", "이미 다른 롬 파일이 열려있습니다!\n계속하겠습니까?");
             if (result == wxNO)
                 return;
         }
@@ -131,7 +137,7 @@ void gui::frames::MainFrame::OnMenuSelected(wxCommandEvent &event)
         {
             wxBell();
 
-            const auto result = gui::dialog::ShowConfirm(this, "경고", "등록된 에뮬레이터가 없습니다!\n찾아보겠습니까?");
+            const auto result = gui::dialogs::ShowConfirm(this, "경고", "등록된 에뮬레이터가 없습니다!\n찾아보겠습니까?");
             if (result == wxNO)
                 return;
 
@@ -196,7 +202,7 @@ void gui::frames::MainFrame::OnClose(wxCloseEvent &event)
     {
         wxBell();
 
-        const auto selected = gui::dialog::ShowYesNoCancel(this, "알림", "변경 사항을 롬 파일에 저장하시겠습니까?");
+        const auto selected = gui::dialogs::ShowYesNoCancel(this, "알림", "변경 사항을 롬 파일에 저장하시겠습니까?");
         if (selected == wxYES)
         {
             debug_log("main", "close app (save: yes)");
