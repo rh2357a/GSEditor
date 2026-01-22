@@ -13,10 +13,12 @@ class string
 {
 private:
     inline static std::string s_unk_string = "<UNK_STRING>";
+    inline static wxString s_unk_wxstring = "<UNK_STRING>";
 
 private:
     std::vector<u8> m_bytes;
     std::string m_cached_str = s_unk_string;
+    wxString m_cached_wxstr = s_unk_wxstring;
 
 public:
     string() = default;
@@ -31,7 +33,7 @@ public:
     static bool is_charmap_string(std::string_view str);
 
     std::string editor_str();
-    wxString editor_wxstr() { return wxString::FromUTF8(editor_str()); }
+    wxString editor_wxstr();
     std::vector<u8> data() const { return m_bytes; };
 
     bool has_bad_code();

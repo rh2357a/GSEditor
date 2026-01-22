@@ -27,6 +27,6 @@ void pokegold::close()
     config::close();
     romfile::close();
 
-    event::rom_data_changed.emit();
-    event::rom_changed.emit();
+    event::rom_data_changed();
+    event::rom_changed();
 }

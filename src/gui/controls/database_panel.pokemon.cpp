@@ -157,19 +157,25 @@ void gui::controls::DatabasePanel::InitPokemonTab()
     m_subscriptions.subscribe(pokegold::event::pokemon_names_changed, [this](int idx) {
         if (m_pokemonList->GetCount() == 0)
         {
-            m_pokemonList->Clear();
+            m_pokemonList->Freeze();
 
             for (size_t i = 0; i < 256; i++)
                 m_pokemonList->Append(wxT(""));
+
+            m_pokemonList->Thaw();
         }
 
         if (idx == -1)
         {
+            m_pokemonList->Freeze();
+
             for (size_t i = 0; i < 256; i++)
             {
                 auto &e = pokegold::data::pokemons[i];
                 m_pokemonList->SetString(i, e.name.editor_wxstr());
             }
+
+            m_pokemonList->Thaw();
         }
         else
         {
@@ -210,18 +216,24 @@ void gui::controls::DatabasePanel::InitPokemonTab()
     m_subscriptions.subscribe(pokegold::event::type_names_changed, [this](int idx) {
         if (m_pokemonType1ComboBox->GetCount() == 0)
         {
-            m_pokemonType1ComboBox->Clear();
-            m_pokemonType2ComboBox->Clear();
+            m_pokemonType1ComboBox->Freeze();
+            m_pokemonType2ComboBox->Freeze();
 
             for (size_t i = 0; i < 28; i++)
             {
                 m_pokemonType1ComboBox->Append(wxT(""));
                 m_pokemonType2ComboBox->Append(wxT(""));
             }
+
+            m_pokemonType1ComboBox->Thaw();
+            m_pokemonType2ComboBox->Thaw();
         }
 
         if (idx == -1)
         {
+            m_pokemonType1ComboBox->Freeze();
+            m_pokemonType2ComboBox->Freeze();
+
             for (size_t i = 0; i < 28; i++)
             {
                 auto &e = pokegold::data::types[i];
@@ -229,6 +241,9 @@ void gui::controls::DatabasePanel::InitPokemonTab()
                 m_pokemonType1ComboBox->SetString(i, name);
                 m_pokemonType2ComboBox->SetString(i, name);
             }
+
+            m_pokemonType1ComboBox->Thaw();
+            m_pokemonType2ComboBox->Thaw();
         }
         else
         {
@@ -242,18 +257,24 @@ void gui::controls::DatabasePanel::InitPokemonTab()
     m_subscriptions.subscribe(pokegold::event::item_names_changed, [this](int idx) {
         if (m_pokemonItem1ComboBox->GetCount() == 0)
         {
-            m_pokemonItem1ComboBox->Clear();
-            m_pokemonItem2ComboBox->Clear();
+            m_pokemonItem1ComboBox->Freeze();
+            m_pokemonItem2ComboBox->Freeze();
 
             for (size_t i = 0; i < 256 + 1; i++)
             {
                 m_pokemonItem1ComboBox->Append(wxT(""));
                 m_pokemonItem2ComboBox->Append(wxT(""));
             }
+
+            m_pokemonItem1ComboBox->Thaw();
+            m_pokemonItem2ComboBox->Thaw();
         }
 
         if (idx == -1)
         {
+            m_pokemonItem1ComboBox->Freeze();
+            m_pokemonItem2ComboBox->Freeze();
+
             m_pokemonItem1ComboBox->SetString(0, wxT("없음"));
             m_pokemonItem2ComboBox->SetString(0, wxT("없음"));
 
@@ -264,6 +285,9 @@ void gui::controls::DatabasePanel::InitPokemonTab()
                 m_pokemonItem1ComboBox->SetString(i + 1, name);
                 m_pokemonItem2ComboBox->SetString(i + 1, name);
             }
+
+            m_pokemonItem1ComboBox->Thaw();
+            m_pokemonItem2ComboBox->Thaw();
         }
         else
         {
@@ -283,10 +307,10 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         {
             const auto pokemon = m_pokemonList->GetSelection();
             pokegold::data::pokemons[pokemon].name = str;
-            pokegold::event::pokemon_names_changed.emit(pokemon);
+            pokegold::event::pokemon_names_changed(pokemon);
 
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         }
     });
 
@@ -317,7 +341,7 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         if (hasChanged)
         {
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         }
     };
 
@@ -375,7 +399,7 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         if (hasChanged)
         {
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         }
     };
 
@@ -401,7 +425,7 @@ void gui::controls::DatabasePanel::InitPokemonTab()
             pokemon.species_name = str + "[50]";
 
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         }
     });
 
@@ -425,7 +449,7 @@ void gui::controls::DatabasePanel::InitPokemonTab()
             pokemon.description = str + "[50]";
 
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         }
     });
 
@@ -444,7 +468,7 @@ void gui::controls::DatabasePanel::InitPokemonTab()
             }
 
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         });
     }
 }
@@ -688,7 +712,7 @@ void gui::controls::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &eve
                 e = true;
 
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         });
         return;
     }
@@ -707,7 +731,7 @@ void gui::controls::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &eve
                 e = false;
 
             pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed.emit();
+            pokegold::event::rom_data_changed();
         });
         return;
     }

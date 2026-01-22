@@ -43,5 +43,5 @@ std::filesystem::path app_settings::get_emulator_path()
 void app_settings::set_emulator_path(const std::filesystem::path &path)
 {
     app_settings_json["emulator"] = path.string();
-    emulator_path_changed.emit(path);
+    emulator_path_changed(path);
 }

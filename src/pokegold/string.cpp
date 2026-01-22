@@ -189,40 +189,52 @@ std::string pokegold::string::editor_str()
     if (m_cached_str != s_unk_string)
         return m_cached_str;
 
-    std::stringstream ss;
+    std::string result;
+    result.reserve(m_bytes.size() * 3);
 
     for (size_t i = 0; i < m_bytes.size(); i++)
     {
         u8 b = m_bytes[i];
 
-        // 한글
-        if (b >= 1 && b <= 0xb)
+        if (b >= 1 && b <= 0x0b)
         {
             if (i + 1 >= m_bytes.size())
                 return m_cached_str = s_unk_string;
 
             u16 char_id = (m_bytes[i] << 8) | m_bytes[i + 1];
-            ss << charmap[char_id];
+            result += charmap[char_id];
             i++;
             continue;
         }
 
-        // 영숫자 + 특수 문자
-        if (charmap.contains(b))
+        if (b == 0x50)
+            continue;
+
+        if (b == 0x59)
         {
-            ss << charmap[b];
+            result += '\n';
             continue;
         }
 
-        // hex
-        ss << '[' << std::format("{:02x}", b) << ']';
+        if (charmap.contains(b))
+        {
+            result += charmap[b];
+            continue;
+        }
+
+        char buf[5];
+        std::snprintf(buf, sizeof(buf), "[%02x]", b);
+        result += buf;
     }
 
-    auto temp_str = ss.str();
-    temp_str = utils::strings::replace_all(temp_str, "[50]", "");
-    temp_str = utils::strings::replace_all(temp_str, "[59]", "\n");
+    return m_cached_str = result;
+}
 
-    return m_cached_str = temp_str;
+wxString pokegold::string::editor_wxstr()
+{
+    if (m_cached_wxstr != s_unk_wxstring)
+        return m_cached_wxstr;
+    return m_cached_wxstr = wxString::FromUTF8(editor_str());
 }
 
 bool pokegold::string::has_bad_code()

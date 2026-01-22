@@ -55,9 +55,9 @@ gui::frames::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
     });
 
     // 앱의 초기 상태를 알림
-    pokegold::event::rom_data_changed.emit();
-    pokegold::event::rom_changed.emit();
-    app_settings::emulator_path_changed.emit(app_settings::get_emulator_path());
+    pokegold::event::rom_data_changed();
+    pokegold::event::rom_changed();
+    app_settings::emulator_path_changed(app_settings::get_emulator_path());
 }
 
 void SaveInternal()
@@ -68,7 +68,7 @@ void SaveInternal()
     pokegold::config::write();
 
     pokegold::romfile::is_changed = false;
-    pokegold::event::rom_data_changed.emit();
+    pokegold::event::rom_data_changed();
 }
 
 void gui::frames::MainFrame::OnMenuSelected(wxCommandEvent &event)

@@ -104,7 +104,7 @@ public:
         return subscription([this, id]() { m_observers.erase(id); });
     }
 
-    void emit(Args... args)
+    void operator()(Args... args)
     {
         std::vector<size_t> ids;
         ids.reserve(m_observers.size());
@@ -117,11 +117,6 @@ public:
             if (auto it = m_observers.find(id); it != m_observers.end())
                 it->second(args...);
         }
-    }
-
-    void operator()(Args... args)
-    {
-        emit(args...);
     }
 };
 
