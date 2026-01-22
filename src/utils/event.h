@@ -93,15 +93,21 @@ template <typename... Args>
 class event
 {
 private:
+    bool m_alive = true;
     size_t m_current_id = 0;
     std::unordered_map<size_t, std::function<void(Args...)>> m_observers;
 
 public:
+    ~event() { m_alive = false; }
+
     subscription subscribe(std::function<void(Args...)> observer)
     {
         const size_t id = m_current_id++;
         m_observers.emplace(id, std::move(observer));
-        return subscription([this, id]() { m_observers.erase(id); });
+        return subscription([this, id]() {
+            if (m_alive)
+                m_observers.erase(id);
+        });
     }
 
     void operator()(Args... args)
