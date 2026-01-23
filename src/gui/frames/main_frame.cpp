@@ -48,7 +48,7 @@ gui::frames::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
         }
     });
 
-    m_subscriptions.subscribe(app_settings::emulator_path_changed, [this](const std::filesystem::path &path) {
+    m_subscriptions.subscribe(core::app_settings::emulator_path_changed, [this](const std::filesystem::path &path) {
         std::string realPath = path.string() == "" ? "없음" : path.string();
         wxString help = wxString::Format(wxT("테스트 플레이를 위한 에뮬레이터를 등록합니다. (등록: '%s')"), wxString::FromUTF8(realPath));
         m_settingsSetEmulatorMenuItem->SetHelp(help);
@@ -57,7 +57,7 @@ gui::frames::MainFrame::MainFrame(wxWindow *parent) : MainFrameBase(parent)
     // 앱의 초기 상태를 알림
     pokegold::event::rom_data_changed();
     pokegold::event::rom_changed();
-    app_settings::emulator_path_changed(app_settings::get_emulator_path());
+    core::app_settings::emulator_path_changed(core::app_settings::get_emulator_path());
 }
 
 void SaveInternal()
@@ -132,7 +132,7 @@ void gui::frames::MainFrame::OnMenuSelected(wxCommandEvent &event)
             utils::files::write_bytes_to_file(savePath, saveBytes);
         }
 
-        auto emulator_path = app_settings::get_emulator_path();
+        auto emulator_path = core::app_settings::get_emulator_path();
         if (!std::filesystem::exists(emulator_path))
         {
             wxBell();
@@ -145,8 +145,8 @@ void gui::frames::MainFrame::OnMenuSelected(wxCommandEvent &event)
             if (dialog.ShowModal() == wxID_CANCEL)
                 return;
 
-            app_settings::set_emulator_path(dialog.GetPath().utf8_string());
-            emulator_path = app_settings::get_emulator_path();
+            core::app_settings::set_emulator_path(dialog.GetPath().utf8_string());
+            emulator_path = core::app_settings::get_emulator_path();
             if (!std::filesystem::exists(emulator_path))
                 return;
         }
@@ -161,7 +161,7 @@ void gui::frames::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (dialog.ShowModal() == wxID_CANCEL)
             return;
 
-        app_settings::set_emulator_path(dialog.GetPath().utf8_string());
+        core::app_settings::set_emulator_path(dialog.GetPath().utf8_string());
         return;
     }
 
@@ -220,11 +220,11 @@ void gui::frames::MainFrame::OnClose(wxCloseEvent &event)
             event.Veto();
         }
 
-        app_settings::write();
+        core::app_settings::write();
         return;
     }
 
     debug_log("main", "close app");
     event.Skip();
-    app_settings::write();
+    core::app_settings::write();
 }

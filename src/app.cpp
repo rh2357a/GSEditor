@@ -16,7 +16,7 @@ public:
         wxInitAllImageHandlers();
 
         pokegold::string::init_charmap();
-        app_settings::init();
+        core::app_settings::init();
         utils::init_exec();
 
         // 구버전 데이터 제거

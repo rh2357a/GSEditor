@@ -10,7 +10,7 @@
 nlohmann::json app_settings_json;
 std::filesystem::path app_setting_path = utils::files::get_app_data_path() / "app_settings.json";
 
-void app_settings::init()
+void core::app_settings::init()
 {
     if (std::filesystem::exists(app_setting_path))
     {
@@ -26,7 +26,7 @@ void app_settings::init()
     app_settings_json = nlohmann::json::object();
 }
 
-void app_settings::write()
+void core::app_settings::write()
 {
     std::filesystem::remove(app_setting_path);
     std::ofstream output(app_setting_path);
@@ -34,13 +34,13 @@ void app_settings::write()
     output.close();
 }
 
-std::filesystem::path app_settings::get_emulator_path()
+std::filesystem::path core::app_settings::get_emulator_path()
 {
     const auto v = app_settings_json["emulator"];
     return v.is_null() ? "" : v.get<std::string>();
 }
 
-void app_settings::set_emulator_path(const std::filesystem::path &path)
+void core::app_settings::set_emulator_path(const std::filesystem::path &path)
 {
     app_settings_json["emulator"] = path.string();
     emulator_path_changed(path);

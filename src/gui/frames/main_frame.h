@@ -2,7 +2,7 @@
 #define _GUI_FRAMES_MAIN_FRAME_H_
 
 #include "gui.h"
-#include "utils.h"
+#include "core.h"
 #include <vector>
 
 namespace gui::frames {
@@ -10,7 +10,7 @@ namespace gui::frames {
 class MainFrame : public MainFrameBase
 {
 private:
-    utils::subscriptions m_subscriptions;
+    core::subscriptions m_subscriptions;
 
 public:
     MainFrame(wxWindow *parent);

@@ -5,9 +5,7 @@
 #include "utils/files.h"
 #include "utils/patch.h"
 #include "utils/strings.h"
-#include "utils/event.h"
 #include "utils/exec.h"
-#include "utils/event_guard.h"
 
 #include <vector>
 #include <span>

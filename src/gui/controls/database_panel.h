@@ -2,15 +2,15 @@
 #define _GUI_CONTROLS_DATABASE_PANEL_H_
 
 #include "gui.h"
-#include "utils.h"
+#include "core.h"
 
 namespace gui::controls {
 
 class DatabasePanel : public DatabasePanelBase
 {
 private:
-    utils::subscriptions m_subscriptions;
-    utils::event_guard m_eventGuard;
+    core::subscriptions m_subscriptions;
+    core::event_guard m_eventGuard;
 
 public:
     DatabasePanel(wxWindow *parent,
