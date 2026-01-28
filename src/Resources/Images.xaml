@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ImageSource x:Key="AboutAppIcon">./Images/about_app.png</ImageSource>
+
+    <ImageSource x:Key="MenuExitIcon">./Images/menu_exit.png</ImageSource>
+    <ImageSource x:Key="MenuFolderIcon">./Images/menu_folder.png</ImageSource>
+    <ImageSource x:Key="MenuSaveIcon">./Images/menu_save.png</ImageSource>
+    <ImageSource x:Key="MenuDatabaseIcon">./Images/menu_database.png</ImageSource>
+    <ImageSource x:Key="MenuHelpIcon">./Images/menu_help.png</ImageSource>
+    <ImageSource x:Key="MenuPlayIcon">./Images/menu_play.png</ImageSource>
+    <ImageSource x:Key="MenuSettingsIcon">./Images/menu_settings.png</ImageSource>
+    <ImageSource x:Key="MenuScriptIcon">./Images/menu_script.png</ImageSource>
+    <ImageSource x:Key="MenuRedoIcon">./Images/menu_redo.png</ImageSource>
+    <ImageSource x:Key="MenuUndoIcon">./Images/menu_undo.png</ImageSource>
+</ResourceDictionary>

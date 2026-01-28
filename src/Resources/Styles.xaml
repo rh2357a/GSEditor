@@ -1,0 +1,31 @@
+<ResourceDictionary x:Class="GSEditor.Resources.Styles"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="DefaultBackground">#fff0f0f0</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentColor">#fff0f8ff</SolidColorBrush>
+
+    <Style x:Key="DefaultBorder"
+           TargetType="Border">
+        <Setter Property="Border.BorderThickness"
+                Value="1" />
+        <Setter Property="Border.BorderBrush"
+                Value="#ffa0a0a0" />
+        <Setter Property="Border.Background"
+                Value="White" />
+        <Style.Triggers>
+            <Trigger Property="UIElement.IsEnabled"
+                     Value="False">
+                <Setter Property="Border.BorderBrush"
+                        Value="#ffe0e0e0" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- 스크롤 속도 교정... -->
+    <Style TargetType="FlowDocumentScrollViewer">
+        <EventSetter Event="PreviewMouseWheel"
+                     Handler="FlowDocumentScrollViewer_PreviewMouseWheel" />
+    </Style>
+
+</ResourceDictionary>

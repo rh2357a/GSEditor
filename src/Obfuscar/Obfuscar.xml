@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Obfuscator>
+    <Var name="InPath" value="." />
+    <Var name="OutPath" value="Obfuscar" />
+
+    <Var name="KeyFile" value="Obfuscar\Obfuscar.Key.snk" />
+
+    <Var name="KeepPublicApi" value="false" />
+    <Var name="HidePrivateApi" value="true" />
+    <Var name="HideStrings" value="true" />
+    <Var name="RenameProperties" value="false" />
+    <Var name="RenameEvents" value="true" />
+    <Var name="RenameFields" value="true" />
+    <Var name="UseUnicodeNames" value="false" />
+    <Var name="SuppressIldasm" value="true" />
+    <Var name="AnalyzeXaml" value="true" />
+    <Var name="OptimizeMethod" value="true" />
+
+    <AssemblySearchPath path="%DOTNET_DESKTOP_PATH%" />
+    <Module file="GSEditor.dll" />
+</Obfuscator>

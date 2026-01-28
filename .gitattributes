@@ -1,4 +1,0 @@
-*.txt  text eol=lf
-*.md   text eol=lf
-*.html text eol=lf
-*.asm  text eol=lf

@@ -1,0 +1,317 @@
+<Window x:Class="GSEditor.UI.Dialogs.AboutDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GSEditor.UI.Dialogs"
+        mc:Ignorable="d"
+        Width="640"
+        Height="540"
+        Title="GS 에디터 정보..."
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource DefaultBackground}"
+        d:DataContext="{d:DesignInstance Type=local:AboutDialogViewModel}">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto, *"
+              Margin="4">
+
+            <Image Margin="8"
+                   Source="{DynamicResource AboutAppIcon}" />
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Vertical"
+                        VerticalAlignment="Center">
+
+                <Label Padding="0, 2, 0, 2"
+                       Content="{Binding Author}"
+                       d:Content="(author)" />
+
+                <Label Padding="0, 2, 0, 2"
+                       Content="{Binding Version}"
+                       d:Content="(version)" />
+
+            </StackPanel>
+        </Grid>
+
+        <TabControl Grid.Row="1"
+                    Margin="4">
+
+            <TabItem Header="버전 기록"
+                     IsSelected="True">
+                <Border Margin="2"
+                        Style="{DynamicResource DefaultBorder}">
+                    <FlowDocumentScrollViewer HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Visible">
+                        <FlowDocumentScrollViewer.Resources>
+                            <Style TargetType="Paragraph">
+                                <Setter Property="Margin"
+                                        Value="0, 4, 0, 4" />
+                                <Setter Property="FontSize"
+                                        Value="10pt" />
+                            </Style>
+
+                            <Style TargetType="List">
+                                <Setter Property="Margin"
+                                        Value="0, 8, 0, 8" />
+                            </Style>
+
+                            <Style x:Key="Title"
+                                   TargetType="Paragraph">
+                                <Setter Property="Margin"
+                                        Value="0, 24, 0, 4" />
+                                <Setter Property="FontSize"
+                                        Value="18pt" />
+                                <Setter Property="FontWeight"
+                                        Value="DemiBold" />
+                            </Style>
+                        </FlowDocumentScrollViewer.Resources>
+
+                        <FlowDocument Background="White"
+                                      FontFamily="Consolas"
+                                      PagePadding="12">
+                            <Paragraph Style="{DynamicResource Title}">v1.2.8.2</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>기능 변경</Paragraph>
+                                    <List>
+                                        <ListItem>
+                                            <Paragraph>패치 파일(IPS, xdelta3) 생성 추가</Paragraph>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Paragraph>추가 포켓몬 설정 추가</Paragraph>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Paragraph>타입 상성 편집 추가</Paragraph>
+                                        </ListItem>
+                                    </List>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>UI</Paragraph>
+                                    <List>
+                                        <ListItem>
+                                            <Paragraph>각종 메뉴의 설명 문구 추가</Paragraph>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Paragraph>롬 파일 데이터 손상 알림을 필수 표시하도록 변경</Paragraph>
+                                        </ListItem>
+                                    </List>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.7</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>트레이너 그룹 탭 추가</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.6</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>항목 검색 기능에서 창이 열릴경우 입력을 바로 할 수 있도록 변경</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>체크섬 기록이 재대로 되지 않는 문제를 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>외부 원인에 의한 깨진 데이터를 알림, 데이터 수정 기능 추가 (이미지, 진화·배우는 기술 데이터만 지원)</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>성별관련 오류 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>이미지 변경 시 일부 도트가 누락되는 버그 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>외부툴에 의한 이미지 손상 로딩 개선</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>오류 알림 개선</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.5</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>메뉴 순서 변경 (포켓몬, 아이템, 안농, 기술, 기술머신 > 포켓몬, 안농, 아이템, 기술, 기술머신)</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>콤보상자 홀수, 짝수 구분되도록 스타일 변경</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>콤보상자에서 오른쪽 클릭을 이용하여 항목을 찾을 수 있도록 변경</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.4</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>기술머신 메뉴 포켓몬 상세 설정 추가</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>설명란의 길이가 처음에 표시안되는 문제 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>비전, 기술머신 목록 홀수, 짝수 구분되도록 변경 및 버그 수정</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.3</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>기술머신 메뉴 추가</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.2</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>이미지 png, 2bpp 내보내기 시 기본 파일명 추가</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>목록 상자 검색 기능 표시 버그 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>포켓몬 포획률 퍼센티지(%) 표시</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>안농 메뉴 추가</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.1</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>포켓몬 성장률 항목 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>기술 메뉴 항목 수정 (애니메이션 값 > 기술 번호)</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.2.0</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>UI 개선 및 재설계</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>hidpi+ 지원</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>이제부터 은 버전 편집을 미지원합니다. (오류가 발생할 수 있음)</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>이제부터 성도맵 호환성 지원하지 않습니다. (포켓몬 이름 관련 사항으로 성도맵 툴을 이용시 불편할 수 있음)</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>이제부터 롬 파일 헤더에 관하여 알림을 표시하지 않습니다.</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>포켓몬 이미지, 팔레트 편집 및 추출 추가</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>롬 파일 헤더 체크섬이 기록되도록 업데이트</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>기술 편집 탭 추가</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>목록 검색 기능 추가</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.1.4</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>저장, 텍스트 UI 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>성도맵 호환에 따른 예외처리 추가</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>에뮬레이터 미설정 시 나오는창에서 선택사항 묻기 추가</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.1.0</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>진화, 자력기 편집 버튼 UI 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>자력기 편집 중 가져오기 기능 추가</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.0.5</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>롬을 여러번 불러와도 정상 작동하도록 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>기타 UI 위치 조절</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.0.4</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>롬 파일 헤더 검사를 자세히 하도록 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>은 버전에서 아이템 수정이 불가능한 부분 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>포켓몬 선택 유지 체크항목 기억하도록 수정</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.0.3</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>롬을 열 때 헤더를 검사하도록 수정 (비정상인 경우 경고창 팝업)</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>능력치 입력 순서 변경</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>소스 리팩터링</Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <Paragraph Style="{DynamicResource Title}">v1.0.2</Paragraph>
+                            <List>
+                                <ListItem>
+                                    <Paragraph>데이터 저장이 재대로 안되는 현상 수정</Paragraph>
+                                </ListItem>
+                                <ListItem>
+                                    <Paragraph>롬을 여러번 불러오지 못하도록 변경</Paragraph>
+                                </ListItem>
+                            </List>
+
+                        </FlowDocument>
+                    </FlowDocumentScrollViewer>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="오픈소스 라이선스">
+                <TextBox FontFamily="Consolas"
+                         FontSize="10pt"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         IsReadOnly="True"
+                         Focusable="False"
+                         VerticalScrollBarVisibility="Visible"
+                         Margin="2"
+                         Text="{Binding OpenSourceLicenses}"
+                         d:Text="(open_source_licenses)" />
+            </TabItem>
+
+        </TabControl>
+    </Grid>
+</Window>
