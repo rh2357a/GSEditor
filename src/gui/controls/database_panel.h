@@ -27,8 +27,6 @@ public:
 private:
     void InitPokemonTab();
     void UpdatePokemonEvolutions();
-
-private:
     void OnPokemonSelected(wxCommandEvent &event) override;
     void OnPokemonEvolutionsButtonClick(wxCommandEvent &event) override;
     void OnPokemonLearnMovesButtonClick(wxCommandEvent &event) override;

@@ -297,7 +297,7 @@ BadDataDialogBase::~BadDataDialogBase()
 {
 }
 
-FindDialog::FindDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+FindDialogBase::FindDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
@@ -305,7 +305,171 @@ FindDialog::FindDialog( wxWindow* parent, wxWindowID id, const wxString& title, 
 	this->Centre( wxBOTH );
 }
 
-FindDialog::~FindDialog()
+FindDialogBase::~FindDialogBase()
+{
+}
+
+EvolutionEditorDialogBase::EvolutionEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentPanel;
+	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* contentSizer;
+	contentSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* pokemonSizer;
+	pokemonSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonLabel;
+	pokemonLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("진화 후 포켓몬："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonLabel->Wrap( -1 );
+	pokemonSizer->Add( pokemonLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_pokemon = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	pokemonSizer->Add( m_pokemon, 1, wxALIGN_CENTER_VERTICAL|wxRIGHT, 16 );
+
+
+	contentSizer->Add( pokemonSizer, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticLine* separator_0;
+	separator_0 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
+
+	m_levelUpRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("레벨 업"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_levelUpRadio->SetValue( true );
+	contentSizer->Add( m_levelUpRadio, 0, wxALL, 5 );
+
+	m_levelUpPanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* levelUpSizer;
+	levelUpSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* commonSizer;
+	commonSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_levelUpCommonRadio = new wxRadioButton( m_levelUpPanel, wxID_ANY, wxT("일반"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_levelUpCommonRadio->SetValue( true );
+	commonSizer->Add( m_levelUpCommonRadio, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_level = new wxSpinCtrlDouble( m_levelUpPanel, wxID_ANY, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 0, 1 );
+	m_level->SetDigits( 0 );
+	commonSizer->Add( m_level, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_levelTypeComboBox = new wxComboBox( m_levelUpPanel, wxID_ANY, wxT("레벨 업"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_levelTypeComboBox->Append( wxT("레벨 업") );
+	m_levelTypeComboBox->Append( wxT("공격이 방어보다 높을 때 + 레벨 업") );
+	m_levelTypeComboBox->Append( wxT("방어가 공격보다 높을 때 + 레벨 업") );
+	m_levelTypeComboBox->Append( wxT("공격과 방어가 같을 때 + 레벨 업") );
+	m_levelTypeComboBox->SetSelection( 0 );
+	commonSizer->Add( m_levelTypeComboBox, 3, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	levelUpSizer->Add( commonSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* happinessSizer;
+	happinessSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_happinessRadio = new wxRadioButton( m_levelUpPanel, wxID_ANY, wxT("친밀도"), wxDefaultPosition, wxDefaultSize, 0 );
+	happinessSizer->Add( m_happinessRadio, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_happinessTypeComboBox = new wxComboBox( m_levelUpPanel, wxID_ANY, wxT("시간과 상관없이 레벨 업"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_happinessTypeComboBox->Append( wxT("시간과 상관없이 레벨 업") );
+	m_happinessTypeComboBox->Append( wxT("낮 시간에 레벨 업") );
+	m_happinessTypeComboBox->Append( wxT("밤 시간에 레벨 업") );
+	m_happinessTypeComboBox->SetSelection( 0 );
+	happinessSizer->Add( m_happinessTypeComboBox, 4, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	levelUpSizer->Add( happinessSizer, 0, wxEXPAND, 5 );
+
+
+	m_levelUpPanel->SetSizer( levelUpSizer );
+	m_levelUpPanel->Layout();
+	levelUpSizer->Fit( m_levelUpPanel );
+	contentSizer->Add( m_levelUpPanel, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 16 );
+
+	m_useItemRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("도구 사용"), wxDefaultPosition, wxDefaultSize, 0 );
+	contentSizer->Add( m_useItemRadio, 0, wxALL, 5 );
+
+	m_useItemPanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* useItemSizer;
+	useItemSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_useItems = new wxComboBox( m_useItemPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	useItemSizer->Add( m_useItems, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_useItemPanel->SetSizer( useItemSizer );
+	m_useItemPanel->Layout();
+	useItemSizer->Fit( m_useItemPanel );
+	contentSizer->Add( m_useItemPanel, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 16 );
+
+	m_tradeRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("통신교환"), wxDefaultPosition, wxDefaultSize, 0 );
+	contentSizer->Add( m_tradeRadio, 0, wxALL, 5 );
+
+	m_tradePanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* tradeSizer;
+	tradeSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_tradeGaveItemCheckBox = new wxCheckBox( m_tradePanel, wxID_ANY, wxT("도구를 지닌 상태"), wxDefaultPosition, wxDefaultSize, 0 );
+	tradeSizer->Add( m_tradeGaveItemCheckBox, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_tradeItems = new wxComboBox( m_tradePanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	tradeSizer->Add( m_tradeItems, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	m_tradePanel->SetSizer( tradeSizer );
+	m_tradePanel->Layout();
+	tradeSizer->Fit( m_tradePanel );
+	contentSizer->Add( m_tradePanel, 0, wxEXPAND|wxLEFT|wxRIGHT, 16 );
+
+
+	contentSizer->Add( 0, 8, 0, 0, 0 );
+
+	wxStaticLine* separator_1;
+	separator_1 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentSizer->Add( separator_1, 0, wxEXPAND | wxALL, 5 );
+
+
+	contentPanel->SetSizer( contentSizer );
+	contentPanel->Layout();
+	contentSizer->Fit( contentPanel );
+	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 8 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButton;
+	confirmButton = new wxButton( buttonsPanel, wxID_ANY, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
+
+	wxButton* cancelButton;
+	cancelButton = new wxButton( buttonsPanel, wxID_ANY, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 8 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( EvolutionEditorDialogBase::OnConfirmButtonClick ), NULL, this );
+	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( EvolutionEditorDialogBase::OnCancelButtonClick ), NULL, this );
+}
+
+EvolutionEditorDialogBase::~EvolutionEditorDialogBase()
 {
 }
 
@@ -810,7 +974,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonEvolutionsSizer->Add( pokemonEvolutionsLabel, 0, wxLEFT|wxTOP, 8 );
 
 	m_pokemonEvolutionsList = new gui::controls::ColoredListCtrl( pokemonEvolutionsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_SIMPLE );
-	m_pokemonEvolutionsList->SetMinSize( wxSize( 512,120 ) );
+	m_pokemonEvolutionsList->SetMinSize( wxSize( 512,125 ) );
 
 	pokemonEvolutionsSizer->Add( m_pokemonEvolutionsList, 0, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 8 );
 

@@ -47,7 +47,9 @@ public:
 private:
     void InitItemColorEvent()
     {
-        Bind(wxEVT_PAINT, [this](const auto &ev) {
+        Bind(wxEVT_PAINT, [this](wxPaintEvent &ev) {
+            ev.Skip();
+
             unsigned int cnt = GetCount();
             if (cnt != m_lastItemCount)
             {
@@ -101,11 +103,14 @@ public:
 private:
     void InitItemColorEvent()
     {
-        Bind(wxEVT_LEAVE_WINDOW, [this](const auto &ev) {
+        Bind(wxEVT_LEAVE_WINDOW, [this](wxMouseEvent &ev) {
+            ev.Skip();
             SetSelection(wxNOT_FOUND);
         });
 
-        Bind(wxEVT_PAINT, [this](const auto &ev) {
+        Bind(wxEVT_PAINT, [this](wxPaintEvent &ev) {
+            ev.Skip();
+
             unsigned int cnt = GetCount();
             if (cnt != m_lastItemCount)
             {
@@ -144,7 +149,9 @@ public:
 private:
     void InitItemColorEvent()
     {
-        auto listCtrlFunc = [this](const auto &ev) {
+        auto listCtrlFunc = [this](wxListEvent &ev) {
+            ev.Skip();
+
             for (int i = 0; i < GetItemCount(); i++)
             {
                 if (i % 2 == 0)

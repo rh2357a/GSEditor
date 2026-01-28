@@ -6,6 +6,7 @@
 
 #include <utf8cpp/utf8.h>
 
+#include <algorithm>
 #include <array>
 #include <unordered_map>
 
@@ -143,12 +144,32 @@ void gui::controls::DatabasePanel::InitPokemonTab()
             {wxT("기술"), -1},
         });
 
-    Bind(wxEVT_SIZE, [&](auto &ev) {
+    Bind(wxEVT_SIZE, [&](wxSizeEvent &ev) {
         ev.Skip();
 
         int newColumns = GetClientSize().GetWidth() / 220;
         m_pokemonTMHMsSizer->SetCols(newColumns);
     });
+
+    // 진화 목록 버튼 상태 관리
+    {
+        auto listCtrlFunc = [&](wxListEvent &ev) {
+            ev.Skip();
+
+            int selection = m_pokemonEvolutionsList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+            int count = m_pokemonEvolutionsList->GetItemCount();
+            m_pokemonEvolutionModify->Enable(selection != -1);
+            m_pokemonEvolutionRemove->Enable(selection != -1);
+            m_pokemonEvolutionAdd->Enable(count <= 16);
+            m_pokemonEvolutionClear->Enable(count > 0);
+        };
+
+        m_pokemonEvolutionsList->Bind(wxEVT_LIST_DELETE_ITEM, listCtrlFunc);
+        m_pokemonEvolutionsList->Bind(wxEVT_LIST_DELETE_ALL_ITEMS, listCtrlFunc);
+        m_pokemonEvolutionsList->Bind(wxEVT_LIST_INSERT_ITEM, listCtrlFunc);
+        m_pokemonEvolutionsList->Bind(wxEVT_LIST_ITEM_SELECTED, listCtrlFunc);
+        m_pokemonEvolutionsList->Bind(wxEVT_LIST_ITEM_DESELECTED, listCtrlFunc);
+    }
 
     m_subscriptions.subscribe(pokegold::event::rom_changed, [&] {
         m_eventGuard([&] { gui::controls::Select(m_pokemonList, -1); });
@@ -184,34 +205,55 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         }
     });
 
-    auto tmhmCtrls = std::make_shared<std::vector<wxCheckListBox *>>(std::vector<wxCheckListBox *>{
-        m_pokemonHmTmList1,
-        m_pokemonHmTmList2,
-        m_pokemonHmTmList3,
-        m_pokemonHmTmList4,
-        m_pokemonHmTmList5,
-        m_pokemonHmTmList6,
-        m_pokemonHmTmList7,
-        m_pokemonHmTmList8,
-    });
+    {
+        auto tmhmCtrls = std::make_shared<std::vector<wxCheckListBox *>>(std::vector<wxCheckListBox *>{
+            m_pokemonHmTmList1,
+            m_pokemonHmTmList2,
+            m_pokemonHmTmList3,
+            m_pokemonHmTmList4,
+            m_pokemonHmTmList5,
+            m_pokemonHmTmList6,
+            m_pokemonHmTmList7,
+            m_pokemonHmTmList8,
+        });
 
-    auto hmtmChangedFunc = [tmhmCtrls](int idx) {
-        for (size_t i = 0; i < 57; i++)
+        auto hmtmChangedFunc = [tmhmCtrls](int idx) {
+            for (size_t i = 0; i < 57; i++)
+            {
+                auto &e = pokegold::data::moves[pokegold::data::tmhms[i] - 1];
+                auto ctrl = (*tmhmCtrls)[i / 8];
+                ctrl->SetString(
+                    i % 8,
+                    wxString::Format(
+                        wxT("%s%02d [%s]"),
+                        i < 50 ? wxT("기술") : wxT("비전"),
+                        int(i < 50 ? i + 1 : i - 49),
+                        e.name.editor_wxstr()));
+            }
+        };
+
+        m_subscriptions.subscribe(pokegold::event::move_names_changed, hmtmChangedFunc);
+        m_subscriptions.subscribe(pokegold::event::hmtms_changed, hmtmChangedFunc);
+
+        for (auto *ctrl : *tmhmCtrls)
         {
-            auto &e = pokegold::data::moves[pokegold::data::tmhms[i] - 1];
-            auto ctrl = (*tmhmCtrls)[i / 8];
-            ctrl->SetString(
-                i % 8,
-                wxString::Format(
-                    wxT("%s%02d [%s]"),
-                    i < 50 ? wxT("기술") : wxT("비전"),
-                    int(i < 50 ? i + 1 : i - 49),
-                    e.name.editor_wxstr()));
-        }
-    };
+            ctrl->Bind(wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, [&, tmhmCtrls](const auto ev) {
+                if (m_eventGuard.is_guarded())
+                    return;
 
-    m_subscriptions.subscribe(pokegold::event::move_names_changed, hmtmChangedFunc);
-    m_subscriptions.subscribe(pokegold::event::hmtms_changed, hmtmChangedFunc);
+                auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+                size_t i = 0;
+                for (auto *ctrl2 : *tmhmCtrls)
+                {
+                    for (unsigned j = 0; j < ctrl2->GetCount(); j++)
+                        pokemon.tmhms[i++] = ctrl2->IsChecked(j);
+                }
+
+                pokegold::romfile::is_changed = true;
+                pokegold::event::rom_data_changed();
+            });
+        }
+    }
 
     m_subscriptions.subscribe(pokegold::event::type_names_changed, [this](int idx) {
         if (m_pokemonType1ComboBox->GetCount() == 0)
@@ -314,105 +356,109 @@ void gui::controls::DatabasePanel::InitPokemonTab()
         }
     });
 
-    const auto &comboBoxBindFunc = [&](const auto &ev) {
-        if (m_eventGuard.is_guarded())
-            return;
+    {
+        const auto &comboBoxBindFunc = [&](const auto &ev) {
+            if (m_eventGuard.is_guarded())
+                return;
 
-        auto bindInfo = [&](auto &field, const auto &value) {
-            if (value != field)
+            auto bindInfo = [&](auto &field, const auto &value) {
+                if (value != field)
+                {
+                    field = value;
+                    return true;
+                }
+                return false;
+            };
+
+            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+            bool hasChanged = false;
+            hasChanged |= bindInfo(pokemon.gender_rate, genderRateReverseIndexes[m_pokemonGenderRateComboBox->GetSelection()]);
+            hasChanged |= bindInfo(pokemon.growth_rate, growthRateReverseIndexes[m_pokemonGrowthRateComboBox->GetSelection()]);
+            hasChanged |= bindInfo(pokemon.type_1_id, u8(m_pokemonType1ComboBox->GetSelection()));
+            hasChanged |= bindInfo(pokemon.type_2_id, u8(m_pokemonType2ComboBox->GetSelection()));
+            hasChanged |= bindInfo(pokemon.item_1_id, u8(m_pokemonItem1ComboBox->GetSelection()));
+            hasChanged |= bindInfo(pokemon.item_2_id, u8(m_pokemonItem2ComboBox->GetSelection()));
+            hasChanged |= bindInfo(pokemon.egg_group_1, eggGroupReverseIndexes[m_pokemonEggGroup1ComboBox->GetSelection()]);
+            hasChanged |= bindInfo(pokemon.egg_group_2, eggGroupReverseIndexes[m_pokemonEggGroup2ComboBox->GetSelection()]);
+
+            if (hasChanged)
             {
-                field = value;
-                return true;
+                pokegold::romfile::is_changed = true;
+                pokegold::event::rom_data_changed();
             }
-            return false;
         };
 
-        auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
-        bool hasChanged = false;
-        hasChanged |= bindInfo(pokemon.gender_rate, genderRateReverseIndexes[m_pokemonGenderRateComboBox->GetSelection()]);
-        hasChanged |= bindInfo(pokemon.growth_rate, growthRateReverseIndexes[m_pokemonGrowthRateComboBox->GetSelection()]);
-        hasChanged |= bindInfo(pokemon.type_1_id, u8(m_pokemonType1ComboBox->GetSelection()));
-        hasChanged |= bindInfo(pokemon.type_2_id, u8(m_pokemonType2ComboBox->GetSelection()));
-        hasChanged |= bindInfo(pokemon.item_1_id, u8(m_pokemonItem1ComboBox->GetSelection()));
-        hasChanged |= bindInfo(pokemon.item_2_id, u8(m_pokemonItem2ComboBox->GetSelection()));
-        hasChanged |= bindInfo(pokemon.egg_group_1, eggGroupReverseIndexes[m_pokemonEggGroup1ComboBox->GetSelection()]);
-        hasChanged |= bindInfo(pokemon.egg_group_2, eggGroupReverseIndexes[m_pokemonEggGroup2ComboBox->GetSelection()]);
+        m_pokemonGenderRateComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonGrowthRateComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonType1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonType2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonItem1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonItem2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonEggGroup1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonEggGroup2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+    }
 
-        if (hasChanged)
-        {
-            pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed();
-        }
-    };
+    {
+        const auto &spinCtrlBindFunc = [&](const auto &ev) {
+            const auto catchRatePercentage = wxString::Format(wxT("(%.2lf%%)"), m_pokemonStatsCatchRateValue->GetValue() / 255.0 * 100.0);
+            m_pokemonCatchRatePercentage->SetLabelText(catchRatePercentage);
 
-    m_pokemonGenderRateComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
-    m_pokemonGrowthRateComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
-    m_pokemonType1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
-    m_pokemonType2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
-    m_pokemonItem1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
-    m_pokemonItem2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
-    m_pokemonEggGroup1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
-    m_pokemonEggGroup2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+            if (m_eventGuard.is_guarded())
+                return;
 
-    const auto &spinCtrlBindFunc = [&](const auto &ev) {
-        const auto catchRatePercentage = wxString::Format(wxT("(%.2lf%%)"), m_pokemonStatsCatchRateValue->GetValue() / 255.0 * 100.0);
-        m_pokemonCatchRatePercentage->SetLabelText(catchRatePercentage);
+            auto bindStats = [&](u8 &field, wxSpinCtrlDouble *ctrl) {
+                const auto value = u8(ctrl->GetValue());
+                if (field != value)
+                {
+                    field = value;
+                    return true;
+                }
+                return false;
+            };
 
-        if (m_eventGuard.is_guarded())
-            return;
+            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+            bool hasChanged = false;
+            hasChanged |= bindStats(pokemon.hp, m_pokemonStatsHpValue);
+            hasChanged |= bindStats(pokemon.atk, m_pokemonStatsAtkValue);
+            hasChanged |= bindStats(pokemon.def, m_pokemonStatsDefValue);
+            hasChanged |= bindStats(pokemon.sp_atk, m_pokemonStatsSpAtkValue);
+            hasChanged |= bindStats(pokemon.sp_def, m_pokemonStatsSpDefValue);
+            hasChanged |= bindStats(pokemon.spd, m_pokemonStatsSpdValue);
+            hasChanged |= bindStats(pokemon.base_exp, m_pokemonStatsExpValue);
+            hasChanged |= bindStats(pokemon.catch_rate, m_pokemonStatsCatchRateValue);
 
-        auto bindStats = [&](u8 &field, wxSpinCtrlDouble *ctrl) {
-            const auto value = u8(ctrl->GetValue());
-            if (field != value)
+            u8 height = u8(m_pokemonDexHeightValue->GetValue() * 10);
+            if (height != pokemon.height)
             {
-                field = value;
-                return true;
+                pokemon.height = height;
+                hasChanged = true;
             }
-            return false;
+
+            u16 weight = u16(m_pokemonDexWeightValue->GetValue() * 10);
+            if (weight != pokemon.weight)
+            {
+                pokemon.weight = weight;
+                hasChanged = true;
+            }
+
+            if (hasChanged)
+            {
+                pokegold::romfile::is_changed = true;
+                pokegold::event::rom_data_changed();
+            }
         };
 
-        auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
-        bool hasChanged = false;
-        hasChanged |= bindStats(pokemon.hp, m_pokemonStatsHpValue);
-        hasChanged |= bindStats(pokemon.atk, m_pokemonStatsAtkValue);
-        hasChanged |= bindStats(pokemon.def, m_pokemonStatsDefValue);
-        hasChanged |= bindStats(pokemon.sp_atk, m_pokemonStatsSpAtkValue);
-        hasChanged |= bindStats(pokemon.sp_def, m_pokemonStatsSpDefValue);
-        hasChanged |= bindStats(pokemon.spd, m_pokemonStatsSpdValue);
-        hasChanged |= bindStats(pokemon.base_exp, m_pokemonStatsExpValue);
-        hasChanged |= bindStats(pokemon.catch_rate, m_pokemonStatsCatchRateValue);
-
-        u8 height = u8(m_pokemonDexHeightValue->GetValue() * 10);
-        if (height != pokemon.height)
-        {
-            pokemon.height = height;
-            hasChanged = true;
-        }
-
-        u16 weight = u16(m_pokemonDexWeightValue->GetValue() * 10);
-        if (weight != pokemon.weight)
-        {
-            pokemon.weight = weight;
-            hasChanged = true;
-        }
-
-        if (hasChanged)
-        {
-            pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed();
-        }
-    };
-
-    m_pokemonStatsHpValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonStatsAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonStatsDefValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonStatsSpAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonStatsSpDefValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonStatsSpdValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonStatsExpValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonStatsCatchRateValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonDexHeightValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
-    m_pokemonDexWeightValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsHpValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsDefValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsSpAtkValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsSpDefValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsSpdValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsExpValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonStatsCatchRateValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonDexHeightValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+        m_pokemonDexWeightValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
+    }
 
     m_pokemonDexSpeciesNameText->Bind(wxEVT_TEXT, [&](const auto ev) {
         if (m_eventGuard.is_guarded())
@@ -452,25 +498,6 @@ void gui::controls::DatabasePanel::InitPokemonTab()
             pokegold::event::rom_data_changed();
         }
     });
-
-    for (auto *ctrl : *tmhmCtrls)
-    {
-        ctrl->Bind(wxEVT_COMMAND_CHECKLISTBOX_TOGGLED, [&, tmhmCtrls](const auto ev) {
-            if (m_eventGuard.is_guarded())
-                return;
-
-            auto &pokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
-            size_t i = 0;
-            for (auto *ctrl2 : *tmhmCtrls)
-            {
-                for (unsigned j = 0; j < ctrl2->GetCount(); j++)
-                    pokemon.tmhms[i++] = ctrl2->IsChecked(j);
-            }
-
-            pokegold::romfile::is_changed = true;
-            pokegold::event::rom_data_changed();
-        });
-    }
 }
 
 void gui::controls::DatabasePanel::UpdatePokemonEvolutions()
@@ -524,15 +551,15 @@ void gui::controls::DatabasePanel::UpdatePokemonEvolutions()
             switch (ev.happiness)
             {
             case 1:
-                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도 MAX"));
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도"));
                 m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
                 break;
             case 2:
-                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도 MAX"));
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도"));
                 m_pokemonEvolutionsList->SetItem(i, 3, wxT("낮 시간대"));
                 break;
             case 3:
-                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도 MAX"));
+                m_pokemonEvolutionsList->SetItem(i, 2, wxT("친밀도"));
                 m_pokemonEvolutionsList->SetItem(i, 3, wxT("밤 시간대"));
                 break;
             default:
@@ -677,6 +704,75 @@ void gui::controls::DatabasePanel::OnPokemonSelected(wxCommandEvent &event)
 
 void gui::controls::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
 {
+    const int id = event.GetId();
+    const int evolveSelection = m_pokemonEvolutionsList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+    auto &selectedPokemon = pokegold::data::pokemons[m_pokemonList->GetSelection()];
+
+    if (id == wxID_POKEMON_EVOLUTION_ADD)
+    {
+        auto result = gui::dialogs::ShowEvolutionDialog(this);
+        if (result.has_value())
+        {
+            bool alreadyExists = std::any_of(
+                selectedPokemon.evolution_methods.begin(),
+                selectedPokemon.evolution_methods.end(),
+                [&](pokegold::data::evolution_method &e) {
+                    return e == *result;
+                });
+
+            if (!alreadyExists)
+            {
+                selectedPokemon.evolution_methods.push_back(*result);
+                UpdatePokemonEvolutions();
+
+                pokegold::romfile::is_changed = true;
+                pokegold::event::rom_data_changed();
+            }
+        }
+        return;
+    }
+
+    if (id == wxID_POKEMON_EVOLUTION_MODIFY)
+    {
+        auto defaultValue = selectedPokemon.evolution_methods[evolveSelection];
+        auto result = gui::dialogs::ShowEvolutionDialog(this, defaultValue);
+        if (result.has_value())
+        {
+            selectedPokemon.evolution_methods[evolveSelection] = *result;
+            UpdatePokemonEvolutions();
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed();
+        }
+        return;
+    }
+
+    if (id == wxID_POKEMON_EVOLUTION_REMOVE)
+    {
+        auto result = gui::dialogs::ShowConfirm(this, "삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
+        if (result == wxYES)
+        {
+            auto position = selectedPokemon.evolution_methods.begin() + evolveSelection;
+            selectedPokemon.evolution_methods.erase(position);
+            UpdatePokemonEvolutions();
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed();
+        }
+    }
+
+    if (id == wxID_POKEMON_EVOLUTION_CLEAR)
+    {
+        auto result = gui::dialogs::ShowConfirm(this, "전체 삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
+        if (result == wxYES)
+        {
+            selectedPokemon.evolution_methods.clear();
+            UpdatePokemonEvolutions();
+
+            pokegold::romfile::is_changed = true;
+            pokegold::event::rom_data_changed();
+        }
+    }
 }
 
 void gui::controls::DatabasePanel::OnPokemonLearnMovesButtonClick(wxCommandEvent &event)

@@ -36,10 +36,12 @@ namespace gui{ namespace controls{ class DatabasePanel; } }
 #include <wx/dialog.h>
 #include <wx/listctrl.h>
 #include <wx/button.h>
-#include <wx/listbox.h>
-#include <wx/statline.h>
 #include <wx/combobox.h>
+#include <wx/statline.h>
+#include <wx/radiobut.h>
 #include <wx/spinctrl.h>
+#include <wx/checkbox.h>
+#include <wx/listbox.h>
 #include <wx/checklst.h>
 #include <wx/scrolwin.h>
 
@@ -132,9 +134,9 @@ class BadDataDialogBase : public wxDialog
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class FindDialog
+/// Class FindDialogBase
 ///////////////////////////////////////////////////////////////////////////////
-class FindDialog : public wxDialog
+class FindDialogBase : public wxDialog
 {
 	private:
 
@@ -142,9 +144,46 @@ class FindDialog : public wxDialog
 
 	public:
 
-		FindDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("찾기"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
+		FindDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("찾기"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
 
-		~FindDialog();
+		~FindDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class EvolutionEditorDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class EvolutionEditorDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxComboBox* m_pokemon;
+		wxRadioButton* m_levelUpRadio;
+		wxPanel* m_levelUpPanel;
+		wxRadioButton* m_levelUpCommonRadio;
+		wxSpinCtrlDouble* m_level;
+		wxComboBox* m_levelTypeComboBox;
+		wxRadioButton* m_happinessRadio;
+		wxComboBox* m_happinessTypeComboBox;
+		wxRadioButton* m_useItemRadio;
+		wxPanel* m_useItemPanel;
+		wxComboBox* m_useItems;
+		wxRadioButton* m_tradeRadio;
+		wxPanel* m_tradePanel;
+		wxCheckBox* m_tradeGaveItemCheckBox;
+		wxComboBox* m_tradeItems;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		EvolutionEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 440,400 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
+
+		~EvolutionEditorDialogBase();
 
 };
 

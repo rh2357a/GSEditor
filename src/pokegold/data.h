@@ -172,6 +172,42 @@ public:
     u8 stats;
     u8 item_id;
     u8 happiness;
+
+public:
+    bool operator==(const evolution_method &rhs) const
+    {
+        if (evolution_type == 1)
+        {
+            return evolution_type == rhs.evolution_type
+                   && pokemon_id == rhs.pokemon_id
+                   && level == rhs.level;
+        }
+        else if (evolution_type == 2 || evolution_type == 3)
+        {
+            return evolution_type == rhs.evolution_type
+                   && pokemon_id == rhs.pokemon_id
+                   && item_id == rhs.item_id;
+        }
+        else if (evolution_type == 4)
+        {
+            return evolution_type == rhs.evolution_type
+                   && pokemon_id == rhs.pokemon_id
+                   && happiness == rhs.happiness;
+        }
+        else if (evolution_type == 5)
+        {
+            return evolution_type == rhs.evolution_type
+                   && pokemon_id == rhs.pokemon_id
+                   && level == rhs.level
+                   && stats == rhs.stats;
+        }
+        return false;
+    }
+
+    bool operator!=(const evolution_method &rhs) const
+    {
+        return !(*this == rhs);
+    }
 };
 
 class learn_move

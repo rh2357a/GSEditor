@@ -5,15 +5,15 @@
 
 #include <string>
 #include <format>
+#include <vector>
 
 gui::dialogs::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pokegold::data::bad_data> badDataList) : BadDataDialogBase(parent)
 {
     using namespace pokegold::data;
 
-    m_badDataList->ClearAll();
-    m_badDataList->InsertColumn(0, wxT("순번"));
-    m_badDataList->InsertColumn(1, wxT("손상 내용"));
-    m_badDataList->InsertColumn(2, wxT("대응 내용"));
+    gui::controls::FixedHeaderWidth(m_badDataList, {{wxT("순번"), 48}, {wxT("손상 내용"), -6}, {wxT("대응 내용"), -4}});
+
+    m_badDataList->Freeze();
 
     for (size_t i = 0; i < badDataList.size(); i++)
     {
@@ -122,8 +122,7 @@ gui::dialogs::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         }
     }
 
-    gui::controls::AutoColumnsWidth(m_badDataList);
-    m_badDataList->SetColumnWidth(0, 48);
+    m_badDataList->Thaw();
 }
 
 void gui::dialogs::BadDataDialog::OnDialogShow(wxShowEvent &event)
