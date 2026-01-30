@@ -1,0 +1,53 @@
+<Window x:Class="GSEditor.UI.Dialogs.BadDataDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GSEditor.UI.Dialogs"
+        xmlns:ext="clr-namespace:GSEditor.UI.Extensions"
+        mc:Ignorable="d"
+        Width="560"
+        Height="440"
+        Title="데이터 손상 알림"
+        Background="White"
+        ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        d:DataContext="{d:DesignInstance Type=local:BadDataDialogViewModel}">
+    <Grid RowDefinitions="Auto, *, Auto">
+
+        <Label Grid.Row="0"
+               Padding="16"
+               Content="아래 목록과 같이 일부 데이터가 손상되었습니다." />
+
+        <ListView Grid.Row="1"
+                  Margin="8"
+                  ItemsSource="{Binding BadDataList}">
+            <ListView.View>
+                <GridView AllowsColumnReorder="False">
+                    <GridViewColumn Header="순번"
+                                    Width="48"
+                                    DisplayMemberBinding="{Binding Index}" />
+                    <GridViewColumn Header="손상 내용"
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Reason}" />
+                    <GridViewColumn Header="대응 내용"
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Result}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Border Grid.Row="2"
+                Padding="16"
+                Background="{DynamicResource DefaultBackground}">
+            <StackPanel ext:StackPanelEx.HorizontalSpacing="8"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <Button Padding="32, 4, 32, 4"
+                        Content="확인" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</Window>

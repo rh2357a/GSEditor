@@ -23,7 +23,7 @@
         <ApplicationManifest>Resources\App.manifest</ApplicationManifest>
         <ApplicationIcon>Resources\App.ico</ApplicationIcon>
 
-        <NoWarn>$(NoWarn);IDE0017;IDE0060;IDE0290;SYSLIB1054;</NoWarn>
+        <NoWarn>$(NoWarn);IDE0017;IDE0060;IDE0290;SYSLIB1054;CA1822;</NoWarn>
         <WarningsAsErrors>$(WarningsAsErrors);</WarningsAsErrors>
     </PropertyGroup>
 
@@ -58,13 +58,7 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Embeds\**" />
-
-        <Resource Include="Resources\**" />
-        <Resource Remove="Resources\*.cs" />
-        <Resource Remove="Resources\*.xaml" />
-        <Resource Update="Resources\*.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Resource>
+        <Resource Include="Resources\Images\*.png" />
 
         <ApplicationDefinition Remove="App.xaml" />
         <Page Include="App.xaml" />

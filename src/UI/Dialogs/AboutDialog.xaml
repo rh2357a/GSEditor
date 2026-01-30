@@ -300,13 +300,12 @@
             </TabItem>
 
             <TabItem Header="오픈소스 라이선스">
-                <TextBox FontFamily="Consolas"
+                <TextBox VerticalScrollBarVisibility="Visible"
+                         FontFamily="Consolas"
                          FontSize="10pt"
                          TextWrapping="Wrap"
                          AcceptsReturn="True"
                          IsReadOnly="True"
-                         Focusable="False"
-                         VerticalScrollBarVisibility="Visible"
                          Margin="2"
                          Text="{Binding OpenSourceLicenses}"
                          d:Text="(open_source_licenses)" />

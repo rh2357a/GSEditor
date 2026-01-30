@@ -2,11 +2,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GSEditor.Services;
 using System.Reflection;
-using System.Windows;
 
 namespace GSEditor.UI.Dialogs;
 
-public partial class AboutDialog : Window
+public partial class AboutDialog
 {
     public AboutDialog()
     {
@@ -32,7 +31,7 @@ public partial class AboutDialogViewModel : ObservableObject
         _dialogService = dialogService;
 
         Author = "rh2357a (rh2357a@gmail.com)";
-        Version = $"버전: {Assembly.GetEntryAssembly()!.GetName().Version!.ToString()}";
+        Version = $"버전: {Assembly.GetEntryAssembly()!.GetName().Version}";
 
         OpenSourceLicenses = embededService.OpenSourceLicenses;
     }

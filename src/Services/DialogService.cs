@@ -1,4 +1,5 @@
 using GSEditor.Core.ExtensionMethods;
+using GSEditor.Services.Models.Pokegold;
 using GSEditor.UI.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,8 @@ public interface IDialogService
     MessageDialogResult ShowYesNoCancel(string title, string message);
 
     void ShowMain();
-    void ShowAbout(object? ownerDataContext = null);
+    void ShowAbout(object ownerDataContext);
+    void ShowBadData(object ownerDataContext, List<BadData> badDataList);
 }
 
 public enum MessageDialogResult
@@ -51,6 +53,16 @@ public sealed class DefaultDialogService : IDialogService
         dialog.DataContext = _serviceProvider.GetOrCreate<VM>();
         _windows[dialog.DataContext] = dialog;
         return dialog;
+    }
+
+    private VM? GetViewModelByWindow<VM>(Window window)
+    {
+        foreach (var entry in _windows)
+        {
+            if (entry.Value == window && entry.Key is VM viewModel)
+                return viewModel;
+        }
+        return default;
     }
 
     private T? GetResult<T>(Window dialog)
@@ -119,10 +131,21 @@ public sealed class DefaultDialogService : IDialogService
         dialog.ShowDialog();
     }
 
-    public void ShowAbout(object? ownerDataContext = null)
+    public void ShowAbout(object ownerDataContext)
     {
         var dialog = CreateDialog<AboutDialog, AboutDialogViewModel>();
-        dialog.Owner = ownerDataContext == null ? null : _windows[ownerDataContext];
+        dialog.Owner = _windows[ownerDataContext];
+        dialog.ShowDialog();
+    }
+
+    public void ShowBadData(object ownerDataContext, List<BadData> badDataList)
+    {
+        var dialog = CreateDialog<BadDataDialog, BadDataDialogViewModel>();
+        dialog.Owner = _windows[ownerDataContext];
+
+        var viewModel = GetViewModelByWindow<BadDataDialogViewModel>(dialog)!;
+        viewModel.SetBadDataList(badDataList);
+
         dialog.ShowDialog();
     }
 }

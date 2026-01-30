@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace GSEditor.Resources;
 
-public partial class Styles : ResourceDictionary
+public partial class Styles
 {
     public static ScrollViewer? FindScrollViewrRecursive(DependencyObject dependencyObject)
     {

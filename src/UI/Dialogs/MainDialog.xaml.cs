@@ -1,11 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GSEditor.Services;
-using System.Windows;
 
 namespace GSEditor.UI.Dialogs;
 
-public partial class MainDialog : Window
+public partial class MainDialog
 {
     public MainDialog()
     {
@@ -26,10 +25,20 @@ public partial class MainDialogViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void Test()
+    public void TestAbout()
     {
-        Title = "test!!";
-
         _dialogService.ShowAbout(this);
+    }
+
+    [RelayCommand]
+    public void TestBad()
+    {
+        _dialogService.ShowBadData(this, [
+            new(),
+            new(),
+            new(),
+            new(),
+            new(),
+            ]);
     }
 }

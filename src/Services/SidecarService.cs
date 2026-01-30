@@ -61,60 +61,46 @@ public sealed class DefaultSidecarService : ISidecarService
         _sidecarBinaryLockings.Clear();
     }
 
+    private SidecarResult RunSidecar(string path, string args, string cwd)
+    {
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = path,
+                Arguments = args,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WorkingDirectory = cwd,
+            }
+        };
+
+        var output = new StringBuilder();
+        process.OutputDataReceived += (s, e) => { if (e.Data != null) output.AppendLine(e.Data); };
+        process.ErrorDataReceived += (s, e) => { if (e.Data != null) output.AppendLine(e.Data); };
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        process.WaitForExit();
+
+        return new SidecarResult(process.ExitCode, output.ToString());
+    }
+
     public SidecarResult Rgbasm(string args, string cwd)
     {
-        return new SidecarRunner(Path.Combine(_sidecarPath, "rgbasm.exe"), args, cwd).Run();
+        return RunSidecar(Path.Combine(_sidecarPath, "rgbasm.exe"), args, cwd);
     }
 
     public SidecarResult Rgblink(string args, string cwd)
     {
-        return new SidecarRunner(Path.Combine(_sidecarPath, "rgblink.exe"), args, cwd).Run();
+        return RunSidecar(Path.Combine(_sidecarPath, "rgblink.exe"), args, cwd);
     }
 
     public SidecarResult Rgbfix(string args, string cwd)
     {
-        return new SidecarRunner(Path.Combine(_sidecarPath, "rgbfix.exe"), args, cwd).Run();
-    }
-
-    internal sealed class SidecarRunner
-    {
-        private readonly string _path;
-        private readonly string _args;
-        private readonly string _cwd;
-
-        public SidecarRunner(string path, string args, string cwd)
-        {
-            _path = path;
-            _args = args;
-            _cwd = cwd;
-        }
-
-        public SidecarResult Run()
-        {
-            using var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = _path,
-                    Arguments = _args,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true,
-                    WorkingDirectory = _cwd,
-                }
-            };
-
-            var output = new StringBuilder();
-            process.OutputDataReceived += (s, e) => { if (e.Data != null) output.AppendLine(e.Data); };
-            process.ErrorDataReceived += (s, e) => { if (e.Data != null) output.AppendLine(e.Data); };
-
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            process.WaitForExit();
-
-            return new SidecarResult(process.ExitCode, output.ToString());
-        }
+        return RunSidecar(Path.Combine(_sidecarPath, "rgbfix.exe"), args, cwd);
     }
 }
