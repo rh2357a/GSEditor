@@ -1,5 +1,12 @@
-#ifndef _RESOURCES_H_
-#define _RESOURCES_H_
+#pragma once
+
+#ifndef _IGNORE_EMBED
+#include "resources_embed.h"
+#endif
+
+#define APP_AUTHOR   "rh2357a"
+#define APP_NAME     "GSEditor"
+#define APP_FILENAME "GSEditor.exe"
 
 #define APP_VERSION     1, 2, 8, 2
 #define APP_VERSION_STR "1.2.8.2"
@@ -9,5 +16,3 @@
 #define RES_ID_RGBASM       102
 #define RES_ID_RGBLINK      103
 #define RES_ID_RGBFIX       104
-
-#endif
