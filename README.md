@@ -1,0 +1,55 @@
+# GS 에디터
+
+포켓몬스터 금 버전 편집기
+
+## 미리보기
+
+(WIP)
+
+## 작업 환경
+
+### 개발 환경
+
+* 윈도우10 (x64) 이상
+* [msys2-mingw64](https://repo.msys2.org/distrib)
+  * `MSYS2_HOME`: msys2 설치 경로 환경변수 등록 필요
+
+### VSCode 확장
+
+* `C/C++`: .clang-format, 인텔리센스, 디버그 구성
+
+### 빌드 설명
+
+* `make`: 프로젝트를 빌드합니다. `build/release/bin/GSEditor.exe`가 생성됩니다.
+* `make source-watcher`: 소스 변경 감지기를 통하여 인텔리센스에 필요한 파일을 갱신합니다.
+  * 갱신되는 파일
+    * `.vscode/c_cpp_properties.json`
+    * `.vscode/compile_commands.json`
+
+## 프로젝트 의존성
+
+내부 프로세스를 제외한 항목들은 패키지 매니저에 미리 설치가 되어 있어야 합니다.
+
+### 빌드
+
+* mingw-w64-x86_64-toolchain
+* upx
+* make
+
+### 라이브러리
+
+* mingw-w64-x86_64-wxwidgets3.2-msw
+* mingw-w64-x86_64-xz
+* libpng
+* utf8cpp
+* xxhash
+* xdelta3
+
+### 내부 프로세스 실행
+
+* rgbds
+
+## 3자 라이선스 고지
+
+* [ThirdPartyNotices.txt](res/ThirdPartyNotices.txt)
+* 프로그램 정보에서 확인 (도움말 > 프로그램 정보 > 오픈소스 라이선스)
