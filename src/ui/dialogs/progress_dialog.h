@@ -1,0 +1,118 @@
+#pragma once
+
+#include "base/functional/state.h"
+#include "base/progress.h"
+#include "ui/dialogs/message_box.h"
+#include "ui/bindings.h"
+#include "ui/ui.h"
+
+#include <string>
+#include <optional>
+#include <functional>
+#include <thread>
+
+namespace ui::internal
+{
+    template <typename _ReturnType>
+    class ProgressDialog : public ProgressDialogBase
+    {
+    private:
+        std::function<_ReturnType()> m_workerThreadFunc;
+        base::ProgressState &m_state;
+        base::MutableState<bool> m_enabledState = true;
+        std::optional<_ReturnType> m_result;
+        bool m_workerThreadPrepared = false;
+
+    public:
+        ProgressDialog(wxWindow *parent, std::string title, base::ProgressState &state, std::function<_ReturnType()> workerThreadFunc)
+            : ProgressDialogBase(parent),
+              m_workerThreadFunc(workerThreadFunc),
+              m_state(state)
+        {
+            SetTitle(wxString::FromUTF8(title));
+
+            m_enabledState.Subscribe(this, [this](const bool &isEnabled) {
+                CallAfter([this, isEnabled] {
+                    m_cancelButton->Enable(isEnabled);
+                });
+            });
+        }
+
+    private:
+        void OnInit(wxInitDialogEvent &event) override
+        {
+            UpdateProgress();
+
+            std::thread([this] {
+                try
+                {
+                    m_workerThreadPrepared = true;
+                    m_result = m_workerThreadFunc();
+                } catch (...)
+                {
+                    m_result.reset();
+                }
+
+                wxMilliSleep(200);
+                CallAfter([this] { EndModal(0); });
+            }).detach();
+
+            std::thread([this] {
+                while (true)
+                {
+                    wxMilliSleep(10);
+
+                    if (m_workerThreadPrepared && m_state.IsFinish())
+                        return;
+
+                    CallAfter([this] {
+                        if (!m_state.IsFinish())
+                            UpdateProgress();
+                    });
+                }
+            }).detach();
+        }
+
+        void UpdateProgress()
+        {
+            auto &progress = *m_state;
+
+            // NOTE: 불안정해 보이는 애니메이션 비활성화
+            // (https://forums.wxwidgets.org/viewtopic.php?t=42138)
+            m_progressGauge->SetValue(100);
+
+            m_progressGauge->SetValue(int(progress.GetProgress() * 100));
+            m_messageLabel->SetLabelText(wxString::FromUTF8(progress.GetMessage()));
+
+            m_enabledState.Update(!m_state.IsFinish());
+        }
+
+        void OnCancelButtonClick(wxCommandEvent &event) override
+        {
+            m_state.Pause();
+
+            auto result = ShowYesNoDialog(this, "알림", "정말로 취소하겠습니까?");
+            if (result == MessageBoxResult::Yes)
+                m_state.Cancel();
+            else
+                m_state.Resume();
+        }
+
+    public:
+        auto GetResult()
+        {
+            return m_result;
+        }
+    };
+}
+
+namespace ui
+{
+    template <typename _ReturnType>
+    inline std::optional<_ReturnType> ShowProgresDialog(wxWindow *parent, std::string title, base::ProgressState &state, std::function<_ReturnType()> workerThreadFunc)
+    {
+        internal::ProgressDialog dialog(parent, title, state, workerThreadFunc);
+        dialog.ShowModal();
+        return dialog.GetResult();
+    }
+}
