@@ -10,7 +10,7 @@
 
 namespace
 {
-    const std::array<u8, 8> Bits = {
+    const std::array<u8, 8> k_bits = {
         0b00000001,
         0b00000010,
         0b00000100,
@@ -21,12 +21,12 @@ namespace
         0b10000000,
     };
 
-    const std::vector<std::array<size_t, 2>> TypeNameFreeSpaces = {
+    const std::vector<std::array<size_t, 2>> k_typeNameFreeSpaces = {
         {0x050a8f, 0x050ae9},
         {0x053b57, 0x053be8},
     };
 
-    const std::vector<std::array<size_t, 2>> ImageFreeSpaces = {
+    const std::vector<std::array<size_t, 2>> k_imageFreeSpaces = {
         {0x0485e2, 0x04bfff},
         {0x054000, 0x057fff},
         {0x058000, 0x05bfff},
@@ -155,9 +155,9 @@ bool pokegold::Rom::Build_CommonSources(internal::RomBuildData &data)
                   << GetAsmSection(0x1fc7d4, "GSEditor_Cleanup_TypeMatchups_1")
                   << GetAsmLine("ds $382c");
 
-        for (size_t current = 0, max = TypeNameFreeSpaces.size(); current < max; current++)
+        for (size_t current = 0, max = k_typeNameFreeSpaces.size(); current < max; current++)
         {
-            const auto &freeSpace = TypeNameFreeSpaces[current];
+            const auto &freeSpace = k_typeNameFreeSpaces[current];
 
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;
@@ -169,9 +169,9 @@ bool pokegold::Rom::Build_CommonSources(internal::RomBuildData &data)
                       << GetAsmLine("ds {}", freeSpace[1] - freeSpace[0] + 1);
         }
 
-        for (size_t current = 0, max = ImageFreeSpaces.size(); current < max; current++)
+        for (size_t current = 0, max = k_imageFreeSpaces.size(); current < max; current++)
         {
-            const auto &freeSpace = ImageFreeSpaces[current];
+            const auto &freeSpace = k_imageFreeSpaces[current];
 
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;

@@ -19,7 +19,7 @@
 
 namespace
 {
-    const std::array<u8, 8> Bits = {
+    const std::array<u8, 8> k_bits = {
         0b00000001,
         0b00000010,
         0b00000100,
@@ -30,9 +30,9 @@ namespace
         0b10000000,
     };
 
-    constexpr size_t ImageSize_5x5 = 400;
-    constexpr size_t ImageSize_6x6 = 576;
-    constexpr size_t ImageSize_7x7 = 784;
+    constexpr size_t k_imageBufferSize_5x5 = 400;
+    constexpr size_t k_imageBufferSize_6x6 = 576;
+    constexpr size_t k_imageBufferSize_7x7 = 784;
 }
 
 bool pokegold::Rom::Open(const std::filesystem::path &romFilePath)
@@ -250,7 +250,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                 for (u8 a = 0; a < 8; a++)
                 {
                     u8 idx = (j * 8) + a;
-                    pokemon.TMHMs[idx] = (bytes[24 + j] & Bits[a]) != 0;
+                    pokemon.TMHMs[idx] = (bytes[24 + j] & k_bits[a]) != 0;
                 }
             }
         }
@@ -439,7 +439,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             }
 
             pokemon.FrontImage = (size == 0)
-                                     ? std::vector<u8>(ImageSize_5x5, 0)
+                                     ? std::vector<u8>(k_imageBufferSize_5x5, 0)
                                      : std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
         }
         else if (pokemon.Type == PokemonType::Pokemon)
@@ -451,8 +451,8 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             if (size == 0)
             {
                 pokemon.ImageDimensions = ImageDimensions::Size_40x40;
-                pokemon.FrontImage = std::vector<u8>(ImageSize_5x5, 0);
-                pokemon.BackImage = std::vector<u8>(ImageSize_6x6, 0);
+                pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
+                pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                 data.BadDataList().emplace_back(BadDataReason::PokemonImage, i);
                 base::Log(TAG, "bad data (pokemon image front, idx={})", i);
             }
@@ -467,8 +467,8 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                 if (size == 0)
                 {
                     pokemon.ImageDimensions = ImageDimensions::Size_40x40;
-                    pokemon.FrontImage = std::vector<u8>(ImageSize_5x5, 0);
-                    pokemon.BackImage = std::vector<u8>(ImageSize_6x6, 0);
+                    pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
+                    pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                     data.BadDataList().emplace_back(BadDataReason::PokemonImage, i);
                     base::Log(TAG, "bad data (pokemon image back, idx={})", i);
                 }
@@ -497,8 +497,8 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
         if (size == 0)
         {
-            unownImage.FrontImage = std::vector<u8>(ImageSize_5x5, 0);
-            unownImage.BackImage = std::vector<u8>(ImageSize_6x6, 0);
+            unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
+            unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
             data.BadDataList().emplace_back(BadDataReason::UnownImage, i);
             base::Log(TAG, "bad data (pokemon (unown front image), idx={})", i);
         }
@@ -512,8 +512,8 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
             if (size == 0)
             {
-                unownImage.FrontImage = std::vector<u8>(ImageSize_5x5, 0);
-                unownImage.BackImage = std::vector<u8>(ImageSize_6x6, 0);
+                unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
+                unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                 data.BadDataList().emplace_back(BadDataReason::UnownImage, i);
                 base::Log(TAG, "bad data (pokemon (unown back image), idx={})", i);
             }
@@ -578,7 +578,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
 
             if (size == 0)
             {
-                trainerGroup.Image = std::vector<u8>(ImageSize_7x7, 0);
+                trainerGroup.Image = std::vector<u8>(k_imageBufferSize_7x7, 0);
                 data.BadDataList().emplace_back(BadDataReason::TrainerGroupImage, i);
             }
             else

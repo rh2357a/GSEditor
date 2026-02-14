@@ -6,7 +6,7 @@
 
 namespace
 {
-    constexpr const auto KEY_EMULATOR_PATH = wxT("App/EmulatorPath");
+    constexpr const auto k_emulatorPathKey = wxT("App/EmulatorPath");
 }
 
 void services::AppConfigs::Initialize()
@@ -50,9 +50,9 @@ void services::AppConfigs::Destroy()
 
 std::optional<std::filesystem::path> services::AppConfigs::GetEmulatorPath()
 {
-    if (m_configs != nullptr && m_configs->Exists(KEY_EMULATOR_PATH))
+    if (m_configs != nullptr && m_configs->Exists(k_emulatorPathKey))
     {
-        const auto pathStr = m_configs->Read(KEY_EMULATOR_PATH);
+        const auto pathStr = m_configs->Read(k_emulatorPathKey);
         return pathStr.utf8_string();
     }
     return std::nullopt;
@@ -62,7 +62,7 @@ void services::AppConfigs::SetEmulatorPath(const std::filesystem::path &path)
 {
     if (m_configs != nullptr)
     {
-        m_configs->Write(KEY_EMULATOR_PATH, wxString::FromUTF8(path.string()));
+        m_configs->Write(k_emulatorPathKey, wxString::FromUTF8(path.string()));
         m_configs->Flush();
 
         m_emulatorPathState.Update(path);

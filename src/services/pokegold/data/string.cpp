@@ -7,8 +7,8 @@
 
 namespace
 {
-    std::unordered_map<u16, std::string_view> Charmap;
-    std::unordered_map<std::string_view, u16> CharmapReverse;
+    std::unordered_map<u16, std::string_view> k_charmap;
+    std::unordered_map<std::string_view, u16> k_charmapReverse;
 }
 
 pokegold::String::String(const std::string &str)
@@ -26,8 +26,8 @@ pokegold::String::String(const std::string &str)
 
             std::string ch = str.substr(i, j + 1);
 
-            auto it = CharmapReverse.find(ch);
-            if (it != CharmapReverse.end())
+            auto it = k_charmapReverse.find(ch);
+            if (it != k_charmapReverse.end())
             {
                 int code = it->second;
                 if (code > 255)
@@ -96,7 +96,7 @@ pokegold::String::String(std::span<const u8> bytes)
 
 void pokegold::String::InitializeCharmap()
 {
-    Charmap.clear();
+    k_charmap.clear();
 
     const auto &charmapList = embed::GetPokegoldCharmapList();
     std::string_view sv(reinterpret_cast<const char *>(charmapList.data()), charmapList.size());
@@ -121,8 +121,8 @@ void pokegold::String::InitializeCharmap()
         if (convResult.ec != std::errc{})
             continue;
 
-        Charmap[code] = ch;
-        CharmapReverse[ch] = code;
+        k_charmap[code] = ch;
+        k_charmapReverse[ch] = code;
     }
 }
 
@@ -141,8 +141,8 @@ bool pokegold::String::IsCharmapString(std::string_view str)
 
             const auto ch = str.substr(i, j + 1);
 
-            auto it = CharmapReverse.find(ch);
-            if (it != CharmapReverse.end())
+            auto it = k_charmapReverse.find(ch);
+            if (it != k_charmapReverse.end())
             {
                 matched = true;
                 break;
@@ -203,7 +203,7 @@ std::string pokegold::String::ToEditorString()
                 return m_cachedStr = s_unkString;
 
             u16 char_id = (m_bytes[i] << 8) | m_bytes[i + 1];
-            result += Charmap[char_id];
+            result += k_charmap[char_id];
             i++;
             continue;
         }
@@ -220,9 +220,9 @@ std::string pokegold::String::ToEditorString()
             }
         }
 
-        if (Charmap.contains(b))
+        if (k_charmap.contains(b))
         {
-            result += Charmap[b];
+            result += k_charmap[b];
             continue;
         }
 
@@ -257,7 +257,7 @@ bool pokegold::String::HasBadData() const
         }
 
         // 영숫자 + 특수 문자
-        if (Charmap.contains(b))
+        if (k_charmap.contains(b))
             continue;
 
         // 예외처리
