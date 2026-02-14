@@ -1,10 +1,10 @@
 #include "paths.h"
 
+#include "base/resources.h"
 #include "base/strings/crypto.h"
-#include "resources.h"
 
-#include <windows.h>
 #include <shlobj.h>
+#include <windows.h>
 
 std::filesystem::path base::GetNullPath()
 {

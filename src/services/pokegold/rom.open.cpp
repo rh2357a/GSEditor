@@ -1,21 +1,20 @@
 #include "rom.h"
 
-#include "base/files/file_util.h"
 #include "base/files/paths.h"
+#include "base/log.h"
+#include "base/resources.h"
 #include "base/strings/crypto.h"
 #include "base/types/types.h"
-#include "base/log.h"
 #include "services/pokegold/data/color.h"
 #include "services/pokegold/data/game_data.h"
 #include "services/pokegold/utils.h"
-#include "resources.h"
 
-#include <wx/wx.h>
 #include <lzcomp/lzcomp.h>
+#include <wx/wx.h>
 
-#include <functional>
-#include <format>
 #include <array>
+#include <format>
+#include <functional>
 #include <vector>
 
 namespace

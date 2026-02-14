@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef _IGNORE_EMBED
-#include "resources_embed.h"
+#include "base/resources_embed.h" // IWYU pragma: export
 #endif
 
 #define APP_AUTHOR   "rh2357a"

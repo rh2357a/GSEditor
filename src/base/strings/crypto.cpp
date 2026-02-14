@@ -2,8 +2,8 @@
 
 #include <xxhash.h>
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 std::string base::Hash(std::span<const u8> input)
 {

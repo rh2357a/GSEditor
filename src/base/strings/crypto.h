@@ -2,8 +2,8 @@
 
 #include "base/types/types.h"
 
-#include <string>
 #include <span>
+#include <string>
 
 namespace base
 {

@@ -4,8 +4,8 @@
 
 #include <wx/wx.h>
 
-#include <string>
 #include <span>
+#include <string>
 
 // 문자열 변환 함수
 namespace base

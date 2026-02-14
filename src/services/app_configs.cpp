@@ -2,6 +2,7 @@
 
 #include "base/files/paths.h"
 #include "base/log.h"
+#include "base/resources.h"
 
 namespace
 {

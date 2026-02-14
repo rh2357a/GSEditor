@@ -3,7 +3,6 @@
 #include "ui/utils.h"
 
 #include <format>
-#include <vector>
 
 ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pokegold::BadData> badDataList) : BadDataDialogBase(parent)
 {

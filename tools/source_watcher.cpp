@@ -1,12 +1,11 @@
-#include <windows.h>
 #include <argparse/argparse.hpp>
 #include <json/json.hpp>
+#include <windows.h>
 
-#include <iostream>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 #include <string>
-#include <format>
 #include <unordered_set>
 
 std::string strip_quotes(const std::string &s)
@@ -79,7 +78,6 @@ int main(int argc, char *argv[])
     std::ios::sync_with_stdio(false);
 
     argparse::ArgumentParser parser("config-updater");
-    parser.add_argument("--toolchain-includes").nargs(argparse::nargs_pattern::any);
     parser.add_argument("--cxx");
     parser.add_argument("--cc");
     parser.add_argument("--cxx-flags");
@@ -93,12 +91,6 @@ int main(int argc, char *argv[])
 
     auto cxxflags = strip_quotes(parser.get<std::string>("--cxx-flags"));
     auto ccflags = strip_quotes(parser.get<std::string>("--cc-flags"));
-    for (const auto &path : parser.get<std::vector<std::string>>("--toolchain-includes"))
-    {
-        cxxflags += " -I" + path;
-        ccflags += " -I" + path;
-    }
-
     auto outputDir = replace_all(parser.get<std::string>("--output-dir"), "/", "\\");
     auto workDir = parser.get<std::string>("--workspace-dir");
 
@@ -190,58 +182,19 @@ int main(int argc, char *argv[])
     {
         if (needUpdateOutput)
         {
-            // c_cpp_properties.json
+            nlohmann::json outputJson = nlohmann::json::array();
+            for (const auto &e : files)
             {
-                nlohmann::json outputJson = nlohmann::json::object();
-                outputJson["version"] = 4;
-                outputJson["configurations"] = nlohmann::json::array();
-
-                nlohmann::json newConfig = nlohmann::json::object();
-                newConfig["name"] = "C/C++";
-                newConfig["compileCommands"] = (std::filesystem::path(outputDir) / "compile_commands.json").string();
-                newConfig["compilerPath"] = cxx;
-                newConfig["intelliSenseMode"] = "windows-gcc-x64";
-
-                newConfig["forcedInclude"] = nlohmann::json::array();
-                for (const auto &e : includeFiles)
-                    newConfig["forcedInclude"].push_back(e);
-
-                newConfig["includePath"] = nlohmann::json::array();
-                for (const auto &e : includeFlags)
-                    newConfig["includePath"].push_back(e);
-
-                newConfig["defines"] = nlohmann::json::array();
-                for (const auto &e : defines)
-                    newConfig["defines"].push_back(e);
-
-                if (!ccStdFlags.empty())
-                    newConfig["cStandard"] = ccStdFlags[0];
-                if (!cxxStdFlags.empty())
-                    newConfig["cppStandard"] = cxxStdFlags[0];
-
-                outputJson["configurations"].push_back(newConfig);
-
-                std::ofstream output(std::filesystem::path(outputDir) / "c_cpp_properties.json");
-                output << outputJson.dump(2);
-                output.close();
+                auto newEntry = nlohmann::json::object();
+                newEntry["directory"] = workDir;
+                newEntry["file"] = e;
+                newEntry["command"] = (e.ends_with(".cpp") ? cxx + " " + cxxflags : cc + " " + ccflags);
+                outputJson.push_back(newEntry);
             }
 
-            // compile_commands.json
-            {
-                nlohmann::json outputJson = nlohmann::json::array();
-                for (const auto &e : files)
-                {
-                    auto newEntry = nlohmann::json::object();
-                    newEntry["directory"] = workDir;
-                    newEntry["file"] = e;
-                    newEntry["command"] = (e.ends_with(".cpp") ? cxx + " " + cxxflags : cc + " " + ccflags);
-                    outputJson.push_back(newEntry);
-                }
-
-                std::ofstream output(std::filesystem::path(outputDir) / "compile_commands.json");
-                output << outputJson.dump(2);
-                output.close();
-            }
+            std::ofstream output(std::filesystem::path(outputDir) / "compile_commands.json");
+            output << outputJson.dump(2);
+            output.close();
 
             needUpdateOutput = false;
         }
@@ -266,8 +219,7 @@ int main(int argc, char *argv[])
         auto *info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(buffer);
         do
         {
-            std::string filename = to_string(std::wstring(info->FileName, info->FileName + info->FileNameLength / sizeof(WCHAR)));
-
+            std::string filename = to_string(std::wstring(info->FileName, info->FileNameLength / sizeof(WCHAR)));
             if ((filename.ends_with("c_cpp_properties.json") || filename.ends_with("compile_commands.json")) && (info->Action == FILE_ACTION_REMOVED || info->Action == FILE_ACTION_RENAMED_OLD_NAME))
             {
                 std::cout << "Removed: " << filename << std::endl;

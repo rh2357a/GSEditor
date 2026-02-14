@@ -2,8 +2,8 @@
 
 #include <wx/wx.h>
 
-#include <string>
 #include <format>
+#include <string>
 
 namespace ui
 {

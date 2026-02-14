@@ -1,17 +1,16 @@
 #include "main_frame.h"
 
 #include "base/log.h"
-#include "ui/dialogs/message_box.h"
+#include "base/resources.h"
 #include "ui/dialogs/about_dialog.h"
 #include "ui/dialogs/bad_data_dialog.h"
+#include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
-#include "ui/bindings.h"
-#include "resources.h"
 
 #include <wx/persist/toplevel.h>
 
-#include <string>
 #include <format>
+#include <string>
 
 ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
 {

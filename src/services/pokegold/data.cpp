@@ -1,4 +1,5 @@
 #include "data.h"
+
 #include "base/files/file_util.h"
 
 pokegold::Data::Data(std::filesystem::path romFilePath)

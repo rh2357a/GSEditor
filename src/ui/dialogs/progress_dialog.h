@@ -3,12 +3,11 @@
 #include "base/functional/state.h"
 #include "base/progress.h"
 #include "ui/dialogs/message_box.h"
-#include "ui/bindings.h"
 #include "ui/ui.h"
 
-#include <string>
-#include <optional>
 #include <functional>
+#include <optional>
+#include <string>
 #include <thread>
 
 namespace ui::internal

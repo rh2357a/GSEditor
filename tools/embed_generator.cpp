@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     std::regex lineCommentRegex("//.*");
     std::regex blockCommentRegex("/\\*.*?\\*/");
 
-    out << "#include \"resources.h\"\n\n";
+    out << "#include \"base/resources.h\"\n\n";
 
     std::string line;
 
@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
         clean = std::regex_replace(clean, lineCommentRegex, "");
 
         std::smatch m;
-
         if (std::regex_search(clean, m, bitmapRegex))
             out << "INCBIN(" << m[1] << ", \"" << m[2] << "\")\n";
         else if (std::regex_search(clean, m, binaryRegex))

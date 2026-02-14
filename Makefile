@@ -87,19 +87,19 @@ SOURCES := $(shell find $(SOURCE_DIR) -type f \( -name "*.cpp" -o -name "*.c" \)
 OBJECTS := $(patsubst $(SOURCE_DIR)/%.cpp,$(BUILD_OBJ_DIR)/%.o,$(SOURCES))
 OBJECTS := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_OBJ_DIR)/%.o,$(OBJECTS))
 OBJECTS += $(BUILD_OBJ_DIR)/resources.rc.o
-OBJECTS += $(BUILD_OBJ_DIR)/resources_embed.g.o
+OBJECTS += $(BUILD_OBJ_DIR)/base/resources_embed.g.o
 
 RESOURCES := $(shell find $(RESOURCE_DIR) -type f)
 
 $(BUILD_TARGET_DIR)/bin/$(APP_NAME).exe: $(OBJECTS)
 	@mkdir -p $(dir $@)
 	$(CXX) -o $@ $^ $(LDFLAGS)
-ifneq ($(DEBUG), 1)
+ifneq ($(DEBUG),1)
 	upx $@
 endif
 
 $(BUILD_TARGET_DIR)/bin/ThirdPartyNotices.txt: $(RESOURCE_DIR)/third_party_notices.txt
-ifneq ($(DEBUG), 1)
+ifneq ($(DEBUG),1)
 	cp $(RESOURCE_DIR)/third_party_notices.txt $@
 endif
 
@@ -119,9 +119,9 @@ $(BUILD_OBJ_DIR)/%.rc.o: $(SOURCE_DIR)/%.rc $(RESOURCES)
 	@mkdir -p $(dir $@)
 	windres $(DEFINES) $(INCLUDES) -D_IGNORE_EMBED $< $@
 
-$(BUILD_OBJ_DIR)/resources_embed.g.cpp: $(BUILD_TOOLS_DIR)/embed_generator $(SOURCE_DIR)/resources_embed.h $(RESOURCES)
+$(BUILD_OBJ_DIR)/base/resources_embed.g.cpp: $(BUILD_TOOLS_DIR)/embed_generator $(SOURCE_DIR)/base/resources_embed.h $(RESOURCES)
 	@mkdir -p $(dir $@)
-	$(BUILD_TOOLS_DIR)/embed_generator $(SOURCE_DIR)/resources_embed.h $@
+	$(BUILD_TOOLS_DIR)/embed_generator $(SOURCE_DIR)/base/resources_embed.h $@
 
 -include $(OBJECTS:.o=.d)
 
@@ -140,12 +140,11 @@ source-watcher: $(BUILD_TOOLS_DIR)/source_watcher
 	@mkdir -p $(BUILD_TARGET_DIR)/bin
 	@$(BUILD_TOOLS_DIR)/source_watcher \
 		--workspace-dir $(WORK_DIR) \
-		--output-dir $(WORK_DIR).vscode \
+		--output-dir $(BUILD_DIR) \
 		--cxx $(shell cygpath -m $(shell which $(CXX))) \
 		--cc $(shell cygpath -m $(shell which $(CC))) \
 		--cxx-flags "\"$(CXXFLAGS) $(DEFINES) $(INCLUDES)\"" \
-		--cc-flags "\"$(CCFLAGS) $(DEFINES) $(INCLUDES)\"" \
-		--toolchain-includes $(shell $(CXX) -xc++ -E -v /dev/null 2>&1 | awk '/#include <...> search starts here:/ {flag=1; next} /End of search list./ {flag=0} flag {print $1}')
+		--cc-flags "\"$(CCFLAGS) $(DEFINES) $(INCLUDES)\""
 else
 source-watcher:
 	@$(MAKE) source-watcher DEBUG=1 SOURCE_WATCHER=1

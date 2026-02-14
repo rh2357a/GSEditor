@@ -1,12 +1,12 @@
 #pragma once
 
-#include "base/types/types.h"
+#include "base/types/types.h" // IWYU pragma: export
 
 #include <wx/mstream.h>
 #include <wx/wx.h>
 
-#include <vector>
-#include <span>
+#include <span>   // IWYU pragma: export
+#include <vector> // IWYU pragma: export
 
 #define EMBED_BINARY(name, filename)                                         \
     namespace embed                                                          \

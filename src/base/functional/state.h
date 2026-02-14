@@ -5,9 +5,8 @@
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <vector>
-#include <initializer_list>
 #include <unordered_map>
+#include <vector>
 
 namespace base
 {

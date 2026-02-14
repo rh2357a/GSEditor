@@ -2,13 +2,11 @@
 
 #include "base/files/paths.h"
 #include "base/progress.h"
-#include "base/types/types.h"
 #include "services/pokegold/data.h"
 
 #include <filesystem>
 #include <fstream>
 #include <optional>
-#include <vector>
 
 namespace pokegold::internal
 {

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <wx/wx.h>
 #include <wx/listctrl.h>
+#include <wx/wx.h>
 
 namespace ui
 {
-
     inline wxColour OddItemColor(255, 255, 255);
     inline wxColour EvenItemColor(240, 248, 255);
 

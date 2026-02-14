@@ -2,10 +2,9 @@
 
 #include "base/files/paths.h"
 #include "base/functional/state.h"
-#include "resources.h"
 
-#include <wx/wx.h>
 #include <wx/fileconf.h>
+#include <wx/wx.h>
 
 #include <filesystem>
 #include <optional>

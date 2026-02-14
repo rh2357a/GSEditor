@@ -1,5 +1,8 @@
 #include "file_util.h"
 
+#include <filesystem>
+#include <fstream>
+
 constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024;
 
 std::vector<u8> base::ReadBytesFromFile(const std::filesystem::path &path)

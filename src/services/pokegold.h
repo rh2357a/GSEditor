@@ -3,8 +3,6 @@
 #include "services/pokegold/data.h"
 #include "services/pokegold/rom.h"
 
-#include <filesystem>
-
 namespace services
 {
     class Pokegold

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "base/functional/state.h"
 #include "services/app_configs.h"
 #include "services/pokegold.h"
 #include "ui/ui.h"

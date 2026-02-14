@@ -1,7 +1,7 @@
 #include "about_dialog.h"
 
+#include "base/resources.h"
 #include "base/strings/string_util.h"
-#include "resources.h"
 
 #include <format>
 

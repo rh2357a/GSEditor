@@ -2,7 +2,6 @@
 
 #ifdef __cplusplus
 
-#include <string>
 #include <format>
 
 namespace base

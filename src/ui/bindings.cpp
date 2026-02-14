@@ -6,9 +6,9 @@ namespace
     {
         if (control != nullptr)
         {
-            if (auto *list = wxDynamicCast(control, wxListBox))
+            if (wxDynamicCast(control, wxListBox))
                 return wxEVT_LISTBOX;
-            else if (auto *combo = wxDynamicCast(control, wxComboBox))
+            else if (wxDynamicCast(control, wxComboBox))
                 return wxEVT_COMBOBOX;
         }
         return wxEVT_ANY;

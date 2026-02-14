@@ -1,12 +1,11 @@
 #pragma once
 
-#include "base/functional/state.h"
 #include "base/functional/guard.h"
+#include "base/functional/state.h"
 
-#include <wx/wx.h>
 #include <wx/listctrl.h>
+#include <wx/wx.h>
 
-#include <functional>
 #include <memory>
 
 namespace ui

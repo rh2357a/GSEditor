@@ -1,7 +1,7 @@
 #include "sidecar.h"
 
-#include "base/strings/string_util.h"
 #include "base/sidecar/rgbds.h"
+#include "base/strings/string_util.h"
 
 #include <windows.h>
 

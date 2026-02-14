@@ -2,11 +2,10 @@
 
 #include "base/types/types.h"
 
-#include <sstream>
-#include <string>
 #include <format>
 #include <span>
-#include <vector>
+#include <sstream>
+#include <string>
 
 namespace pokegold
 {

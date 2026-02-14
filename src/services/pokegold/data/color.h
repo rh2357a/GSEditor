@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/types/types.h"
+
 #include <span>
 
 namespace pokegold

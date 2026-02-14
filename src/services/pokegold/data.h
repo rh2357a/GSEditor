@@ -5,9 +5,9 @@
 #include "base/types/types.h"
 #include "services/pokegold/data/game_data.h"
 
+#include <array>
 #include <filesystem>
 #include <span>
-#include <array>
 #include <vector>
 
 namespace pokegold

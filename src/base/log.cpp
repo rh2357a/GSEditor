@@ -1,7 +1,7 @@
 #include "log.h"
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 constexpr const char LOG_FILENAME[] = "GSEditor.log";
 

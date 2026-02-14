@@ -1,7 +1,7 @@
 #include "utils.h"
 
-#include <windows.h>
 #include <commctrl.h>
+#include <windows.h>
 
 void ui::ApplyListCtrlFixedHeader(wxListCtrl *ctrl)
 {

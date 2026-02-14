@@ -1,7 +1,6 @@
 #include "patch.h"
 
 #include "base/files/file_util.h"
-#include "base/files/paths.h"
 
 #include <xdelta3/xdelta3.h>
 

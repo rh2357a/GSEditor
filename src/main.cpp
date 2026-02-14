@@ -1,9 +1,8 @@
-#include "base/sidecar/sidecar.h"
 #include "base/log.h"
+#include "base/sidecar/sidecar.h"
 #include "services/app_configs.h"
 #include "services/pokegold/data/string.h"
 #include "ui/frames/main_frame.h"
-#include "resources.h"
 
 #include <wx/wx.h>
 

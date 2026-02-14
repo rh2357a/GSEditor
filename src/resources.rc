@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "base/resources.h"
 #include <windows.h>
 
 #pragma code_page(65001)

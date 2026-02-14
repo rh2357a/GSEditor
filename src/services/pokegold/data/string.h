@@ -4,8 +4,8 @@
 
 #include <wx/wx.h>
 
-#include <string>
 #include <span>
+#include <string>
 
 namespace pokegold
 {

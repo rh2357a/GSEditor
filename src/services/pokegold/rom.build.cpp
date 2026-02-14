@@ -1,12 +1,12 @@
 #include "rom.h"
 
 #include "base/log.h"
+#include "base/resources.h"
 #include "services/pokegold/utils.h"
-#include "resources.h"
 
 #include <filesystem>
-#include <string>
 #include <format>
+#include <string>
 
 namespace
 {
