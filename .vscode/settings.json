@@ -1,5 +1,38 @@
 {
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "C_Cpp.formatting": "disabled",
+  "C_Cpp.enhancedColorization": "disabled",
   "C_Cpp.autoAddFileAssociations": false,
-  "C_Cpp.formatting": "clangFormat"
+  "clangd.path": "${env:MSYS2_HOME}/mingw64/bin/clangd.exe",
+  "clangd.checkUpdates": true,
+  "clangd.onConfigChanged": "restart",
+  "clangd.arguments": [
+    "--compile-commands-dir=build",
+    "--background-index",
+    "--clang-tidy",
+    "--function-arg-placeholders=false",
+    "--completion-style=detailed",
+    "-j=12",
+    "--pch-storage=memory",
+    "--header-insertion=iwyu",
+    "--inlay-hints=true",
+    "--query-driver=${env:MSYS2_HOME}/mingw64/bin/*"
+  ],
+  "[cpp]": {
+    "editor.semanticHighlighting.enabled": true,
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+  },
+  "[hpp]": {
+    "editor.semanticHighlighting.enabled": true,
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+  },
+  "[c]": {
+    "editor.semanticHighlighting.enabled": true,
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+  },
+  "[h]": {
+    "editor.semanticHighlighting.enabled": true,
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+  }
 }
