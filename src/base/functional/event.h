@@ -10,8 +10,11 @@
 
 namespace base
 {
-    /// @brief 이벤트 클래스
-    /// @tparam _Value 타입
+    /**
+     * @brief 이벤트 클래스
+     *
+     * @tparam _Value 이벤트 발생 시 전달될 값 타입
+     */
     template <typename... _Value>
     class Event
     {
@@ -77,9 +80,12 @@ namespace base
         }
 
     public:
-        /// @brief 이벤트 구독, 컨트롤이 해제될 때 함께 해제됨
-        /// @param control 해제되는 것을 감지할 컨트롤
-        /// @param func 옵저버 함수
+        /**
+         * @brief 이벤트 구독
+         * 
+         * @param control wx 윈도우 호스트에 바인딩하여 안전하게 해제
+         * @param func 이벤트 옵저버 함수
+         */
         void Subscribe(wxWindowBase *control, _Observer func)
         {
             auto id = std::make_shared<size_t>(AddObserver(std::move(func)));

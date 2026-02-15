@@ -10,8 +10,11 @@
 
 namespace base
 {
-    /// @brief 상태 관리용 클래스
-    /// @tparam _Value 상태 타입
+    /**
+     * @brief 상태 관리 클래스
+     *
+     * @tparam _Value 내부 값 타입
+     */
     template <typename _Value>
     class State
     {
@@ -119,9 +122,12 @@ namespace base
         }
 
     public:
-        /// @brief 상태 구독, 컨트롤이 해제될 때 함께 해제됨
-        /// @param control 해제되는 것을 감지할 컨트롤
-        /// @param func 옵저버 함수
+        /**
+         * @brief 상태 변경 구독
+         *
+         * @param control wx 윈도우 호스트에 바인딩하여 안전하게 해제
+         * @param func 옵저버 함수
+         */
         void Subscribe(wxWindowBase *control, _Observer func)
         {
             auto id = std::make_shared<size_t>(AddObserver(std::move(func)));
@@ -135,9 +141,12 @@ namespace base
             NotifyById(*id);
         }
 
-        /// @brief 상태 구독, 컨트롤이 해제될 때 함께 해제됨
-        /// @param control 해제되는 것을 감지할 컨트롤
-        /// @param func 인자값이 없는 함수
+        /**
+         * @brief 상태 변경 구독
+         *
+         * @param control wx 윈도우 호스트에 바인딩하여 안전하게 해제
+         * @param func 옵저버 함수
+         */
         void Subscribe(wxWindowBase *control, std::function<void()> func)
         {
             auto id = std::make_shared<size_t>(AddObserver([func](auto) { func(); }));
@@ -152,8 +161,11 @@ namespace base
         }
     };
 
-    /// @brief 상태 관리용 클래스, 변경 사항을 갱신 가능
-    /// @tparam _Value 상태 타입
+    /**
+     * @brief 상태 관리 클래스 (캡슐화용 변경 클래스)
+     *
+     * @tparam _Value 내부 값 타입
+     */
     template <typename _Value>
     class MutableState : public State<_Value>
     {

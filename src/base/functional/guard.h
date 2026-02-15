@@ -4,7 +4,9 @@
 
 namespace base
 {
-    /// @brief 중복 호출 방지용 클래스
+    /**
+     * @brief 중복 호출 방지용 클래스
+     */
     class Guard
     {
     private:

@@ -45,7 +45,7 @@ namespace
     }
 }
 
-size_t lzcomp::GetLzSize(std::span<const u8> src)
+size_t lzcomp::ScanLzDataSize(std::span<const u8> src)
 {
     unsigned short size = static_cast<unsigned short>(src.size());
     return get_compressed_size(src.data(), &size);

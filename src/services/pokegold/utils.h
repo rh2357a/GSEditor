@@ -9,36 +9,13 @@
 
 namespace pokegold
 {
-    /// @brief 주소 계산
-    /// @param bank 뱅크
-    /// @param addr 포인터
-    /// @return 주소
     size_t Calc(u8 bank, u16 addr);
-
-    /// @brief 주소 계산
-    /// @param addrBytes 뱅크, 포인터 3바이트 배열
-    /// @return 주소
     size_t Calc(std::span<const u8> addrBytes);
-
-    /// @brief 주소 계산
-    /// @param bank 뱅크
-    /// @param addrBytes 포인터 2바이트 배열
-    /// @return 주소
     size_t Calc(u8 bank, std::span<const u8> addrBytes);
 
-    /// @brief 주소 계산
-    /// @param addrBytes 인코딩된 뱅크, 포인터 3바이트 배열
-    /// @return
     size_t CalcFromEncodedBank(std::span<const u8> addrBytes);
 
-    /// @brief 뱅크 계산
-    /// @param addr 주소
-    /// @return 뱅크
     u8 CalcBank(size_t addr);
-
-    /// @brief 포인터 계산
-    /// @param addr 주소
-    /// @return 포인터
     u16 CalcPointer(size_t addr);
 }
 

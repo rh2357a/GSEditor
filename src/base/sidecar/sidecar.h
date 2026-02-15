@@ -5,7 +5,9 @@
 
 namespace base
 {
-    /// @brief sidecar 결과가 기록되는 클래스
+    /**
+     * @brief sidecar 결과 클래스
+     */
     class SidecarResult
     {
     private:
@@ -24,13 +26,18 @@ namespace base
 
 namespace base
 {
-    /// @brief sidecar 초기화
+    /**
+     * @brief sidecar 바이너리 초기화
+     */
     void InitializeSidecar();
 
-    /// @brief 프로세스 실행
-    /// @param binPath 실행 실제 경로
-    /// @param args 실행 인자값
-    /// @param cwd 작업 디렉터리 경로
-    /// @return 결과
+    /**
+     * @brief sidecar 실행
+     *
+     * @param binPath 실행될 바이너리 경로
+     * @param args 인자값
+     * @param cwd 작업 경로
+     * @return SidecarResult
+     */
     SidecarResult RunSidecar(const std::filesystem::path &binPath, const std::string &args, const std::string &cwd);
 }

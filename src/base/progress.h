@@ -40,7 +40,9 @@ namespace base
         void Resume();
         void Cancel();
 
-        /// @brief Paused 상태에서 재진행 신호까지 대기
+        /**
+         * @brief Paused 상태에서 재진행 신호까지 대기
+         */
         void WaitForResumeOrCancel();
     };
 
@@ -55,23 +57,38 @@ namespace base
         std::string m_message = "-";
 
     public:
-        /// @brief 총 진행률을 지정하는 생성자
-        /// @param numTasks 진행률 max 값, `0`으로 설정할 경우 진행률 디버그 로그가 남겨짐
+        /**
+         * @brief 총 진행률을 지정하는 생성자
+         *
+         * @param numTasks 진행률 max 값, `0`으로 설정할 경우 진행률 디버그 로그가 남겨짐
+         */
         MutableProgressState(size_t numTasks) : m_numTasks(numTasks) {};
 
     public:
-        /// @brief 상태 초기화
+        /**
+         * @brief 상태 초기화
+         */
         void Reset();
 
-        /// @brief Paused, Canceled 핸들링
-        /// @return 취소 확정 시 true를 반환
+        /**
+         * @brief Paused, Canceled 핸들링
+         *
+         * @return true 취소 확정
+         * @return false Resume 상태
+         */
         bool HandlePausedOrCanceled();
 
-        /// @brief 작업률 증가
+        /**
+         * @brief 작업 진행률 증가
+         *
+         */
         void Increase();
 
-        /// @brief 작업 메시지 갱신
-        /// @param message 메시지
+        /**
+         * @brief 작업 메시지 갱신
+         *
+         * @param message 메시지
+         */
         void UpdateMessage(std::string message);
 
     private:

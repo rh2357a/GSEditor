@@ -10,39 +10,54 @@
 
 namespace ui
 {
-    /// @brief 체크 상자 값 바인딩
-    /// @param hostControl 자동 해제를 위한 호스트 컨트롤
-    /// @param control 컨트롤
-    /// @param state 상태
+    /**
+     * @brief 체크 상자 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
     void BindCheckBoxValue(wxWindowBase *hostControl, wxCheckBoxBase *control, base::MutableState<bool> &state);
 
-    /// @brief 텍스트 상자 값 바인딩
-    /// @param hostControl 자동 해제를 위한 호스트 컨트롤
-    /// @param control 컨트롤
-    /// @param state 상태
+    /**
+     * @brief 텍스트 상자 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
     void BindTextBoxText(wxWindowBase *hostControl, wxTextCtrlBase *control, base::MutableState<wxString> &state);
 
-    /// @brief 목록 선택 바인딩
-    /// @param hostControl 자동 해제를 위한 호스트 컨트롤
-    /// @param control 컨트롤
-    /// @param state 상태
+    /**
+     * @brief 선택 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 선택 가능한 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
     void BindControlSelection(wxWindowBase *hostControl, wxControlWithItemsBase *control, base::MutableState<int> &state);
 
-    /// @brief 목록 선택 바인딩
-    /// @param hostControl 자동 해제를 위한 호스트 컨트롤
-    /// @param control 컨트롤
-    /// @param state 상태
+    /**
+     * @brief 선택 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 선택 가능한 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
     void BindControlSelection(wxWindowBase *hostControl, wxListCtrl *control, base::MutableState<int> &state);
 }
 
 namespace ui
 {
-    /// @brief 라디오 버튼 값 바인딩
-    /// @tparam _Type
-    /// @param hostControl 자동 해제를 위한 호스트 컨트롤
-    /// @param control 컨트롤
-    /// @param state 상태
-    /// @param expectValue 체크 상태의 값
+    /**
+     * @brief 라디오 버튼 값 상태 바인딩
+     *
+     * @tparam _Type enum 등, 열겨 가능한 객체
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 라디오 버튼 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     * @param expectValue 바인딩 대상과 일치하는 값
+     */
     template <typename _Type>
     void BindRadioButtonValue(wxWindowBase *hostControl, wxRadioButtonBase *control, base::MutableState<_Type> &state, _Type expectValue)
     {

@@ -60,13 +60,23 @@ namespace pokegold
         base::ProgressState &OpenProgressState() { return m_openProgressState; }
         base::ProgressState &BuildProgressState() { return m_buildProgressState; }
 
-        /// @brief 롬 파일 열기, `OpenProgressState` 함수로 상태 구독 가능
-        /// @param romFilePath 롬 파일 경로
-        /// @return 성공 유무
+        /**
+         * @brief 롬 파일 열기
+         *
+         * @param romFilePath 롬 파일 경로
+         * @return true 성공
+         * @return false 취소 또는 실패
+         * @see OpenProgressState 진행 상태 구독 함수
+         */
         bool Open(const std::filesystem::path &romFilePath);
 
-        /// @brief 롬 파일 빌드, `BuildProgressState` 함수로 상태 구독 가능
-        /// @return 빌드된 파일 경로, 실패 시 `std::nullopt`를 반환
+        /**
+         * @brief 롬 파일 빌드
+         *
+         * @return 빌드된 롬 파일 임시 경로
+         * @return std::nullopt 취소 또는 실패
+         * @see BuildProgressState 진행 상태 구독 함수
+         */
         std::optional<std::filesystem::path> Build();
 
     private:

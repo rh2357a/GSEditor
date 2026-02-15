@@ -1,10 +1,11 @@
 #pragma once
 
-#include "services/pokegold/data/game_data.h"
 #include "services/pokegold.h"
+#include "services/pokegold/data/game_data.h"
 #include "ui/ui.h"
 
 #include <span>
+
 
 namespace ui
 {
@@ -26,8 +27,11 @@ namespace ui
         };
     }
 
-    /// @brief 손상 데이터 알림창 열기
-    /// @param parent 상위 윈도우
-    /// @param badDataList 손상 데이터 목록
+    /**
+     * @brief 손상 데이터 알림창 열기
+     *
+     * @param parent 부모 윈도우
+     * @param badDataList 손상 데이터 목록
+     */
     void ShowBadDataDialog(wxWindow *parent, std::span<const pokegold::BadData> badDataList);
 };
