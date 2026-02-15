@@ -11,6 +11,7 @@
     "--compile-commands-dir=build",
     "--background-index",
     "--clang-tidy",
+    "--function-arg-placeholders=false",
     "--completion-style=detailed",
     "-j=12",
     "--pch-storage=memory",
