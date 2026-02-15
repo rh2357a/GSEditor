@@ -69,7 +69,7 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	gameMenu->AppendSeparator();
 
 	wxMenuItem* gameExportToIpsMenuItem;
-	gameExportToIpsMenuItem = new wxMenuItem( gameMenu, wxID_IPS, wxString( wxT("IPS 패치 생성...") ) , wxT("IPS 형식의 패치 파일을 생성합니다."), wxITEM_NORMAL );
+	gameExportToIpsMenuItem = new wxMenuItem( gameMenu, wxID_IPS, wxString( wxT("ips 패치 생성...") ) , wxT("ips 형식의 패치 파일을 생성합니다."), wxITEM_NORMAL );
 	gameMenu->Append( gameExportToIpsMenuItem );
 
 	wxMenuItem* gameExportToXdeltaMenuItem;
