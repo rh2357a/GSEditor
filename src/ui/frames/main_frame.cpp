@@ -123,7 +123,7 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
             return;
 
         auto &state = m_pokegold.Rom().OpenProgressState();
-        auto result = ShowProgresDialog<bool>(this, "열기...", state, [this, &fileDialog] {
+        auto result = ShowProgressDialog(this, "열기...", state, [this, &fileDialog] {
             std::filesystem::path filePath = fileDialog.GetPath().utf8_string();
             return m_pokegold.Rom().Open(filePath);
         });

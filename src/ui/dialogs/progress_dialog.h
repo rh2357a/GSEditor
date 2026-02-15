@@ -6,7 +6,6 @@
 #include "ui/ui.h"
 
 #include <functional>
-#include <optional>
 #include <string>
 #include <thread>
 
@@ -17,10 +16,15 @@ namespace ui::internal
     {
     private:
         std::function<_ReturnType()> m_workerThreadFunc;
+        std::thread m_jobThread;
+        std::thread m_uiUpdateThread;
+        std::atomic<bool> m_workerThreadJobFinished = false;
+        std::atomic<bool> m_workerThreadFinished = false;
+
         base::ProgressState &m_state;
         base::MutableState<bool> m_enabledState = true;
-        std::optional<_ReturnType> m_result;
-        bool m_workerThreadPrepared = false;
+
+        _ReturnType m_result;
 
     public:
         ProgressDialog(wxWindow *parent, std::string title, base::ProgressState &state, std::function<_ReturnType()> workerThreadFunc)
@@ -37,39 +41,37 @@ namespace ui::internal
             });
         }
 
+        ~ProgressDialog()
+        {
+            if (m_jobThread.joinable())
+                m_jobThread.join();
+
+            if (m_uiUpdateThread.joinable())
+                m_uiUpdateThread.join();
+        }
+
     private:
         void OnInit(wxInitDialogEvent &event) override
         {
             UpdateProgress();
 
-            std::thread([this] {
-                try
-                {
-                    m_workerThreadPrepared = true;
-                    m_result = m_workerThreadFunc();
-                } catch (...)
-                {
-                    m_result.reset();
-                }
-
-                wxMilliSleep(200);
+            m_jobThread = std::thread([this] {
+                m_result = m_workerThreadFunc();
+                m_workerThreadJobFinished.store(true);
+                wxMilliSleep(400);
+                m_workerThreadFinished = true;
                 CallAfter([this] { EndModal(0); });
-            }).detach();
+            });
 
-            std::thread([this] {
-                while (true)
+            m_uiUpdateThread = std::thread([this] {
+                while (!m_workerThreadFinished)
                 {
                     wxMilliSleep(10);
 
-                    if (m_workerThreadPrepared && m_state.IsFinish())
-                        return;
-
-                    CallAfter([this] {
-                        if (!m_state.IsFinish())
-                            UpdateProgress();
-                    });
+                    if (!m_workerThreadFinished)
+                        CallAfter([this] { UpdateProgress(); });
                 }
-            }).detach();
+            });
         }
 
         void UpdateProgress()
@@ -83,7 +85,7 @@ namespace ui::internal
             m_progressGauge->SetValue(int(progress.GetProgress() * 100));
             m_messageLabel->SetLabelText(wxString::FromUTF8(progress.GetMessage()));
 
-            m_enabledState.Update(!m_state.IsFinish());
+            m_enabledState.Update(!m_workerThreadJobFinished);
         }
 
         void OnCancelButtonClick(wxCommandEvent &event) override
@@ -107,11 +109,15 @@ namespace ui::internal
 
 namespace ui
 {
-    template <typename _ReturnType>
-    inline std::optional<_ReturnType> ShowProgresDialog(wxWindow *parent, std::string title, base::ProgressState &state, std::function<_ReturnType()> workerThreadFunc)
+    template <typename Func>
+    auto ShowProgressDialog(wxWindow *parent, std::string title, base::ProgressState &state, Func workerThreadFunc)
     {
-        internal::ProgressDialog dialog(parent, title, state, workerThreadFunc);
+        using _ReturnType = decltype(workerThreadFunc());
+
+        std::function<_ReturnType()> funcWrapper = workerThreadFunc;
+        internal::ProgressDialog<_ReturnType> dialog(parent, title, state, funcWrapper);
         dialog.ShowModal();
+
         return dialog.GetResult();
     }
 }

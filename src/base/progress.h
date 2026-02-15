@@ -31,18 +31,14 @@ namespace base
 
         bool m_paused = false;
         bool m_canceled = false;
-        bool m_finish = false;
 
     public:
         bool IsPaused() const { return m_paused; }
         bool IsCanceled() const { return m_canceled; }
-        bool IsPausedOrCanceled() const { return m_paused || m_canceled; }
-        bool IsFinish() const { return m_finish; }
 
         void Pause();
         void Resume();
         void Cancel();
-        void Finish();
 
         /// @brief Paused 상태에서 재진행 신호까지 대기
         void WaitForResumeOrCancel();

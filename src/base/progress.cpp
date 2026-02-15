@@ -8,14 +8,12 @@ void base::ProgressState::Pause()
 {
     m_paused = true;
     m_canceled = false;
-    m_finish = false;
 }
 
 void base::ProgressState::Resume()
 {
     m_paused = false;
     m_canceled = false;
-    m_finish = false;
 
     m_cv.notify_all();
 }
@@ -24,16 +22,8 @@ void base::ProgressState::Cancel()
 {
     m_paused = false;
     m_canceled = true;
-    m_finish = true;
 
     m_cv.notify_all();
-}
-
-void base::ProgressState::Finish()
-{
-    m_paused = false;
-    m_canceled = false;
-    m_finish = true;
 }
 
 void base::ProgressState::WaitForResumeOrCancel()
@@ -83,9 +73,4 @@ void base::MutableProgressState::UpdateInternal()
 {
     double progress = m_numTasks == 0 ? 0.0 : double(m_currentTask) / m_numTasks;
     MutableState::Update({progress, m_message});
-
-    // TEST: 진행률 debug
-#ifdef DEBUG
-    // wxMilliSleep(1);
-#endif
 }

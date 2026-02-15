@@ -88,9 +88,8 @@ std::optional<std::filesystem::path> pokegold::Rom::Build()
     }
 
     base::Log(TAG, "finish build.");
-    m_buildProgressState.Finish();
 
-    return std::nullopt;
+    return data.GetTargetRomPath();
 }
 
 bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)

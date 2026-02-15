@@ -59,7 +59,6 @@ bool pokegold::Rom::Open(const std::filesystem::path &romFilePath)
     m_data.AssignFrom(data);
 
     base::Log(TAG, "finish open.");
-    m_openProgressState.Finish();
     m_romFilePathState.Update(romFilePath);
     m_romOpenedState.Update(true);
 
