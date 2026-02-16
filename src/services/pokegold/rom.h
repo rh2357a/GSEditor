@@ -2,32 +2,53 @@
 
 #include "base/files/paths.h"
 #include "base/progress.h"
+#include "base/sidecar/sidecar.h"
+#include "base/types/types.h"
+#include "lzcomp/lzcomp.h"
 #include "services/pokegold/data.h"
+#include "utils/free_space.h"
 
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <vector>
 
 namespace pokegold::internal
 {
     class RomBuildData
     {
     private:
-        std::filesystem::path m_workDir;
-        std::filesystem::path m_baseromPath;
-
         std::ofstream m_source;
+        std::ofstream m_namesSource;
+        std::ofstream m_imagesSource;
+        std::ofstream m_typeNamesSource;
+
+        std::vector<u8> m_lzcompBuffer = std::vector<u8>(0x400);
+
+        FreeSpaceDataResolver m_imageDataBlocks;
+        FreeSpaceDataResolver m_typeNameDataBlocks;
 
     public:
-        RomBuildData(std::filesystem::path workDir)
-            : m_workDir(std::move(workDir)),
-              m_baseromPath(m_workDir / "base.bin"),
-              m_source(m_workDir / "GSEditor.asm") {}
+        RomBuildData(const std::filesystem::path &workdir)
+            : m_source(workdir / "GSEditor.asm"),
+              m_namesSource(workdir / "GSEditor.Names.asm"),
+              m_imagesSource(workdir / "GSEditor.Images.asm"),
+              m_typeNamesSource(workdir / "GSEditor.TypeNames.asm") {}
 
     public:
-        auto &WorkDir() { return m_workDir; }
-        auto &BaseromPath() { return m_baseromPath; }
-        auto &SourceStream() { return m_source; }
+        auto &GetSourceStream() { return m_source; }
+        auto &GetNamesSourceStream() { return m_namesSource; }
+        auto &GetImagesSourceStream() { return m_imagesSource; }
+        auto &GetTypeNameSourceStream() { return m_typeNamesSource; }
+
+        auto &GetImageDataBlocks() { return m_imageDataBlocks; }
+        auto &GetTypeNameDataBlocks() { return m_typeNameDataBlocks; }
+
+        void PushImageDataBlock(std::string label, std::span<const u8> data)
+        {
+            size_t lzSize = lzcomp::Compress(m_lzcompBuffer, data);
+            m_imageDataBlocks.Push(label, {m_lzcompBuffer.begin(), m_lzcompBuffer.begin() + lzSize});
+        }
     };
 }
 
@@ -38,6 +59,9 @@ namespace pokegold
     private:
         inline static const auto TAG = "pokegold::Rom";
 
+        inline static const std::string s_baseName = "base";
+        inline static const std::string s_targetName = "target";
+
     private:
         Data &m_data;
 
@@ -46,8 +70,8 @@ namespace pokegold
         base::MutableState<std::filesystem::path> m_romFilePathState = base::GetNullPath();
         base::MutableState<std::filesystem::path> m_workspacePathState = base::GetNullPath();
 
-        base::MutableProgressState m_openProgressState = {2792};
-        base::MutableProgressState m_buildProgressState = {0};
+        base::MutableProgressState m_openProgressState{2792};
+        base::MutableProgressState m_buildProgressState{4823};
 
     public:
         Rom(Data &data) : m_data(data) {}
@@ -59,6 +83,14 @@ namespace pokegold
 
         base::ProgressState &OpenProgressState() { return m_openProgressState; }
         base::ProgressState &BuildProgressState() { return m_buildProgressState; }
+
+        /**
+         * @brief 테스트 플레이 실행
+         *
+         * @return base::SidecarResult
+         * @see Build 빌드가 먼저 되어 있어야 함
+         */
+        base::SidecarResult RunTestPlay();
 
         /**
          * @brief 롬 파일 열기
@@ -87,11 +119,11 @@ namespace pokegold
         bool Open_ReadTypes(Data &data);
 
         bool Build_Startup(internal::RomBuildData &data);
-        bool Build_CommonSources(internal::RomBuildData &data);
         bool Build_ItemSources(internal::RomBuildData &data);
         bool Build_MoveSources(internal::RomBuildData &data);
         bool Build_PokemonSources(internal::RomBuildData &data);
         bool Build_TrainerGroupSources(internal::RomBuildData &data);
         bool Build_TypeSources(internal::RomBuildData &data);
+        bool Build_Assemble(internal::RomBuildData &data);
     };
 }

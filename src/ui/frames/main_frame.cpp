@@ -94,7 +94,7 @@ void ui::MainFrame::OnClose(wxCloseEvent &event)
         if (selected == MessageBoxResult::Yes)
         {
             base::Log(TAG, "close app (save: yes)");
-            // TODO: 롬 저장 수행 후, `Close()` 직접 호출 ...
+            SaveRomFile();
             event.Veto();
         }
         else if (selected == MessageBoxResult::No)
@@ -147,6 +147,13 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         return;
     }
 
+    if (id == wxID_SAVE)
+    {
+        base::Log(TAG, "menu selected (menu: save)");
+        SaveRomFile();
+        return;
+    }
+
     if (id == wxID_ABOUT)
     {
         base::Log(TAG, "menu selected (menu: about this app)");
@@ -177,7 +184,20 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
 
         base::Log(TAG, "  - path: \"{}\"", (*emulatorPath).string());
 
-        // TODO: sidecar 실행 추가...
+        base::Log(TAG, "test_play: build rom");
+        auto &state = m_pokegold.Rom().BuildProgressState();
+        auto result = ShowProgressDialog(this, "저장...", state, [this] {
+            return m_pokegold.Rom().Build();
+        });
+
+        if (!result.has_value())
+        {
+            base::Log(TAG, "test_play: canceled");
+            return;
+        }
+
+        base::Log(TAG, "test_play: run");
+        m_pokegold.Rom().RunTestPlay();
 
         return;
     }
@@ -248,6 +268,21 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         return;
     }
 }
+
+void ui::MainFrame::SaveRomFile()
+{
+    auto &state = m_pokegold.Rom().BuildProgressState();
+    auto result = ShowProgressDialog(this, "저장...", state, [this] {
+        return m_pokegold.Rom().Build();
+    });
+
+    if (!result.has_value())
+    {
+        base::Log(TAG, "save canceled.");
         return;
     }
+
+    auto romPath = *result;
+    auto writeToPath = *m_pokegold.Rom().FilePath();
+    std::filesystem::copy(romPath, writeToPath, std::filesystem::copy_options::overwrite_existing);
 }

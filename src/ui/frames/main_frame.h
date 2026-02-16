@@ -25,5 +25,7 @@ namespace ui
 
         void OnClose(wxCloseEvent &event) override;
         void OnMenuSelected(wxCommandEvent &event) override;
+
+        void SaveRomFile();
     };
 }
