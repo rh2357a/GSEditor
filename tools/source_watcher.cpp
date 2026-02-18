@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     ::SetConsoleOutputCP(CP_UTF8);
     std::ios::sync_with_stdio(false);
 
-    argparse::ArgumentParser parser("config-updater");
+    argparse::ArgumentParser parser("source_watcher");
     parser.add_argument("--cxx");
     parser.add_argument("--cc");
     parser.add_argument("--cxx-flags");
@@ -94,48 +94,16 @@ int main(int argc, char *argv[])
     auto outputDir = replace_all(parser.get<std::string>("--output-dir"), "/", "\\");
     auto workDir = parser.get<std::string>("--workspace-dir");
 
-    std::vector<std::string> cxxStdFlags, ccStdFlags;
-    std::vector<std::string> includeFlags;
-    std::vector<std::string> includeFiles;
-    std::vector<std::string> defines;
+    cxxflags = replace_all(cxxflags, "-I", "-isystem");
+    ccflags = replace_all(ccflags, "-I", "-isystem");
 
-    std::vector<std::string> tokens = split(ccflags, ' ');
-    for (size_t i = 0; i < tokens.size(); i++)
-    {
-        if (tokens[i].rfind("-std=", 0) == 0)
-            ccStdFlags.push_back(tokens[i].substr(5));
-    }
+    cxxflags = replace_all(cxxflags, "-isystem" + workDir, "-I" + workDir);
+    ccflags = replace_all(ccflags, "-isystem" + workDir, "-I" + workDir);
 
-    tokens = split(cxxflags, ' ');
-    for (size_t i = 0; i < tokens.size(); i++)
-    {
-        if (tokens[i].rfind("-std=", 0) == 0)
-        {
-            cxxStdFlags.push_back(tokens[i].substr(5));
-        }
-        else if (tokens[i] == "-I")
-        {
-            if (i + 1 < tokens.size())
-                includeFlags.push_back(tokens[i + 1]);
-            i++;
-        }
-        else if (tokens[i].rfind("-I", 0) == 0)
-        {
-            includeFlags.push_back(tokens[i].substr(2));
-        }
-        else if (tokens[i] == "-include")
-        {
-            if (i + 1 < tokens.size())
-                includeFiles.push_back(tokens[i + 1]);
-            i++;
-        }
-        else if (tokens[i].rfind("-D", 0) == 0)
-        {
-            defines.push_back(tokens[i].substr(2));
-        }
-    }
+    cxxflags = replace_all(cxxflags, "-I" + workDir + "src/third_party", "-isystem" + workDir + "src/third_party");
+    ccflags = replace_all(ccflags, "-I" + workDir + "src/third_party", "-isystem" + workDir + "src/third_party");
 
-    if constexpr (false)
+    if constexpr (true)
     {
         std::cout
             << "$(CC): " << cc << '\n'

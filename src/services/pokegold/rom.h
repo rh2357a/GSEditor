@@ -4,9 +4,10 @@
 #include "base/progress.h"
 #include "base/sidecar/sidecar.h"
 #include "base/types/types.h"
-#include "lzcomp/lzcomp.h"
 #include "services/pokegold/data.h"
 #include "utils/free_space.h"
+
+#include <lzcomp/lzcomp.h>
 
 #include <filesystem>
 #include <fstream>

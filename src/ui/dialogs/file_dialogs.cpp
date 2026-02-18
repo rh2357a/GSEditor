@@ -1,5 +1,4 @@
 #include "file_dialogs.h"
-#include "wx/filedlg.h"
 
 #include <optional>
 #include <sstream>
@@ -23,7 +22,8 @@ std::optional<std::filesystem::path> ui::ShowOpenFileDialog(wxWindow *parent, co
     return fileDialog.GetPath().utf8_string();
 }
 
-std::optional<std::filesystem::path> ui::ShowSaveFileDialog(wxWindow *parent, const std::string &title, const std::vector<std::string> &filter) {
+std::optional<std::filesystem::path> ui::ShowSaveFileDialog(wxWindow *parent, const std::string &title, const std::vector<std::string> &filter)
+{
     std::stringstream filterStream;
     for (size_t i = 0; i < filter.size(); i++)
     {
