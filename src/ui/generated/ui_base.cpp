@@ -5,6 +5,7 @@
 // PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
+#include "ui/controls/color_picker_panel.h"
 #include "ui/controls/colored.h"
 #include "ui/panels/database_panel.h"
 
@@ -143,390 +144,6 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 }
 
 MainFrameBase::~MainFrameBase()
-{
-}
-
-AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
-{
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-
-	wxBoxSizer* mainBSizer;
-	mainBSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* appInfoSizer;
-	appInfoSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticBitmap* appIconBitmap;
-	appIconBitmap = new wxStaticBitmap( this, wxID_ANY, icon_about_png_to_wx_bitmap(), wxDefaultPosition, wxSize( -1,-1 ), 0 );
-	appInfoSizer->Add( appIconBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	wxBoxSizer* appInfoAuthorSizer;
-	appInfoAuthorSizer = new wxBoxSizer( wxVERTICAL );
-
-	m_authorText = new wxStaticText( this, wxID_ANY, wxT("{author}"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_authorText->Wrap( -1 );
-	appInfoAuthorSizer->Add( m_authorText, 0, wxALL|wxEXPAND, 5 );
-
-	m_versionText = new wxStaticText( this, wxID_ANY, wxT("{version}"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_versionText->Wrap( -1 );
-	appInfoAuthorSizer->Add( m_versionText, 0, wxALL|wxEXPAND, 5 );
-
-
-	appInfoSizer->Add( appInfoAuthorSizer, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-
-	mainBSizer->Add( appInfoSizer, 0, wxALL|wxEXPAND, 5 );
-
-	wxNotebook* aboutContentTabs;
-	aboutContentTabs = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
-	wxPanel* versionPanel;
-	versionPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* versionSizer;
-	versionSizer = new wxBoxSizer( wxVERTICAL );
-
-	m_versionHtml = new wxHtmlWindow( versionPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxBORDER_STATIC );
-	versionSizer->Add( m_versionHtml, 1, wxALL|wxEXPAND, 5 );
-
-
-	versionPanel->SetSizer( versionSizer );
-	versionPanel->Layout();
-	versionSizer->Fit( versionPanel );
-	aboutContentTabs->AddPage( versionPanel, wxT("버전 기록"), true );
-	wxPanel* thirdPartyNoticesPanel;
-	thirdPartyNoticesPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* thirdPartyNoticesSizer;
-	thirdPartyNoticesSizer = new wxBoxSizer( wxVERTICAL );
-
-	m_thirdPartyNoticesText = new wxTextCtrl( thirdPartyNoticesPanel, wxID_ANY, wxT("{open_source_licenses}"), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxBORDER_STATIC );
-	m_thirdPartyNoticesText->SetFont( wxFont( 10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
-
-	thirdPartyNoticesSizer->Add( m_thirdPartyNoticesText, 1, wxALL|wxEXPAND, 5 );
-
-
-	thirdPartyNoticesPanel->SetSizer( thirdPartyNoticesSizer );
-	thirdPartyNoticesPanel->Layout();
-	thirdPartyNoticesSizer->Fit( thirdPartyNoticesPanel );
-	aboutContentTabs->AddPage( thirdPartyNoticesPanel, wxT("3자 라이선스 고지"), false );
-
-	mainBSizer->Add( aboutContentTabs, 1, wxEXPAND | wxALL, 5 );
-
-
-	this->SetSizer( mainBSizer );
-	this->Layout();
-
-	this->Centre( wxBOTH );
-}
-
-AboutDialogBase::~AboutDialogBase()
-{
-}
-
-ProgressDialogBase::ProgressDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
-{
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxPanel* contentsPanel;
-	contentsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	contentsPanel->SetBackgroundColour( wxColour( 255, 255, 255 ) );
-
-	wxBoxSizer* contentsSizer;
-	contentsSizer = new wxBoxSizer( wxVERTICAL );
-
-
-	contentsSizer->Add( 0, 0, 1, 0, 0 );
-
-	m_progressGauge = new wxGauge( contentsPanel, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL );
-	m_progressGauge->SetValue( 0 );
-	contentsSizer->Add( m_progressGauge, 0, wxEXPAND|wxLEFT|wxRIGHT, 24 );
-
-	m_messageLabel = new wxStaticText( contentsPanel, wxID_ANY, wxT("{message}"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL|wxST_NO_AUTORESIZE );
-	m_messageLabel->Wrap( -1 );
-	contentsSizer->Add( m_messageLabel, 0, wxEXPAND|wxTOP, 16 );
-
-
-	contentsSizer->Add( 0, 0, 1, 0, 0 );
-
-
-	contentsPanel->SetSizer( contentsSizer );
-	contentsPanel->Layout();
-	contentsSizer->Fit( contentsPanel );
-	mainSizer->Add( contentsPanel, 1, wxEXPAND, 5 );
-
-	wxPanel* buttonsPanel;
-	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* buttonsSizer;
-	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
-
-
-	buttonsSizer->Add( 0, 0, 1, 0, 5 );
-
-	m_cancelButton = new wxButton( buttonsPanel, wxID_ANY, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
-	buttonsSizer->Add( m_cancelButton, 0, wxRIGHT, 5 );
-
-
-	buttonsPanel->SetSizer( buttonsSizer );
-	buttonsPanel->Layout();
-	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALL|wxEXPAND, 10 );
-
-
-	this->SetSizer( mainSizer );
-	this->Layout();
-
-	this->Centre( wxBOTH );
-
-	// Connect Events
-	this->Connect( wxEVT_INIT_DIALOG, wxInitDialogEventHandler( ProgressDialogBase::OnInit ) );
-	m_cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ProgressDialogBase::OnCancelButtonClick ), NULL, this );
-}
-
-ProgressDialogBase::~ProgressDialogBase()
-{
-}
-
-BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
-{
-	this->SetSizeHints( wxSize( 560,440 ), wxDefaultSize );
-
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxPanel* topPanel;
-	topPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	topPanel->SetBackgroundColour( wxColour( 255, 255, 255 ) );
-
-	wxBoxSizer* listSizer;
-	listSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxStaticText* messageV1;
-	messageV1 = new wxStaticText( topPanel, wxID_ANY, wxT("아래 목록과 같이 일부 데이터가 손상되었습니다.\n롬 파일을 계속 열겠습니까?"), wxDefaultPosition, wxDefaultSize, 0 );
-	messageV1->Wrap( -1 );
-	messageV1->Hide();
-
-	listSizer->Add( messageV1, 0, wxALL|wxEXPAND, 16 );
-
-	wxStaticText* messageV2;
-	messageV2 = new wxStaticText( topPanel, wxID_ANY, wxT("아래 목록과 같이 일부 데이터가 손상되었습니다."), wxDefaultPosition, wxDefaultSize, 0 );
-	messageV2->Wrap( -1 );
-	listSizer->Add( messageV2, 0, wxALL|wxEXPAND, 16 );
-
-	m_badDataList = new ui::ColoredListCtrl( topPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_STATIC );
-	listSizer->Add( m_badDataList, 1, wxALL|wxEXPAND, 5 );
-
-
-	topPanel->SetSizer( listSizer );
-	topPanel->Layout();
-	listSizer->Fit( topPanel );
-	mainSizer->Add( topPanel, 1, wxEXPAND | wxALL, 0 );
-
-	wxPanel* bottomPanel;
-	bottomPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* buttonSizer;
-	buttonSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxButton* confirmButon;
-	confirmButon = new wxButton( bottomPanel, wxID_ANY, wxT("확인"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
-	buttonSizer->Add( confirmButon, 0, wxRIGHT, 5 );
-
-	wxButton* yesButton;
-	yesButton = new wxButton( bottomPanel, wxID_ANY, wxT("예(&Y)"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
-	yesButton->Hide();
-
-	buttonSizer->Add( yesButton, 0, wxRIGHT, 5 );
-
-	wxButton* noButton;
-	noButton = new wxButton( bottomPanel, wxID_ANY, wxT("아니요(&N)"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
-	noButton->Hide();
-
-	buttonSizer->Add( noButton, 0, wxRIGHT, 5 );
-
-
-	bottomPanel->SetSizer( buttonSizer );
-	bottomPanel->Layout();
-	buttonSizer->Fit( bottomPanel );
-	mainSizer->Add( bottomPanel, 0, wxALIGN_RIGHT|wxALL, 10 );
-
-
-	this->SetSizer( mainSizer );
-	this->Layout();
-
-	this->Centre( wxBOTH );
-
-	// Connect Events
-	this->Connect( wxEVT_SHOW, wxShowEventHandler( BadDataDialogBase::OnDialogShow ) );
-	confirmButon->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BadDataDialogBase::OnConfirmButtonClick ), NULL, this );
-	yesButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BadDataDialogBase::OnYesButtonClick ), NULL, this );
-	noButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BadDataDialogBase::OnNoButtonClick ), NULL, this );
-}
-
-BadDataDialogBase::~BadDataDialogBase()
-{
-}
-
-EvolutionEditorDialogBase::EvolutionEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
-{
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxPanel* contentPanel;
-	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* contentSizer;
-	contentSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* pokemonSizer;
-	pokemonSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticText* pokemonLabel;
-	pokemonLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("진화 후 포켓몬："), wxDefaultPosition, wxDefaultSize, 0 );
-	pokemonLabel->Wrap( -1 );
-	pokemonSizer->Add( pokemonLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_pokemon = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	pokemonSizer->Add( m_pokemon, 1, wxALIGN_CENTER_VERTICAL|wxRIGHT, 16 );
-
-
-	contentSizer->Add( pokemonSizer, 0, wxALL|wxEXPAND, 5 );
-
-	wxStaticLine* separator_0;
-	separator_0 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	contentSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
-
-	m_levelUpRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("레벨 업"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_levelUpRadio->SetValue( true );
-	contentSizer->Add( m_levelUpRadio, 0, wxALL, 5 );
-
-	m_levelUpPanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* levelUpSizer;
-	levelUpSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* commonSizer;
-	commonSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	m_levelUpCommonRadio = new wxRadioButton( m_levelUpPanel, wxID_ANY, wxT("일반"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_levelUpCommonRadio->SetValue( true );
-	commonSizer->Add( m_levelUpCommonRadio, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_level = new wxSpinCtrlDouble( m_levelUpPanel, wxID_ANY, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 0, 1 );
-	m_level->SetDigits( 0 );
-	commonSizer->Add( m_level, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_levelTypeComboBox = new wxComboBox( m_levelUpPanel, wxID_ANY, wxT("레벨 업"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	m_levelTypeComboBox->Append( wxT("레벨 업") );
-	m_levelTypeComboBox->Append( wxT("공격이 방어보다 높을 때 + 레벨 업") );
-	m_levelTypeComboBox->Append( wxT("방어가 공격보다 높을 때 + 레벨 업") );
-	m_levelTypeComboBox->Append( wxT("공격과 방어가 같을 때 + 레벨 업") );
-	m_levelTypeComboBox->SetSelection( 0 );
-	commonSizer->Add( m_levelTypeComboBox, 3, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-
-	levelUpSizer->Add( commonSizer, 0, wxEXPAND, 5 );
-
-	wxBoxSizer* happinessSizer;
-	happinessSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	m_happinessRadio = new wxRadioButton( m_levelUpPanel, wxID_ANY, wxT("친밀도"), wxDefaultPosition, wxDefaultSize, 0 );
-	happinessSizer->Add( m_happinessRadio, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_happinessTypeComboBox = new wxComboBox( m_levelUpPanel, wxID_ANY, wxT("시간과 상관없이 레벨 업"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	m_happinessTypeComboBox->Append( wxT("시간과 상관없이 레벨 업") );
-	m_happinessTypeComboBox->Append( wxT("낮 시간에 레벨 업") );
-	m_happinessTypeComboBox->Append( wxT("밤 시간에 레벨 업") );
-	m_happinessTypeComboBox->SetSelection( 0 );
-	happinessSizer->Add( m_happinessTypeComboBox, 4, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-
-	levelUpSizer->Add( happinessSizer, 0, wxEXPAND, 5 );
-
-
-	m_levelUpPanel->SetSizer( levelUpSizer );
-	m_levelUpPanel->Layout();
-	levelUpSizer->Fit( m_levelUpPanel );
-	contentSizer->Add( m_levelUpPanel, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 16 );
-
-	m_useItemRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("도구 사용"), wxDefaultPosition, wxDefaultSize, 0 );
-	contentSizer->Add( m_useItemRadio, 0, wxALL, 5 );
-
-	m_useItemPanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* useItemSizer;
-	useItemSizer = new wxBoxSizer( wxVERTICAL );
-
-	m_useItems = new wxComboBox( m_useItemPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	useItemSizer->Add( m_useItems, 1, wxALL|wxEXPAND, 5 );
-
-
-	m_useItemPanel->SetSizer( useItemSizer );
-	m_useItemPanel->Layout();
-	useItemSizer->Fit( m_useItemPanel );
-	contentSizer->Add( m_useItemPanel, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 16 );
-
-	m_tradeRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("통신교환"), wxDefaultPosition, wxDefaultSize, 0 );
-	contentSizer->Add( m_tradeRadio, 0, wxALL, 5 );
-
-	m_tradePanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* tradeSizer;
-	tradeSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	m_tradeGaveItemCheckBox = new wxCheckBox( m_tradePanel, wxID_ANY, wxT("도구를 지닌 상태"), wxDefaultPosition, wxDefaultSize, 0 );
-	tradeSizer->Add( m_tradeGaveItemCheckBox, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_tradeItems = new wxComboBox( m_tradePanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	tradeSizer->Add( m_tradeItems, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-
-	m_tradePanel->SetSizer( tradeSizer );
-	m_tradePanel->Layout();
-	tradeSizer->Fit( m_tradePanel );
-	contentSizer->Add( m_tradePanel, 0, wxEXPAND|wxLEFT|wxRIGHT, 16 );
-
-
-	contentSizer->Add( 0, 8, 0, 0, 0 );
-
-	wxStaticLine* separator_1;
-	separator_1 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	contentSizer->Add( separator_1, 0, wxEXPAND | wxALL, 5 );
-
-
-	contentPanel->SetSizer( contentSizer );
-	contentPanel->Layout();
-	contentSizer->Fit( contentPanel );
-	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 8 );
-
-	wxPanel* buttonsPanel;
-	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* buttonsSizer;
-	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxButton* confirmButton;
-	confirmButton = new wxButton( buttonsPanel, wxID_ANY, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
-	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
-
-	wxButton* cancelButton;
-	cancelButton = new wxButton( buttonsPanel, wxID_ANY, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
-	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
-
-
-	buttonsPanel->SetSizer( buttonsSizer );
-	buttonsPanel->Layout();
-	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 8 );
-
-
-	this->SetSizer( mainSizer );
-	this->Layout();
-
-	this->Centre( wxBOTH );
-
-	// Connect Events
-	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( EvolutionEditorDialogBase::OnConfirmButtonClick ), NULL, this );
-	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( EvolutionEditorDialogBase::OnCancelButtonClick ), NULL, this );
-}
-
-EvolutionEditorDialogBase::~EvolutionEditorDialogBase()
 {
 }
 
@@ -921,6 +538,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	pokemonPanelContentSizer->Add( pokemonImageLabelSizer, 0, wxEXPAND, 5 );
 
+	m_panel24 = new ui::ColorPickerPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxSize( 24,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	pokemonPanelContentSizer->Add( m_panel24, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
 
 	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
 
@@ -1249,5 +869,516 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 }
 
 DatabasePanelBase::~DatabasePanelBase()
+{
+}
+
+AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* mainBSizer;
+	mainBSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* appInfoSizer;
+	appInfoSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticBitmap* appIconBitmap;
+	appIconBitmap = new wxStaticBitmap( this, wxID_ANY, icon_about_png_to_wx_bitmap(), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	appInfoSizer->Add( appIconBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	wxBoxSizer* appInfoAuthorSizer;
+	appInfoAuthorSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_authorText = new wxStaticText( this, wxID_ANY, wxT("{author}"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_authorText->Wrap( -1 );
+	appInfoAuthorSizer->Add( m_authorText, 0, wxALL|wxEXPAND, 5 );
+
+	m_versionText = new wxStaticText( this, wxID_ANY, wxT("{version}"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_versionText->Wrap( -1 );
+	appInfoAuthorSizer->Add( m_versionText, 0, wxALL|wxEXPAND, 5 );
+
+
+	appInfoSizer->Add( appInfoAuthorSizer, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	mainBSizer->Add( appInfoSizer, 0, wxALL|wxEXPAND, 5 );
+
+	wxNotebook* aboutContentTabs;
+	aboutContentTabs = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	wxPanel* versionPanel;
+	versionPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* versionSizer;
+	versionSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_versionHtml = new wxHtmlWindow( versionPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxBORDER_STATIC );
+	versionSizer->Add( m_versionHtml, 1, wxALL|wxEXPAND, 5 );
+
+
+	versionPanel->SetSizer( versionSizer );
+	versionPanel->Layout();
+	versionSizer->Fit( versionPanel );
+	aboutContentTabs->AddPage( versionPanel, wxT("버전 기록"), true );
+	wxPanel* thirdPartyNoticesPanel;
+	thirdPartyNoticesPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* thirdPartyNoticesSizer;
+	thirdPartyNoticesSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_thirdPartyNoticesText = new wxTextCtrl( thirdPartyNoticesPanel, wxID_ANY, wxT("{open_source_licenses}"), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxBORDER_STATIC );
+	m_thirdPartyNoticesText->SetFont( wxFont( 10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
+
+	thirdPartyNoticesSizer->Add( m_thirdPartyNoticesText, 1, wxALL|wxEXPAND, 5 );
+
+
+	thirdPartyNoticesPanel->SetSizer( thirdPartyNoticesSizer );
+	thirdPartyNoticesPanel->Layout();
+	thirdPartyNoticesSizer->Fit( thirdPartyNoticesPanel );
+	aboutContentTabs->AddPage( thirdPartyNoticesPanel, wxT("3자 라이선스 고지"), false );
+
+	mainBSizer->Add( aboutContentTabs, 1, wxEXPAND | wxALL, 5 );
+
+
+	this->SetSizer( mainBSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+}
+
+AboutDialogBase::~AboutDialogBase()
+{
+}
+
+EvolutionEditorDialogBase::EvolutionEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentPanel;
+	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* contentSizer;
+	contentSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* pokemonSizer;
+	pokemonSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonLabel;
+	pokemonLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("진화 후 포켓몬："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonLabel->Wrap( -1 );
+	pokemonSizer->Add( pokemonLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_pokemon = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	pokemonSizer->Add( m_pokemon, 1, wxALIGN_CENTER_VERTICAL|wxRIGHT, 16 );
+
+
+	contentSizer->Add( pokemonSizer, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticLine* separator_0;
+	separator_0 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
+
+	m_levelUpRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("레벨 업"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_levelUpRadio->SetValue( true );
+	contentSizer->Add( m_levelUpRadio, 0, wxALL, 5 );
+
+	m_levelUpPanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* levelUpSizer;
+	levelUpSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* commonSizer;
+	commonSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_levelUpCommonRadio = new wxRadioButton( m_levelUpPanel, wxID_ANY, wxT("일반"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_levelUpCommonRadio->SetValue( true );
+	commonSizer->Add( m_levelUpCommonRadio, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_level = new wxSpinCtrlDouble( m_levelUpPanel, wxID_ANY, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 0, 1 );
+	m_level->SetDigits( 0 );
+	commonSizer->Add( m_level, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_levelTypeComboBox = new wxComboBox( m_levelUpPanel, wxID_ANY, wxT("레벨 업"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_levelTypeComboBox->Append( wxT("레벨 업") );
+	m_levelTypeComboBox->Append( wxT("공격이 방어보다 높을 때 + 레벨 업") );
+	m_levelTypeComboBox->Append( wxT("방어가 공격보다 높을 때 + 레벨 업") );
+	m_levelTypeComboBox->Append( wxT("공격과 방어가 같을 때 + 레벨 업") );
+	m_levelTypeComboBox->SetSelection( 0 );
+	commonSizer->Add( m_levelTypeComboBox, 3, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	levelUpSizer->Add( commonSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* happinessSizer;
+	happinessSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_happinessRadio = new wxRadioButton( m_levelUpPanel, wxID_ANY, wxT("친밀도"), wxDefaultPosition, wxDefaultSize, 0 );
+	happinessSizer->Add( m_happinessRadio, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_happinessTypeComboBox = new wxComboBox( m_levelUpPanel, wxID_ANY, wxT("시간과 상관없이 레벨 업"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_happinessTypeComboBox->Append( wxT("시간과 상관없이 레벨 업") );
+	m_happinessTypeComboBox->Append( wxT("낮 시간에 레벨 업") );
+	m_happinessTypeComboBox->Append( wxT("밤 시간에 레벨 업") );
+	m_happinessTypeComboBox->SetSelection( 0 );
+	happinessSizer->Add( m_happinessTypeComboBox, 4, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	levelUpSizer->Add( happinessSizer, 0, wxEXPAND, 5 );
+
+
+	m_levelUpPanel->SetSizer( levelUpSizer );
+	m_levelUpPanel->Layout();
+	levelUpSizer->Fit( m_levelUpPanel );
+	contentSizer->Add( m_levelUpPanel, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 16 );
+
+	m_useItemRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("도구 사용"), wxDefaultPosition, wxDefaultSize, 0 );
+	contentSizer->Add( m_useItemRadio, 0, wxALL, 5 );
+
+	m_useItemPanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* useItemSizer;
+	useItemSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_useItems = new wxComboBox( m_useItemPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	useItemSizer->Add( m_useItems, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_useItemPanel->SetSizer( useItemSizer );
+	m_useItemPanel->Layout();
+	useItemSizer->Fit( m_useItemPanel );
+	contentSizer->Add( m_useItemPanel, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 16 );
+
+	m_tradeRadio = new wxRadioButton( contentPanel, wxID_ANY, wxT("통신교환"), wxDefaultPosition, wxDefaultSize, 0 );
+	contentSizer->Add( m_tradeRadio, 0, wxALL, 5 );
+
+	m_tradePanel = new wxPanel( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* tradeSizer;
+	tradeSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_tradeGaveItemCheckBox = new wxCheckBox( m_tradePanel, wxID_ANY, wxT("도구를 지닌 상태"), wxDefaultPosition, wxDefaultSize, 0 );
+	tradeSizer->Add( m_tradeGaveItemCheckBox, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_tradeItems = new wxComboBox( m_tradePanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	tradeSizer->Add( m_tradeItems, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	m_tradePanel->SetSizer( tradeSizer );
+	m_tradePanel->Layout();
+	tradeSizer->Fit( m_tradePanel );
+	contentSizer->Add( m_tradePanel, 0, wxEXPAND|wxLEFT|wxRIGHT, 16 );
+
+
+	contentSizer->Add( 0, 8, 0, 0, 0 );
+
+	wxStaticLine* separator_1;
+	separator_1 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentSizer->Add( separator_1, 0, wxEXPAND | wxALL, 5 );
+
+
+	contentPanel->SetSizer( contentSizer );
+	contentPanel->Layout();
+	contentSizer->Fit( contentPanel );
+	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 8 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButton;
+	confirmButton = new wxButton( buttonsPanel, wxID_ANY, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
+
+	wxButton* cancelButton;
+	cancelButton = new wxButton( buttonsPanel, wxID_ANY, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 8 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( EvolutionEditorDialogBase::OnConfirmButtonClick ), NULL, this );
+	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( EvolutionEditorDialogBase::OnCancelButtonClick ), NULL, this );
+}
+
+EvolutionEditorDialogBase::~EvolutionEditorDialogBase()
+{
+}
+
+ProgressDialogBase::ProgressDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentsPanel;
+	contentsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	contentsPanel->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* contentsSizer;
+	contentsSizer = new wxBoxSizer( wxVERTICAL );
+
+
+	contentsSizer->Add( 0, 0, 1, 0, 0 );
+
+	m_progressGauge = new wxGauge( contentsPanel, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL );
+	m_progressGauge->SetValue( 0 );
+	contentsSizer->Add( m_progressGauge, 0, wxEXPAND|wxLEFT|wxRIGHT, 24 );
+
+	m_messageLabel = new wxStaticText( contentsPanel, wxID_ANY, wxT("{message}"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL|wxST_NO_AUTORESIZE );
+	m_messageLabel->Wrap( -1 );
+	contentsSizer->Add( m_messageLabel, 0, wxEXPAND|wxTOP, 16 );
+
+
+	contentsSizer->Add( 0, 0, 1, 0, 0 );
+
+
+	contentsPanel->SetSizer( contentsSizer );
+	contentsPanel->Layout();
+	contentsSizer->Fit( contentsPanel );
+	mainSizer->Add( contentsPanel, 1, wxEXPAND, 5 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+
+	buttonsSizer->Add( 0, 0, 1, 0, 5 );
+
+	m_cancelButton = new wxButton( buttonsPanel, wxID_ANY, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( m_cancelButton, 0, wxRIGHT, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALL|wxEXPAND, 10 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	this->Connect( wxEVT_INIT_DIALOG, wxInitDialogEventHandler( ProgressDialogBase::OnInit ) );
+	m_cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ProgressDialogBase::OnCancelButtonClick ), NULL, this );
+}
+
+ProgressDialogBase::~ProgressDialogBase()
+{
+}
+
+BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxSize( 560,440 ), wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* topPanel;
+	topPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	topPanel->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* listSizer;
+	listSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxStaticText* messageV1;
+	messageV1 = new wxStaticText( topPanel, wxID_ANY, wxT("아래 목록과 같이 일부 데이터가 손상되었습니다.\n롬 파일을 계속 열겠습니까?"), wxDefaultPosition, wxDefaultSize, 0 );
+	messageV1->Wrap( -1 );
+	messageV1->Hide();
+
+	listSizer->Add( messageV1, 0, wxALL|wxEXPAND, 16 );
+
+	wxStaticText* messageV2;
+	messageV2 = new wxStaticText( topPanel, wxID_ANY, wxT("아래 목록과 같이 일부 데이터가 손상되었습니다."), wxDefaultPosition, wxDefaultSize, 0 );
+	messageV2->Wrap( -1 );
+	listSizer->Add( messageV2, 0, wxALL|wxEXPAND, 16 );
+
+	m_badDataList = new ui::ColoredListCtrl( topPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL|wxBORDER_STATIC );
+	listSizer->Add( m_badDataList, 1, wxALL|wxEXPAND, 5 );
+
+
+	topPanel->SetSizer( listSizer );
+	topPanel->Layout();
+	listSizer->Fit( topPanel );
+	mainSizer->Add( topPanel, 1, wxEXPAND | wxALL, 0 );
+
+	wxPanel* bottomPanel;
+	bottomPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonSizer;
+	buttonSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButon;
+	confirmButon = new wxButton( bottomPanel, wxID_ANY, wxT("확인"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	buttonSizer->Add( confirmButon, 0, wxRIGHT, 5 );
+
+	wxButton* yesButton;
+	yesButton = new wxButton( bottomPanel, wxID_ANY, wxT("예(&Y)"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	yesButton->Hide();
+
+	buttonSizer->Add( yesButton, 0, wxRIGHT, 5 );
+
+	wxButton* noButton;
+	noButton = new wxButton( bottomPanel, wxID_ANY, wxT("아니요(&N)"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	noButton->Hide();
+
+	buttonSizer->Add( noButton, 0, wxRIGHT, 5 );
+
+
+	bottomPanel->SetSizer( buttonSizer );
+	bottomPanel->Layout();
+	buttonSizer->Fit( bottomPanel );
+	mainSizer->Add( bottomPanel, 0, wxALIGN_RIGHT|wxALL, 10 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	this->Connect( wxEVT_SHOW, wxShowEventHandler( BadDataDialogBase::OnDialogShow ) );
+	confirmButon->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BadDataDialogBase::OnConfirmButtonClick ), NULL, this );
+	yesButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BadDataDialogBase::OnYesButtonClick ), NULL, this );
+	noButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BadDataDialogBase::OnNoButtonClick ), NULL, this );
+}
+
+BadDataDialogBase::~BadDataDialogBase()
+{
+}
+
+ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* topPickerSizer;
+	topPickerSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_pickerPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 240,160 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_pickerPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
+	m_pickerPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
+
+	topPickerSizer->Add( m_pickerPanel, 0, wxALL, 0 );
+
+
+	topPickerSizer->Add( 4, 0, 0, 0, 0 );
+
+	m_previewPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 40,160 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_previewPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
+	m_previewPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
+
+	topPickerSizer->Add( m_previewPanel, 0, wxALL, 0 );
+
+
+	mainSizer->Add( topPickerSizer, 0, wxALL|wxEXPAND, 4 );
+
+	m_brightnessSlider = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	mainSizer->Add( m_brightnessSlider, 0, wxEXPAND, 5 );
+
+	m_brightnessPreviewPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_brightnessPreviewPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
+	m_brightnessPreviewPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
+
+	mainSizer->Add( m_brightnessPreviewPanel, 1, wxEXPAND|wxLEFT|wxRIGHT, 12 );
+
+	wxStaticLine* separator_0;
+	separator_0 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	mainSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
+
+	wxBoxSizer* redSizer;
+	redSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* redLabel;
+	redLabel = new wxStaticText( this, wxID_ANY, wxT("R"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
+	redLabel->Wrap( -1 );
+	redSizer->Add( redLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_redSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
+	redSizer->Add( m_redSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
+
+	m_redSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
+	m_redSpinCtrl->SetDigits( 0 );
+	redSizer->Add( m_redSpinCtrl, 0, wxALL, 5 );
+
+
+	mainSizer->Add( redSizer, 0, wxEXPAND, 0 );
+
+	wxBoxSizer* greenSizer;
+	greenSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* greenLabel;
+	greenLabel = new wxStaticText( this, wxID_ANY, wxT("G"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
+	greenLabel->Wrap( -1 );
+	greenSizer->Add( greenLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_greenSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
+	greenSizer->Add( m_greenSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
+
+	m_greenSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
+	m_greenSpinCtrl->SetDigits( 0 );
+	greenSizer->Add( m_greenSpinCtrl, 0, wxALL, 5 );
+
+
+	mainSizer->Add( greenSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* blueSizer;
+	blueSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* blueLabel;
+	blueLabel = new wxStaticText( this, wxID_ANY, wxT("B"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
+	blueLabel->Wrap( -1 );
+	blueSizer->Add( blueLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_blueSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
+	blueSizer->Add( m_blueSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
+
+	m_blueSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
+	m_blueSpinCtrl->SetDigits( 0 );
+	blueSizer->Add( m_blueSpinCtrl, 0, wxALL, 5 );
+
+
+	mainSizer->Add( blueSizer, 0, wxEXPAND, 5 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	// Connect Events
+	m_pickerPanel->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_LEFT_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MIDDLE_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MIDDLE_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX2_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MOTION, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MIDDLE_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_RIGHT_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX2_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_LEAVE_WINDOW, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_ENTER_WINDOW, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnPickerPaint ), NULL, this );
+	m_previewPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnPreviewPaint ), NULL, this );
+	m_brightnessSlider->Connect( wxEVT_SLIDER, wxCommandEventHandler( ColorPickerPopupPanelBase::OnBrightnessSlider ), NULL, this );
+	m_brightnessPreviewPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnBrightnessPreviewPaint ), NULL, this );
+}
+
+ColorPickerPopupPanelBase::~ColorPickerPopupPanelBase()
 {
 }

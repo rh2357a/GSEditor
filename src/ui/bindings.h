@@ -4,9 +4,12 @@
 #include "base/functional/state.h"
 
 #include <wx/listctrl.h>
+#include <wx/slider.h>
+#include <wx/spinctrl.h>
 #include <wx/wx.h>
 
 #include <memory>
+
 
 namespace ui
 {
@@ -27,6 +30,33 @@ namespace ui
      * @param state 바인딩 대상 상태 객체
      */
     void BindTextBoxText(wxWindowBase *hostControl, wxTextCtrlBase *control, base::MutableState<wxString> &state);
+
+    /**
+     * @brief double 형식의 스핀 컨트롤 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
+    void BindSpinCtrlDoubleValue(wxWindowBase *hostControl, wxSpinCtrlDouble *control, base::MutableState<double> &state);
+
+    /**
+     * @brief int 형식의 스핀 컨트롤 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
+    void BindSpinCtrlValue(wxWindowBase *hostControl, wxSpinCtrlDouble *control, base::MutableState<int> &state);
+
+    /**
+     * @brief double 형식의 스핀 컨트롤 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
+    void BindSliderValue(wxWindowBase *hostControl, wxSlider *control, base::MutableState<int> &state);
 
     /**
      * @brief 선택 값 상태 바인딩

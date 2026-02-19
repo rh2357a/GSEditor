@@ -18,4 +18,12 @@ namespace ui
      * @param ctrl wxListCtrl
      */
     void AutoListCtrlColumnWidth(wxListCtrl *ctrl);
+
+    /**
+     * @brief 컨트롤을 드롭다운 팝업 형식으로 표시
+     *
+     * @param parent 위치를 맞출 호스트 컨트롤
+     * @param popupCtrl 팝업에 표시될 컨트롤
+     */
+    void ShowDropdownPopup(wxWindow *parent, wxWindow *popupCtrl);
 }

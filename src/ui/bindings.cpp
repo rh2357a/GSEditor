@@ -67,6 +67,84 @@ void ui::BindTextBoxText(wxWindowBase *hostControl, wxTextCtrlBase *control, bas
     }
 }
 
+void ui::BindSpinCtrlDoubleValue(wxWindowBase *hostControl, wxSpinCtrlDouble *control, base::MutableState<double> &state)
+{
+    if (control != nullptr)
+    {
+        control->SetValue(*state);
+
+        auto guard = std::make_shared<base::Guard>();
+
+        state.Subscribe(hostControl, [control, guard](const double &val) {
+            if (!(*guard).IsGuarded())
+                control->SetValue(val);
+        });
+
+        control->Bind(wxEVT_SPINCTRLDOUBLE, [control, &state, guard](wxSpinDoubleEvent &ev) {
+            if (!(*guard).IsGuarded())
+            {
+                (*guard)([control, &state] {
+                    state.Update(control->GetValue());
+                });
+            }
+
+            ev.Skip();
+        });
+    }
+}
+
+void ui::BindSpinCtrlValue(wxWindowBase *hostControl, wxSpinCtrlDouble *control, base::MutableState<int> &state)
+{
+    if (control != nullptr)
+    {
+        control->SetValue(*state);
+
+        auto guard = std::make_shared<base::Guard>();
+
+        state.Subscribe(hostControl, [control, guard](const int &val) {
+            if (!(*guard).IsGuarded())
+                control->SetValue(double(val));
+        });
+
+        control->Bind(wxEVT_SPINCTRLDOUBLE, [control, &state, guard](wxSpinDoubleEvent &ev) {
+            if (!(*guard).IsGuarded())
+            {
+                (*guard)([control, &state] {
+                    state.Update(int(control->GetValue()));
+                });
+            }
+
+            ev.Skip();
+        });
+    }
+}
+
+void ui::BindSliderValue(wxWindowBase *hostControl, wxSlider *control, base::MutableState<int> &state)
+{
+    if (control != nullptr)
+    {
+        control->SetValue(*state);
+
+        auto guard = std::make_shared<base::Guard>();
+
+        state.Subscribe(hostControl, [control, guard](const int &val) {
+            if (!(*guard).IsGuarded())
+                control->SetValue(double(val));
+        });
+
+        control->Bind(wxEVT_SLIDER, [control, &state, guard](wxCommandEvent &ev) {
+            if (!(*guard).IsGuarded())
+            {
+                (*guard)([control, &state] {
+                    state.Update(int(control->GetValue()));
+                });
+            }
+
+            ev.Skip();
+        });
+    }
+}
+
 void ui::BindControlSelection(wxWindowBase *hostControl, wxControlWithItemsBase *control, base::MutableState<int> &state)
 {
     const auto event = GetControlSelectionEvent(control);
