@@ -21,6 +21,8 @@ namespace services
         wxFileConfig *m_configs = nullptr;
 
         base::MutableState<std::filesystem::path> m_emulatorPathState = base::GetNullPath();
+        base::MutableState<bool> m_showDebugLabelState = true;
+        base::MutableState<bool> m_testPlaySaveState = true;
 
     public:
         AppConfigs(std::filesystem::path configFilePath)
@@ -43,5 +45,13 @@ namespace services
         std::optional<std::filesystem::path> GetEmulatorPath();
         void SetEmulatorPath(const std::filesystem::path &path);
         base::State<std::filesystem::path> &GetEmulatorPathState() { return m_emulatorPathState; }
+
+        bool GetShowDebugLabel();
+        void SetShowDebugLabel(bool value);
+        base::State<bool> &GetShowDebugLabelState() { return m_showDebugLabelState; }
+
+        bool GetTestPlaySave();
+        void SetTestPlaySave(bool value);
+        base::State<bool> &GetTestPlaySaveState() { return m_testPlaySaveState; }
     };
 }

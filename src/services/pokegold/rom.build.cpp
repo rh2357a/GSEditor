@@ -1182,10 +1182,15 @@ bool pokegold::Rom::Build_Assemble(internal::RomBuildData &data)
         m_buildProgressState.UpdateMessage("Linking...");
         m_buildProgressState.Increase();
 
+        auto debugLabelOption = m_appConfigs.GetShowDebugLabel()
+                                    ? std::format("--map {} --sym {}",
+                                                  (workdir / (s_targetName + ".map")).string(),
+                                                  (workdir / (s_targetName + ".sym")).string())
+                                    : "";
+
         auto args = std::format(
-            "--map {} --sym {} -o {} -O {} {}",
-            (workdir / (s_targetName + ".map")).string(),
-            (workdir / (s_targetName + ".sym")).string(),
+            "{} -o {} -O {} {}",
+            debugLabelOption,
             (workdir / (s_targetName + ".bin")).string(),
             (workdir / (s_baseName + ".bin")).string(),
             (workdir / "GSEditor.o").string());

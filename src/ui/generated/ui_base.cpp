@@ -45,6 +45,14 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	fileMenu->AppendSeparator();
 
+	m_fileExportToIpsMenuItem = new wxMenuItem( fileMenu, wxID_IPS, wxString( wxT("ips 패치 생성...") ) , wxT("ips 형식의 패치 파일을 생성합니다."), wxITEM_NORMAL );
+	fileMenu->Append( m_fileExportToIpsMenuItem );
+
+	m_fileExportToXdeltaMenuItem = new wxMenuItem( fileMenu, wxID_XDELTA, wxString( wxT("xdelta 패치 생성...") ) , wxT("xdelta 형식의 패치 파일을 생성합니다."), wxITEM_NORMAL );
+	fileMenu->Append( m_fileExportToXdeltaMenuItem );
+
+	fileMenu->AppendSeparator();
+
 	wxMenuItem* fileExitMenuItem;
 	fileExitMenuItem = new wxMenuItem( fileMenu, wxID_EXIT, wxString( wxT("닫기(&X)") ) + wxT('\t') + wxT("Alt+F4"), wxT("프로그램을 종료합니다."), wxITEM_NORMAL );
 	#ifdef __WXMSW__
@@ -58,33 +66,35 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	wxMenu* gameMenu;
 	gameMenu = new wxMenu();
-	wxMenuItem* gameTestPlayMenuItem;
-	gameTestPlayMenuItem = new wxMenuItem( gameMenu, wxID_TEST_PLAY, wxString( wxT("테스트 플레이(&P)") ) + wxT('\t') + wxT("F5"), wxT("롬을 빌드하여 테스트합니다."), wxITEM_NORMAL );
+	m_gameTestPlayMenuItem = new wxMenuItem( gameMenu, wxID_TEST_PLAY, wxString( wxT("테스트 플레이(&P)") ) + wxT('\t') + wxT("F5"), wxT("롬을 빌드하여 테스트합니다."), wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	gameTestPlayMenuItem->SetBitmaps( icon_play_png_to_wx_bitmap() );
+	m_gameTestPlayMenuItem->SetBitmaps( icon_play_png_to_wx_bitmap() );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	gameTestPlayMenuItem->SetBitmap( icon_play_png_to_wx_bitmap() );
+	m_gameTestPlayMenuItem->SetBitmap( icon_play_png_to_wx_bitmap() );
 	#endif
-	gameMenu->Append( gameTestPlayMenuItem );
+	gameMenu->Append( m_gameTestPlayMenuItem );
 
-	gameMenu->AppendSeparator();
+	wxMenu* gameTestPlaySubMenu;
+	gameTestPlaySubMenu = new wxMenu();
+	wxMenuItem* gameTestPlaySubMenuItem = new wxMenuItem( gameMenu, wxID_ANY, wxT("테스트 플레이 설정(&T)"), wxEmptyString, wxITEM_NORMAL, gameTestPlaySubMenu );
+	#if (defined( __WXMSW__ ) || defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	gameTestPlaySubMenuItem->SetBitmap( wxNullBitmap );
+	#endif
 
-	wxMenuItem* gameExportToIpsMenuItem;
-	gameExportToIpsMenuItem = new wxMenuItem( gameMenu, wxID_IPS, wxString( wxT("ips 패치 생성...") ) , wxT("ips 형식의 패치 파일을 생성합니다."), wxITEM_NORMAL );
-	gameMenu->Append( gameExportToIpsMenuItem );
+	m_gameTestPlaySetEmulatorMenuItem = new wxMenuItem( gameTestPlaySubMenu, wxID_EMULATOR, wxString( wxT("에뮬레이터 설정(&E)...") ) , wxEmptyString, wxITEM_NORMAL );
+	gameTestPlaySubMenu->Append( m_gameTestPlaySetEmulatorMenuItem );
 
-	wxMenuItem* gameExportToXdeltaMenuItem;
-	gameExportToXdeltaMenuItem = new wxMenuItem( gameMenu, wxID_XDELTA, wxString( wxT("xdelta 패치 생성...") ) , wxT("xdelta 형식의 패치 파일을 생성합니다."), wxITEM_NORMAL );
-	gameMenu->Append( gameExportToXdeltaMenuItem );
+	gameTestPlaySubMenu->AppendSeparator();
+
+	m_gameTestPlayShowDebugLabelMenuItem = new wxMenuItem( gameTestPlaySubMenu, wxID_DEBUG_LABEL, wxString( wxT("디버그 라벨 켜기/끄기(&D)") ) , wxT("디버거에서 롬 파일에 기록된 라벨을 표시합니다."), wxITEM_CHECK );
+	gameTestPlaySubMenu->Append( m_gameTestPlayShowDebugLabelMenuItem );
+
+	m_gameTestPlaySaveMenuItem = new wxMenuItem( gameTestPlaySubMenu, wxID_TEST_PLAY_SAVE, wxString( wxT("테스트 플레이 세이브 켜기/끄기(&S)") ) , wxT("테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다."), wxITEM_CHECK );
+	gameTestPlaySubMenu->Append( m_gameTestPlaySaveMenuItem );
+
+	gameMenu->Append( gameTestPlaySubMenuItem );
 
 	m_mainMenuBar->Append( gameMenu, wxT("게임(&G)") );
-
-	wxMenu* settingsMenu;
-	settingsMenu = new wxMenu();
-	m_settingsSetEmulatorMenuItem = new wxMenuItem( settingsMenu, wxID_EMULATOR, wxString( wxT("에뮬레이터 설정(&E)...") ) , wxEmptyString, wxITEM_NORMAL );
-	settingsMenu->Append( m_settingsSetEmulatorMenuItem );
-
-	m_mainMenuBar->Append( settingsMenu, wxT("설정(&S)") );
 
 	wxMenu* helpMenu;
 	helpMenu = new wxMenu();
@@ -131,11 +141,13 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( MainFrameBase::OnClose ) );
 	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, fileOpenMenuItem->GetId());
 	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_fileSaveMenuItem->GetId());
+	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_fileExportToIpsMenuItem->GetId());
+	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_fileExportToXdeltaMenuItem->GetId());
 	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, fileExitMenuItem->GetId());
-	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, gameTestPlayMenuItem->GetId());
-	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, gameExportToIpsMenuItem->GetId());
-	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, gameExportToXdeltaMenuItem->GetId());
-	settingsMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_settingsSetEmulatorMenuItem->GetId());
+	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameTestPlayMenuItem->GetId());
+	gameTestPlaySubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameTestPlaySetEmulatorMenuItem->GetId());
+	gameTestPlaySubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameTestPlayShowDebugLabelMenuItem->GetId());
+	gameTestPlaySubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameTestPlaySaveMenuItem->GetId());
 	helpMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, helpAboutMenuItem->GetId());
 	this->Connect( openToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 	this->Connect( m_saveToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));

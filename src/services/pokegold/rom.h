@@ -4,6 +4,7 @@
 #include "base/progress.h"
 #include "base/sidecar/sidecar.h"
 #include "base/types/types.h"
+#include "services/app_configs.h"
 #include "services/pokegold/data.h"
 #include "utils/free_space.h"
 
@@ -64,6 +65,8 @@ namespace pokegold
         inline static const std::string s_targetName = "target";
 
     private:
+        services::AppConfigs &m_appConfigs = services::AppConfigs::Default();
+
         Data &m_data;
 
         base::MutableState<bool> m_romOpenedState = false;

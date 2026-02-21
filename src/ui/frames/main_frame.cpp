@@ -8,6 +8,7 @@
 #include "ui/dialogs/file_dialogs.h"
 #include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
+#include "ui/generated/ui_base.h"
 
 #include <wx/persist/toplevel.h>
 
@@ -36,7 +37,9 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
     m_pokegold.Rom().Opened().Subscribe(this, [this] { RomOpenedControlHandler(); });
     m_pokegold.Rom().FilePath().Subscribe(this, [this] { StatusBarTextHandler(); });
     m_pokegold.Rom().DataChanged().Subscribe(this, [this] { StatusBarTextHandler(); });
-    m_configs.GetEmulatorPathState().Subscribe(this, [this] { EmulatorMenuHelpHandler(); });
+    m_configs.GetEmulatorPathState().Subscribe(this, [this] { SettingsMenusHandler(); });
+    m_configs.GetShowDebugLabelState().Subscribe(this, [this] { SettingsMenusHandler(); });
+    m_configs.GetTestPlaySaveState().Subscribe(this, [this] { SettingsMenusHandler(); });
 }
 
 void ui::MainFrame::RomOpenedControlHandler()
@@ -44,7 +47,9 @@ void ui::MainFrame::RomOpenedControlHandler()
     bool isOpened = *m_pokegold.Rom().Opened();
 
     m_fileSaveMenuItem->Enable(isOpened);
-    m_mainMenuBar->EnableTop(/* 게임 메뉴 */ 1, isOpened);
+    m_fileExportToIpsMenuItem->Enable(isOpened);
+    m_fileExportToXdeltaMenuItem->Enable(isOpened);
+    m_gameTestPlayMenuItem->Enable(isOpened);
 
     m_saveToolbarItem->Enable(isOpened);
     m_testPlayToolbarItem->Enable(isOpened);
@@ -70,20 +75,26 @@ void ui::MainFrame::StatusBarTextHandler()
     }
 }
 
-void ui::MainFrame::EmulatorMenuHelpHandler()
+void ui::MainFrame::SettingsMenusHandler()
 {
     auto path = *m_configs.GetEmulatorPathState();
     if (path == base::GetNullPath())
     {
         wxString help = wxT("테스트 플레이 에뮬레이터를 등록합니다.");
-        m_settingsSetEmulatorMenuItem->SetHelp(help);
+        m_gameTestPlaySetEmulatorMenuItem->SetHelp(help);
     }
     else
     {
         std::string realPath = path.string();
         wxString help = wxString::Format(wxT("테스트 플레이 에뮬레이터를 등록합니다. (등록: '%s')"), wxString::FromUTF8(realPath));
-        m_settingsSetEmulatorMenuItem->SetHelp(help);
+        m_gameTestPlaySetEmulatorMenuItem->SetHelp(help);
     }
+
+    auto showDebugLabel = m_configs.GetShowDebugLabel();
+    m_gameTestPlayShowDebugLabelMenuItem->Check(showDebugLabel);
+
+    auto testPlaySave = m_configs.GetTestPlaySave();
+    m_gameTestPlaySaveMenuItem->Check(testPlaySave);
 }
 
 void ui::MainFrame::OnClose(wxCloseEvent &event)
@@ -265,6 +276,25 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
             ShowAlertDialog(this, "완료", "패치 파일이 생성되었습니다!");
         }
 
+        return;
+    }
+}
+
+void ui::MainFrame::OnMenuItemSelected(wxCommandEvent &event)
+{
+    const int id = event.GetId();
+
+    if (id == wxID_DEBUG_LABEL)
+    {
+        auto newValue = !(m_configs.GetShowDebugLabel());
+        m_configs.SetShowDebugLabel(newValue);
+        return;
+    }
+
+    if (id == wxID_TEST_PLAY_SAVE)
+    {
+        auto newValue = !(m_configs.GetTestPlaySave());
+        m_configs.SetTestPlaySave(newValue);
         return;
     }
 }

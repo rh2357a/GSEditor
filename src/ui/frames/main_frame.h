@@ -21,10 +21,11 @@ namespace ui
     private:
         void RomOpenedControlHandler();
         void StatusBarTextHandler();
-        void EmulatorMenuHelpHandler();
+        void SettingsMenusHandler();
 
         void OnClose(wxCloseEvent &event) override;
         void OnMenuSelected(wxCommandEvent &event) override;
+        void OnMenuItemSelected(wxCommandEvent &event) override;
 
         void SaveRomFile();
     };

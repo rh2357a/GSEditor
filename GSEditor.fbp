@@ -31,7 +31,7 @@
     <property name="relative_path">1</property>
     <property name="use_microsoft_bom">0</property>
     <property name="use_native_eol">0</property>
-    <object class="Frame" expanded="false">
+    <object class="Frame" expanded="true">
       <property name="aui_managed">0</property>
       <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
       <property name="bg"></property>
@@ -61,7 +61,7 @@
       <property name="window_style">wxTAB_TRAVERSAL</property>
       <property name="xrc_skip_sizer">1</property>
       <event name="OnClose">OnClose</event>
-      <object class="wxMenuBar" expanded="false">
+      <object class="wxMenuBar" expanded="true">
         <property name="bg"></property>
         <property name="context_help"></property>
         <property name="context_menu">1</property>
@@ -120,6 +120,38 @@
             <property name="permission">none</property>
           </object>
           <object class="wxMenuItem" expanded="false">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help">ips 형식의 패치 파일을 생성합니다.</property>
+            <property name="id">wxID_IPS</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">ips 패치 생성...</property>
+            <property name="name">m_fileExportToIpsMenuItem</property>
+            <property name="permission">protected</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+            <event name="OnMenuSelection">OnMenuSelected</event>
+          </object>
+          <object class="wxMenuItem" expanded="false">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help">xdelta 형식의 패치 파일을 생성합니다.</property>
+            <property name="id">wxID_XDELTA</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">xdelta 패치 생성...</property>
+            <property name="name">m_fileExportToXdeltaMenuItem</property>
+            <property name="permission">protected</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+            <event name="OnMenuSelection">OnMenuSelected</event>
+          </object>
+          <object class="separator" expanded="false">
+            <property name="name">fileSeparator_1</property>
+            <property name="permission">none</property>
+          </object>
+          <object class="wxMenuItem" expanded="false">
             <property name="bitmap">Load From Embedded File; res/icons/icon_exit.png</property>
             <property name="checked">0</property>
             <property name="enabled">1</property>
@@ -134,7 +166,7 @@
             <event name="OnMenuSelection">OnMenuSelected</event>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">게임(&amp;G)</property>
           <property name="name">gameMenu</property>
           <property name="permission">none</property>
@@ -146,62 +178,63 @@
             <property name="id">wxID_TEST_PLAY</property>
             <property name="kind">wxITEM_NORMAL</property>
             <property name="label">테스트 플레이(&amp;P)</property>
-            <property name="name">gameTestPlayMenuItem</property>
-            <property name="permission">none</property>
+            <property name="name">m_gameTestPlayMenuItem</property>
+            <property name="permission">protected</property>
             <property name="shortcut">F5</property>
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">OnMenuSelected</event>
           </object>
-          <object class="separator" expanded="false">
-            <property name="name">gameSeparator</property>
+          <object class="submenu" expanded="true">
+            <property name="bitmap">Load From File; </property>
+            <property name="label">테스트 플레이 설정(&amp;T)</property>
+            <property name="name">gameTestPlaySubMenu</property>
             <property name="permission">none</property>
-          </object>
-          <object class="wxMenuItem" expanded="false">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help">ips 형식의 패치 파일을 생성합니다.</property>
-            <property name="id">wxID_IPS</property>
-            <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">ips 패치 생성...</property>
-            <property name="name">gameExportToIpsMenuItem</property>
-            <property name="permission">none</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuSelected</event>
-          </object>
-          <object class="wxMenuItem" expanded="false">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help">xdelta 형식의 패치 파일을 생성합니다.</property>
-            <property name="id">wxID_XDELTA</property>
-            <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">xdelta 패치 생성...</property>
-            <property name="name">gameExportToXdeltaMenuItem</property>
-            <property name="permission">none</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuSelected</event>
-          </object>
-        </object>
-        <object class="wxMenu" expanded="false">
-          <property name="label">설정(&amp;S)</property>
-          <property name="name">settingsMenu</property>
-          <property name="permission">none</property>
-          <object class="wxMenuItem" expanded="false">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_EMULATOR</property>
-            <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">에뮬레이터 설정(&amp;E)...</property>
-            <property name="name">m_settingsSetEmulatorMenuItem</property>
-            <property name="permission">protected</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuSelected</event>
+            <object class="wxMenuItem" expanded="false">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help"></property>
+              <property name="id">wxID_EMULATOR</property>
+              <property name="kind">wxITEM_NORMAL</property>
+              <property name="label">에뮬레이터 설정(&amp;E)...</property>
+              <property name="name">m_gameTestPlaySetEmulatorMenuItem</property>
+              <property name="permission">protected</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">OnMenuSelected</event>
+            </object>
+            <object class="separator" expanded="false">
+              <property name="name">gameTestPlaySeparator_0</property>
+              <property name="permission">none</property>
+            </object>
+            <object class="wxMenuItem" expanded="false">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help">디버거에서 롬 파일에 기록된 라벨을 표시합니다.</property>
+              <property name="id">wxID_DEBUG_LABEL</property>
+              <property name="kind">wxITEM_CHECK</property>
+              <property name="label">디버그 라벨 켜기/끄기(&amp;D)</property>
+              <property name="name">m_gameTestPlayShowDebugLabelMenuItem</property>
+              <property name="permission">protected</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">OnMenuItemSelected</event>
+            </object>
+            <object class="wxMenuItem" expanded="false">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help">테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다.</property>
+              <property name="id">wxID_TEST_PLAY_SAVE</property>
+              <property name="kind">wxITEM_CHECK</property>
+              <property name="label">테스트 플레이 세이브 켜기/끄기(&amp;S)</property>
+              <property name="name">m_gameTestPlaySaveMenuItem</property>
+              <property name="permission">protected</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">OnMenuItemSelected</event>
+            </object>
           </object>
         </object>
         <object class="wxMenu" expanded="false">

@@ -7,6 +7,9 @@
 namespace
 {
     constexpr const auto k_emulatorPathKey = wxT("App/EmulatorPath");
+
+    constexpr const auto k_showDebugLabelKey = wxT("App/TestPlay/ShowDebugLabel");
+    constexpr const auto k_testPlaySaveKey = wxT("App/TestPlay/TestPlaySave");
 }
 
 void services::AppConfigs::Initialize()
@@ -35,6 +38,9 @@ void services::AppConfigs::Initialize()
         auto emulatorPath = GetEmulatorPath();
         if (emulatorPath)
             m_emulatorPathState.Update(*emulatorPath);
+
+        m_showDebugLabelState.Update(GetShowDebugLabel());
+        m_testPlaySaveState.Update(GetTestPlaySave());
     }
 }
 
@@ -66,5 +72,47 @@ void services::AppConfigs::SetEmulatorPath(const std::filesystem::path &path)
         m_configs->Flush();
 
         m_emulatorPathState.Update(path);
+    }
+}
+
+bool services::AppConfigs::GetShowDebugLabel()
+{
+    if (m_configs != nullptr && m_configs->Exists(k_showDebugLabelKey))
+    {
+        const bool value = m_configs->ReadBool(k_showDebugLabelKey, false);
+        return value;
+    }
+    return true;
+}
+
+void services::AppConfigs::SetShowDebugLabel(bool value)
+{
+    if (m_configs != nullptr)
+    {
+        m_configs->Write(k_showDebugLabelKey, value);
+        m_configs->Flush();
+
+        m_showDebugLabelState.Update(value);
+    }
+}
+
+bool services::AppConfigs::GetTestPlaySave()
+{
+    if (m_configs != nullptr && m_configs->Exists(k_testPlaySaveKey))
+    {
+        const bool value = m_configs->ReadBool(k_testPlaySaveKey, false);
+        return value;
+    }
+    return true;
+}
+
+void services::AppConfigs::SetTestPlaySave(bool value)
+{
+    if (m_configs != nullptr)
+    {
+        m_configs->Write(k_testPlaySaveKey, value);
+        m_configs->Flush();
+
+        m_testPlaySaveState.Update(value);
     }
 }

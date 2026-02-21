@@ -60,15 +60,22 @@ class MainFrameBase : public wxFrame
 	protected:
 		enum
 		{
-			wxID_TEST_PLAY = 6000,
-			wxID_IPS,
+			wxID_IPS = 6000,
 			wxID_XDELTA,
+			wxID_TEST_PLAY,
 			wxID_EMULATOR,
+			wxID_DEBUG_LABEL,
+			wxID_TEST_PLAY_SAVE,
 		};
 
 		wxMenuBar* m_mainMenuBar;
 		wxMenuItem* m_fileSaveMenuItem;
-		wxMenuItem* m_settingsSetEmulatorMenuItem;
+		wxMenuItem* m_fileExportToIpsMenuItem;
+		wxMenuItem* m_fileExportToXdeltaMenuItem;
+		wxMenuItem* m_gameTestPlayMenuItem;
+		wxMenuItem* m_gameTestPlaySetEmulatorMenuItem;
+		wxMenuItem* m_gameTestPlayShowDebugLabelMenuItem;
+		wxMenuItem* m_gameTestPlaySaveMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
@@ -78,6 +85,7 @@ class MainFrameBase : public wxFrame
 		// Virtual event handlers, override them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuItemSelected( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:

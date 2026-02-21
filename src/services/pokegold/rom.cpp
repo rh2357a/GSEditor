@@ -30,7 +30,8 @@ base::SidecarResult pokegold::Rom::RunTestPlay()
 
     auto result = base::RunSidecar(*emulatorPath, romPath.string(), (*m_workspacePathState).string());
 
-    // 테스트 종료 후, 세이브 파일 저장
+    // 테스트 종료 후, 세이브 파일 덮어쓰기
+    if (m_appConfigs.GetTestPlaySave())
     {
         auto savePath = (*m_romFilePathState).parent_path() / ((*m_romFilePathState).stem().string() + ".sav");
         auto targetSavePath = *m_workspacePathState / (s_targetName + ".sav");
