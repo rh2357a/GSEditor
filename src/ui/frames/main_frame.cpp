@@ -95,7 +95,7 @@ void ui::MainFrame::OnClose(wxCloseEvent &event)
         {
             base::Log(TAG, "close app (save: yes)");
             SaveRomFile();
-            event.Veto();
+            event.Skip();
         }
         else if (selected == MessageBoxResult::No)
         {
