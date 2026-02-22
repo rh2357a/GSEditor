@@ -315,4 +315,5 @@ void ui::MainFrame::SaveRomFile()
     auto romPath = *result;
     auto writeToPath = *m_pokegold.Rom().FilePath();
     std::filesystem::copy(romPath, writeToPath, std::filesystem::copy_options::overwrite_existing);
+    m_pokegold.Rom().NotifyRomSaved();
 }

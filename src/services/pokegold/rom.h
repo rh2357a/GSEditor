@@ -89,6 +89,16 @@ namespace pokegold
         base::ProgressState &BuildProgressState() { return m_buildProgressState; }
 
         /**
+         * @brief 롬 파일이 변경됨을 통지
+         */
+        void NotifyRomChanged() { m_romDataChangedState.Update(true); }
+
+        /**
+         * @brief 롬 파일이 저장됨을 통지
+         */
+        void NotifyRomSaved() { m_romDataChangedState.Update(false); }
+
+        /**
          * @brief 테스트 플레이 실행
          *
          * @return base::SidecarResult
