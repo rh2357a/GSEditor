@@ -280,6 +280,7 @@ void ui::ColorPickerPanel::OnPaint(wxPaintEvent &ev)
 
 void ui::ColorPickerPanel::OnClick(wxMouseEvent &ev)
 {
+    // NOTE: 팝업 생성 중에는 컨트롤의 paint 상태가 좋지않음. 그리기는 일시정지
     Freeze();
     internal::ColorPickerPopupPanel *panel = new internal::ColorPickerPopupPanel(this, m_color);
     ShowDropdownPopup(this, panel);
