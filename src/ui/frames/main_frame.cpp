@@ -9,6 +9,7 @@
 #include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
 #include "ui/generated/ui_base.h"
+#include "ui/utils.h"
 
 #include <wx/persist/toplevel.h>
 
@@ -25,6 +26,7 @@ namespace
 ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
 {
     wxPersistentRegisterAndRestore(this);
+    FixBorderTheme(this);
 
     auto appIconBitmap = embed::GetAppIconBitmap();
     wxIcon appIcon;
@@ -140,6 +142,13 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
     if (id == wxID_OPEN)
     {
         base::Log(TAG, "menu selected (menu: open)");
+
+        if (*m_pokegold.Rom().Opened() && *m_pokegold.Rom().DataChanged())
+        {
+            auto questionResult = ShowYesNoDialog(this, "알림", "변경된 내용이 아직 있습니다.\n그래도 다른 파일을 열겠습니까?");
+            if (questionResult == MessageBoxResult::No)
+                return;
+        }
 
         auto openRomResult = ShowOpenFileDialog(this, "열기...", k_romFileFilter);
         if (!openRomResult.has_value())
