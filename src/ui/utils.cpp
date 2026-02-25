@@ -6,8 +6,6 @@
 #include <wx/popupwin.h>
 #include <wx/wx.h>
 
-#include <memory>
-
 namespace
 {
     class DestroyPopupTransientWindow : public wxPopupTransientWindow
@@ -22,40 +20,6 @@ namespace
             Destroy();
         }
     };
-}
-
-void ui::FixBorderTheme(wxWindow *hostCtrl)
-{
-    for (wxWindow *child : hostCtrl->GetChildren())
-    {
-        long style = child->GetWindowStyleFlag();
-        if (style & wxBORDER_THEME)
-        {
-            auto currentEnabled = std::make_shared<bool>(child->IsEnabled());
-            child->Bind(wxEVT_UPDATE_UI, [currentEnabled](wxUpdateUIEvent &ev) {
-                wxWindow *win = static_cast<wxWindow *>(ev.GetEventObject());
-
-                if (win)
-                {
-                    bool isEnabled = win->IsEnabled();
-                    if (isEnabled != *currentEnabled)
-                    {
-                        ::RedrawWindow(
-                            (HWND)win->GetHandle(),
-                            NULL,
-                            NULL,
-                            RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME);
-                    }
-
-                    *currentEnabled = isEnabled;
-                }
-
-                ev.Skip();
-            });
-        }
-
-        FixBorderTheme(child);
-    }
 }
 
 void ui::ApplyListCtrlFixedHeader(wxListCtrl *ctrl)

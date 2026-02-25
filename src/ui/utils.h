@@ -7,13 +7,6 @@
 namespace ui
 {
     /**
-     * @brief `wxBORDER_THEME`가 적용된 컨트롤의 외선 그리기 문제 해결
-     *
-     * @param hostCtrl 부모 윈도우
-     */
-    void FixBorderTheme(wxWindow *hostCtrl);
-
-    /**
      * @brief wxListCtrl 헤더 열 위치 고정
      *
      * @param ctrl wxListCtrl
