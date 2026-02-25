@@ -40,7 +40,7 @@
 ### 라이브러리
 
 * `mingw-w64-x86_64-wxwidgets3.2-msw`: wxWidgets GUI 프레임워크
-* `libpng`: png 라이브러리
+* `libpng`, `lodepng`: png 라이브러리
 * `utf8cpp`: utf8 변환
 * `xxHash`: 문자열 해시
 * `xdelta3`: xdelta 패치 생성
@@ -50,6 +50,17 @@
 ### 내부 프로세스 실행
 
 * `rgbds`: gbz80 어셈블러
+
+### 필수 설치 패키지
+
+* `make`
+* `upx`
+* `libpng`
+* `xxHash`
+* `utf8cpp`
+* `mingw-w64-x86_64-wxwidgets3.2-msw`
+* `mingw-w64-x86_64-toolchain`
+* `mingw-w64-x86_64-clang-tools-extra`
 
 ## 3자 라이선스 고지
 
