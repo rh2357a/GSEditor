@@ -265,7 +265,7 @@ void ui::internal::ColorPickerPopupPanel::OnRgbUpdated()
 
 void ui::ColorPickerPanel::SetColor(wxColour color)
 {
-    m_color = color;
+    m_color.Update(color);
     Refresh();
 }
 
@@ -274,7 +274,7 @@ void ui::ColorPickerPanel::OnPaint(wxPaintEvent &ev)
     wxAutoBufferedPaintDC dc(this);
     std::unique_ptr<wxGraphicsContext> gc((wxGraphicsContext::Create(dc)));
     const auto size = GetClientSize();
-    gc->SetBrush({m_color});
+    gc->SetBrush({*m_color});
     gc->DrawRectangle(0, 0, size.x, size.y);
 }
 
@@ -282,11 +282,18 @@ void ui::ColorPickerPanel::OnClick(wxMouseEvent &ev)
 {
     // NOTE: 팝업 생성 중에는 컨트롤의 paint 상태가 좋지않음. 그리기는 일시정지
     Freeze();
-    internal::ColorPickerPopupPanel *panel = new internal::ColorPickerPopupPanel(this, m_color);
+    internal::ColorPickerPopupPanel *panel = new internal::ColorPickerPopupPanel(this, *m_color);
     ShowDropdownPopup(this, panel);
     Thaw();
 
-    panel->GetColorState().Subscribe(panel, [this](const wxColour &newColor) {
+    auto dirtyFlag = std::make_shared<bool>(false);
+    panel->GetColorState().Subscribe(panel, [this, dirtyFlag](const wxColour &newColor) {
+        if (!*dirtyFlag)
+        {
+            *dirtyFlag = true;
+            return;
+        }
+
         SetColor(newColor);
     });
 

@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <wx/event.h>
 #include <wx/popupwin.h>
+#include <wx/spinctrl.h>
 #include <wx/wx.h>
 
 namespace
@@ -61,4 +62,17 @@ void ui::ShowDropdownPopup(wxWindow *parent, wxWindow *popupCtrl)
 
     popupWindow->Move(screenPos);
     popupWindow->Popup();
+}
+
+void ui::SetValueSpinCtrlDouble(wxSpinCtrlDouble *ctrl, double value)
+{
+    if (ctrl != nullptr)
+    {
+        ctrl->SetValue(value);
+
+        wxSpinDoubleEvent event(wxEVT_SPINCTRLDOUBLE, ctrl->GetId());
+        event.SetEventObject(ctrl);
+        event.SetValue(value);
+        ctrl->GetEventHandler()->ProcessEvent(event);
+    }
 }

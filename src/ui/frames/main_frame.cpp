@@ -9,7 +9,6 @@
 #include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
 #include "ui/generated/ui_base.h"
-#include "ui/utils.h"
 
 #include <wx/persist/toplevel.h>
 
@@ -26,7 +25,6 @@ namespace
 ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
 {
     wxPersistentRegisterAndRestore(this);
-    FixBorderTheme(this);
 
     auto appIconBitmap = embed::GetAppIconBitmap();
     wxIcon appIcon;

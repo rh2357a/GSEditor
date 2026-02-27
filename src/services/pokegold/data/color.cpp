@@ -74,3 +74,8 @@ void pokegold::Color::B(u8 val)
     UpdateDebugInfo();
 #endif
 }
+
+wxColour pokegold::Color::ToWxColor()
+{
+    return wxColour(R(), G(), B());
+}

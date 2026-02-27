@@ -16,17 +16,20 @@ namespace pokegold
         u8 PaletteId;
     };
 
-    class Bitmap
+    class BitmapBuilder
     {
     private:
-        inline static const auto TAG = "pokegold::Bitmap";
+        inline static const auto TAG = "pokegold::BitmapBuilder";
 
         std::vector<u8> m_data;
-        std::vector<std::array<Color, 4>> m_palettes;
+        std::vector<std::array<Color, 4>> m_palette;
 
     public:
+        std::vector<u8> GetData() { return m_data; }
         void SetData(std::span<const u8> data);
-        void SetPalettes(std::span<std::array<Color, 4>> palettes);
+
+        std::vector<std::array<Color, 4>> GetPalette() { return m_palette; }
+        void SetPalette(std::span<const std::array<Color, 4>> palette);
 
         wxBitmap Build_1bpp(int rows, int columns, std::span<const BitmapTileData> tiles);
         wxBitmap Build_2bpp(int rows, int columns, std::span<const BitmapTileData> tiles);

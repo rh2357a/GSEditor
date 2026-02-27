@@ -32,19 +32,19 @@ namespace
     };
 }
 
-void pokegold::Bitmap::SetData(std::span<const u8> data)
+void pokegold::BitmapBuilder::SetData(std::span<const u8> data)
 {
     m_data.clear();
     m_data.insert(m_data.begin(), data.begin(), data.end());
 }
 
-void pokegold::Bitmap::SetPalettes(std::span<std::array<Color, 4>> palettes)
+void pokegold::BitmapBuilder::SetPalette(std::span<const std::array<Color, 4>> palette)
 {
-    m_palettes.clear();
-    m_palettes.insert(m_palettes.begin(), palettes.begin(), palettes.end());
+    m_palette.clear();
+    m_palette.insert(m_palette.begin(), palette.begin(), palette.end());
 }
 
-wxBitmap pokegold::Bitmap::Build_1bpp(int rows, int columns, std::span<const BitmapTileData> tiles)
+wxBitmap pokegold::BitmapBuilder::Build_1bpp(int rows, int columns, std::span<const BitmapTileData> tiles)
 {
     // TODO: 발자국 에디터, 폰트 에디터...
     return wxNullBitmap;
@@ -71,7 +71,7 @@ wxBitmap pokegold::Bitmap::Build_1bpp(int rows, int columns, std::span<const Bit
 //                               ........ -> 00000000 -> $00
 //                                           00000000 -> $00
 
-wxBitmap pokegold::Bitmap::Build_2bpp(int rows, int columns, std::span<const BitmapTileData> tiles)
+wxBitmap pokegold::BitmapBuilder::Build_2bpp(int rows, int columns, std::span<const BitmapTileData> tiles)
 {
     if (rows == 0 || columns == 0)
     {
@@ -92,8 +92,8 @@ wxBitmap pokegold::Bitmap::Build_2bpp(int rows, int columns, std::span<const Bit
             int dataIndex = tile.TileId * 16;
             for (int y = 0; y < 8; y++)
             {
-                u8 hi = m_data[dataIndex + (y * 2)];
-                u8 lo = m_data[dataIndex + (y * 2) + 1];
+                const u8 &hi = m_data[dataIndex + (y * 2)];
+                const u8 &lo = m_data[dataIndex + (y * 2) + 1];
 
                 for (int x = 0; x < 8; x++)
                 {
@@ -105,7 +105,7 @@ wxBitmap pokegold::Bitmap::Build_2bpp(int rows, int columns, std::span<const Bit
                     if ((lo & k_reverseBits[x]) != 0)
                         paletteIndex += 2;
 
-                    const auto &palette = m_palettes[tile.PaletteId][paletteIndex];
+                    const auto &palette = m_palette[tile.PaletteId][paletteIndex];
                     p.Red() = palette.R();
                     p.Green() = palette.G();
                     p.Blue() = palette.B();

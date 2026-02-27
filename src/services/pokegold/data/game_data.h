@@ -4,6 +4,8 @@
 #include "services/pokegold/data/color.h"
 #include "services/pokegold/data/string.h"
 
+#include <wx/gdicmn.h>
+
 #include <any>
 #include <array>
 #include <vector>
@@ -65,6 +67,16 @@ namespace pokegold
         Size_48x48 = 0x66,
         Size_56x56 = 0x77,
     };
+
+    inline ImageDimensions ToImageDimensions(wxSize size)
+    {
+        if (size.x == 40 && size.y == 40)
+            return ImageDimensions::Size_40x40;
+        else if (size.x == 48 && size.y == 48)
+            return ImageDimensions::Size_48x48;
+        else
+            return ImageDimensions::Size_56x56;
+    }
 
     enum class EggGroup : u8
     {

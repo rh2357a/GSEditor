@@ -8,6 +8,7 @@
 #include <wx/colour.h>
 #include <wx/event.h>
 #include <wx/gdicmn.h>
+#include <wx/msw/panel.h>
 #include <wx/wx.h>
 
 namespace ui
@@ -50,7 +51,9 @@ namespace ui
     class ColorPickerPanel : public wxPanel
     {
     private:
-        wxColour m_color;
+        base::MutableState<wxColour> m_color;
+
+        bool m_mouseDown = false;
 
     public:
         ColorPickerPanel(wxWindow *parent,
@@ -62,15 +65,28 @@ namespace ui
             : wxPanel(parent, winid, pos, size, style, name)
         {
             SetBackgroundStyle(wxBG_STYLE_PAINT);
-            SetColor({128, 0, 0});
+            SetColor({255, 255, 255});
 
             Bind(wxEVT_PAINT, [&](wxPaintEvent &ev) { OnPaint(ev); });
-            Bind(wxEVT_LEFT_UP, [&](wxMouseEvent &ev) { OnClick(ev); });
+
+            Bind(wxEVT_LEFT_DOWN, [this](wxMouseEvent &ev) {
+                m_mouseDown = true;
+            });
+
+            Bind(wxEVT_LEFT_UP, [this](wxMouseEvent &ev) {
+                if (m_mouseDown)
+                {
+                    OnClick(ev);
+                    m_mouseDown = false;
+                }
+            });
         }
 
     public:
-        wxColour GetColor() const { return m_color; }
+        wxColour GetColor() const { return *m_color; }
         void SetColor(wxColour color);
+
+        base::State<wxColour> &GetColorState() { return m_color; }
 
     private:
         void OnPaint(wxPaintEvent &ev);

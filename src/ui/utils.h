@@ -1,8 +1,11 @@
 #pragma once
 
 #include <wx/listctrl.h>
+#include <wx/spinctrl.h>
 #include <wx/window.h>
 #include <wx/wx.h>
+
+#include <initializer_list>
 
 namespace ui
 {
@@ -27,4 +30,12 @@ namespace ui
      * @param popupCtrl 팝업에 표시될 컨트롤
      */
     void ShowDropdownPopup(wxWindow *parent, wxWindow *popupCtrl);
+
+    /**
+     * @brief 이벤트가 발생되는 wxSpinCtrlDouble 값 설정
+     *
+     * @param ctrl 컨트롤
+     * @param value 값
+     */
+    void SetValueSpinCtrlDouble(wxSpinCtrlDouble *ctrl, double value);
 }
