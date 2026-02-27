@@ -3,6 +3,8 @@
 #include "base/resources.h"
 #include "base/strings/string_util.h"
 
+#include <wx/string.h>
+
 #include <format>
 
 ui::internal::AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(parent)
@@ -18,7 +20,17 @@ ui::internal::AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(paren
 
     const auto appThirdPartyNotices = embed::GetAppThirdPartyNotices();
     m_thirdPartyNoticesText->SetValue(base::ToWxString(appThirdPartyNotices));
-    m_thirdPartyNoticesText->Bind(wxEVT_CONTEXT_MENU, [this](...) { /* 오른쪽 메뉴 방지 */ });
+    m_thirdPartyNoticesText->Bind(wxEVT_CONTEXT_MENU, [](...) { /* 오른쪽 메뉴 방지 */ });
+}
+
+void ui::internal::AboutDialog::OnOkButtonClick(wxCommandEvent &event)
+{
+    EndModal(wxID_OK);
+}
+
+void ui::internal::AboutDialog::OnCancelButtonClick(wxCommandEvent &event)
+{
+    EndModal(wxID_CANCEL);
 }
 
 void ui::ShowAboutDialog(wxWindow *parent)

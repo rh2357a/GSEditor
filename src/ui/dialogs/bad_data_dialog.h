@@ -22,8 +22,7 @@ namespace ui
         private:
             void OnDialogShow(wxShowEvent &event) override;
             void OnConfirmButtonClick(wxCommandEvent &event) override;
-            void OnYesButtonClick(wxCommandEvent &event) override;
-            void OnNoButtonClick(wxCommandEvent &event) override;
+            void OnCancelButtonClick(wxCommandEvent &event) override;
         };
     }
 

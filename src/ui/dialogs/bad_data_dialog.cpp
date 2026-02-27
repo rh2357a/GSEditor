@@ -2,6 +2,8 @@
 
 #include "ui/utils.h"
 
+#include <wx/wx.h>
+
 #include <format>
 
 ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pokegold::BadData> badDataList) : BadDataDialogBase(parent)
@@ -143,16 +145,12 @@ void ui::internal::BadDataDialog::OnDialogShow(wxShowEvent &event)
 
 void ui::internal::BadDataDialog::OnConfirmButtonClick(wxCommandEvent &event)
 {
-    Close();
+    EndModal(wxID_OK);
 }
 
-void ui::internal::BadDataDialog::OnYesButtonClick(wxCommandEvent &event)
+void ui::internal::BadDataDialog::OnCancelButtonClick(wxCommandEvent &event)
 {
-    EndModal(wxID_YES);
-}
-void ui::internal::BadDataDialog::OnNoButtonClick(wxCommandEvent &event)
-{
-    EndModal(wxID_NO);
+    EndModal(wxID_CANCEL);
 }
 
 void ui::ShowBadDataDialog(wxWindow *parent, std::span<const pokegold::BadData> badDataList)
