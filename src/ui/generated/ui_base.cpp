@@ -17,6 +17,133 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
+ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* topPickerSizer;
+	topPickerSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_pickerPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 240,160 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_pickerPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
+	m_pickerPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
+
+	topPickerSizer->Add( m_pickerPanel, 0, wxALL, 0 );
+
+
+	topPickerSizer->Add( 4, 0, 0, 0, 0 );
+
+	m_previewPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 40,160 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_previewPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
+	m_previewPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
+
+	topPickerSizer->Add( m_previewPanel, 0, wxALL, 0 );
+
+
+	mainSizer->Add( topPickerSizer, 0, wxALL|wxEXPAND, 4 );
+
+	m_brightnessSlider = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	mainSizer->Add( m_brightnessSlider, 0, wxEXPAND, 5 );
+
+	m_brightnessPreviewPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_brightnessPreviewPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
+	m_brightnessPreviewPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
+
+	mainSizer->Add( m_brightnessPreviewPanel, 1, wxEXPAND|wxLEFT|wxRIGHT, 12 );
+
+	wxStaticLine* separator_0;
+	separator_0 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	mainSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
+
+	wxBoxSizer* redSizer;
+	redSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* redLabel;
+	redLabel = new wxStaticText( this, wxID_ANY, wxT("R"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
+	redLabel->Wrap( -1 );
+	redSizer->Add( redLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_redSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
+	redSizer->Add( m_redSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
+
+	m_redSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
+	m_redSpinCtrl->SetDigits( 0 );
+	redSizer->Add( m_redSpinCtrl, 0, wxALL, 5 );
+
+
+	mainSizer->Add( redSizer, 0, wxEXPAND, 0 );
+
+	wxBoxSizer* greenSizer;
+	greenSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* greenLabel;
+	greenLabel = new wxStaticText( this, wxID_ANY, wxT("G"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
+	greenLabel->Wrap( -1 );
+	greenSizer->Add( greenLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_greenSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
+	greenSizer->Add( m_greenSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
+
+	m_greenSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
+	m_greenSpinCtrl->SetDigits( 0 );
+	greenSizer->Add( m_greenSpinCtrl, 0, wxALL, 5 );
+
+
+	mainSizer->Add( greenSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* blueSizer;
+	blueSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* blueLabel;
+	blueLabel = new wxStaticText( this, wxID_ANY, wxT("B"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
+	blueLabel->Wrap( -1 );
+	blueSizer->Add( blueLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_blueSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
+	blueSizer->Add( m_blueSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
+
+	m_blueSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
+	m_blueSpinCtrl->SetDigits( 0 );
+	blueSizer->Add( m_blueSpinCtrl, 0, wxALL, 5 );
+
+
+	mainSizer->Add( blueSizer, 0, wxEXPAND, 5 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	// Connect Events
+	m_pickerPanel->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_LEFT_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MIDDLE_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MIDDLE_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX2_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MOTION, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MIDDLE_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_RIGHT_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX1_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_AUX2_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_LEAVE_WINDOW, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_ENTER_WINDOW, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
+	m_pickerPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnPickerPaint ), NULL, this );
+	m_previewPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnPreviewPaint ), NULL, this );
+	m_brightnessSlider->Connect( wxEVT_SLIDER, wxCommandEventHandler( ColorPickerPopupPanelBase::OnBrightnessSlider ), NULL, this );
+	m_brightnessPreviewPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnBrightnessPreviewPaint ), NULL, this );
+}
+
+ColorPickerPopupPanelBase::~ColorPickerPopupPanelBase()
+{
+}
+
 MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxSize( 740,560 ), wxDefaultSize );
@@ -174,10 +301,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* pokemonInnerPanelSizer;
 	pokemonInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_pokemonList = new ui::ColoredListBox( pokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_SIMPLE );
+	m_pokemonList = new ui::ColoredListBox( pokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
 	pokemonInnerPanelSizer->Add( m_pokemonList, 0, wxALL|wxEXPAND, 2 );
 
-	m_pokemonContainer = new wxSimplebook( pokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE );
+	m_pokemonContainer = new wxSimplebook( pokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC );
 	wxScrolledWindow* pokemonPokemonType;
 	pokemonPokemonType = new wxScrolledWindow( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL );
 	pokemonPokemonType->SetScrollRate( 5, 16 );
@@ -564,20 +691,20 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonImageDataLabel->Wrap( -1 );
 	pokemonImageSizer->Add( pokemonImageDataLabel, 0, wxALL, 5 );
 
-	m_pokemonFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonFrontImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonBackImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* pokemonImageSeparator;
 	pokemonImageSeparator = new wxStaticLine( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	pokemonImageSizer->Add( pokemonImageSeparator, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxTOP, 5 );
 
-	m_pokemonShinyFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonShinyFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonShinyFrontImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonShinyBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonShinyBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonShinyBackImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -591,20 +718,20 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonColorLabel->Wrap( -1 );
 	pokemonColorSizer->Add( pokemonColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_pokemonColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* pokemonColorSeparator;
 	pokemonColorSeparator = new wxStaticLine( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	pokemonColorSizer->Add( pokemonColorSeparator, 0, wxEXPAND|wxLEFT, 5 );
 
-	m_pokemonShinyColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonShinyColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonShinyColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonShinyColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
+	m_pokemonShinyColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonShinyColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -802,6 +929,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonMovesImport->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonMovesButtonsSizer->Add( m_pokemonMovesImport, 0, wxALL, 2 );
+
+	wxStaticLine* pokemonMovesButtonsSeparator;
+	pokemonMovesButtonsSeparator = new wxStaticLine( pokemonMovesPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	pokemonMovesButtonsSizer->Add( pokemonMovesButtonsSeparator, 0, wxALL|wxEXPAND, 5 );
 
 	m_pokemonMovesAdd = new wxButton( pokemonMovesPanel, wxID_POKEMON_MOVES_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonMovesAdd->SetForegroundColour( wxColour( 0, 0, 0 ) );
@@ -1278,15 +1409,165 @@ EvolutionEditorDialogBase::~EvolutionEditorDialogBase()
 {
 }
 
-PokemonMoveEditorDialogBase::PokemonMoveEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+MoveEditorDialogBase::MoveEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentPanel;
+	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* contentPanelSizer;
+	contentPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* contentGrid;
+	contentGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	contentGrid->AddGrowableCol( 1 );
+	contentGrid->SetFlexibleDirection( wxBOTH );
+	contentGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxStaticText* levelLabel;
+	levelLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("레벨："), wxDefaultPosition, wxDefaultSize, 0 );
+	levelLabel->Wrap( -1 );
+	contentGrid->Add( levelLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_levelSpinCtrl = new wxSpinCtrlDouble( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 1, 1 );
+	m_levelSpinCtrl->SetDigits( 0 );
+	contentGrid->Add( m_levelSpinCtrl, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* moveLabel;
+	moveLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("기술："), wxDefaultPosition, wxDefaultSize, 0 );
+	moveLabel->Wrap( -1 );
+	contentGrid->Add( moveLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_movesComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	contentGrid->Add( m_movesComboBox, 0, wxALL|wxEXPAND, 5 );
+
+
+	contentPanelSizer->Add( contentGrid, 0, wxEXPAND, 5 );
+
+	m_staticline11 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentPanelSizer->Add( m_staticline11, 0, wxEXPAND | wxALL, 5 );
+
+
+	contentPanel->SetSizer( contentPanelSizer );
+	contentPanel->Layout();
+	contentPanelSizer->Fit( contentPanel );
+	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButton;
+	confirmButton = new wxButton( buttonsPanel, wxID_OK, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	confirmButton->SetDefault();
+	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
+
+	wxButton* cancelButton;
+	cancelButton = new wxButton( buttonsPanel, wxID_CANCEL, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
 
 	this->Centre( wxBOTH );
+
+	// Connect Events
+	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MoveEditorDialogBase::OnConfirmButtonClick ), NULL, this );
+	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MoveEditorDialogBase::OnCancelButtonClick ), NULL, this );
 }
 
-PokemonMoveEditorDialogBase::~PokemonMoveEditorDialogBase()
+MoveEditorDialogBase::~MoveEditorDialogBase()
+{
+}
+
+ImportMoveDialogBase::ImportMoveDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxSize( 500,400 ), wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentsPanel;
+	contentsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* contentsSizer;
+	contentsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_pokemonListBox = new ui::ColoredListBox( contentsPanel, wxID_ANY, wxDefaultPosition, wxSize( 112,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	contentsSizer->Add( m_pokemonListBox, 0, wxALL|wxEXPAND, 2 );
+
+	wxPanel* editorPanel;
+	editorPanel = new wxPanel( contentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	editorPanel->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* editorSizer;
+	editorSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_movesListCtrl = new ui::ColoredListCtrl( editorPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL );
+	editorSizer->Add( m_movesListCtrl, 1, wxALL|wxEXPAND, 5 );
+
+	m_ignoreButton = new wxButton( editorPanel, wxID_ANY, wxT("제외"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_ignoreButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	editorSizer->Add( m_ignoreButton, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	editorPanel->SetSizer( editorSizer );
+	editorPanel->Layout();
+	editorSizer->Fit( editorPanel );
+	contentsSizer->Add( editorPanel, 1, wxEXPAND | wxALL, 2 );
+
+
+	contentsPanel->SetSizer( contentsSizer );
+	contentsPanel->Layout();
+	contentsSizer->Fit( contentsPanel );
+	mainSizer->Add( contentsPanel, 1, wxEXPAND | wxALL, 2 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButton;
+	confirmButton = new wxButton( buttonsPanel, wxID_OK, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	confirmButton->SetDefault();
+	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
+
+	wxButton* cancelButton;
+	cancelButton = new wxButton( buttonsPanel, wxID_CANCEL, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_ignoreButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ImportMoveDialogBase::OnIgnoreButtonClick ), NULL, this );
+	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ImportMoveDialogBase::OnConfirmButtonClick ), NULL, this );
+	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ImportMoveDialogBase::OnCancelButtonClick ), NULL, this );
+}
+
+ImportMoveDialogBase::~ImportMoveDialogBase()
 {
 }
 
@@ -1420,132 +1701,5 @@ BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxS
 }
 
 BadDataDialogBase::~BadDataDialogBase()
-{
-}
-
-ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
-{
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* topPickerSizer;
-	topPickerSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	m_pickerPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 240,160 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
-	m_pickerPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
-	m_pickerPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
-
-	topPickerSizer->Add( m_pickerPanel, 0, wxALL, 0 );
-
-
-	topPickerSizer->Add( 4, 0, 0, 0, 0 );
-
-	m_previewPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 40,160 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
-	m_previewPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
-	m_previewPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
-
-	topPickerSizer->Add( m_previewPanel, 0, wxALL, 0 );
-
-
-	mainSizer->Add( topPickerSizer, 0, wxALL|wxEXPAND, 4 );
-
-	m_brightnessSlider = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
-	mainSizer->Add( m_brightnessSlider, 0, wxEXPAND, 5 );
-
-	m_brightnessPreviewPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
-	m_brightnessPreviewPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
-	m_brightnessPreviewPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
-
-	mainSizer->Add( m_brightnessPreviewPanel, 1, wxEXPAND|wxLEFT|wxRIGHT, 12 );
-
-	wxStaticLine* separator_0;
-	separator_0 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	mainSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
-
-	wxBoxSizer* redSizer;
-	redSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticText* redLabel;
-	redLabel = new wxStaticText( this, wxID_ANY, wxT("R"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
-	redLabel->Wrap( -1 );
-	redSizer->Add( redLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_redSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
-	redSizer->Add( m_redSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
-
-	m_redSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
-	m_redSpinCtrl->SetDigits( 0 );
-	redSizer->Add( m_redSpinCtrl, 0, wxALL, 5 );
-
-
-	mainSizer->Add( redSizer, 0, wxEXPAND, 0 );
-
-	wxBoxSizer* greenSizer;
-	greenSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticText* greenLabel;
-	greenLabel = new wxStaticText( this, wxID_ANY, wxT("G"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
-	greenLabel->Wrap( -1 );
-	greenSizer->Add( greenLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_greenSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
-	greenSizer->Add( m_greenSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
-
-	m_greenSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
-	m_greenSpinCtrl->SetDigits( 0 );
-	greenSizer->Add( m_greenSpinCtrl, 0, wxALL, 5 );
-
-
-	mainSizer->Add( greenSizer, 0, wxEXPAND, 5 );
-
-	wxBoxSizer* blueSizer;
-	blueSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticText* blueLabel;
-	blueLabel = new wxStaticText( this, wxID_ANY, wxT("B"), wxDefaultPosition, wxSize( 10,-1 ), 0 );
-	blueLabel->Wrap( -1 );
-	blueSizer->Add( blueLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_blueSlider = new wxSlider( this, wxID_ANY, 0, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_BOTH|wxSL_HORIZONTAL );
-	blueSizer->Add( m_blueSlider, 1, wxALIGN_CENTER_VERTICAL, 8 );
-
-	m_blueSpinCtrl = new wxSpinCtrlDouble( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 56,-1 ), wxSP_ARROW_KEYS, 0, 255, 0, 1 );
-	m_blueSpinCtrl->SetDigits( 0 );
-	blueSizer->Add( m_blueSpinCtrl, 0, wxALL, 5 );
-
-
-	mainSizer->Add( blueSizer, 0, wxEXPAND, 5 );
-
-
-	this->SetSizer( mainSizer );
-	this->Layout();
-
-	// Connect Events
-	m_pickerPanel->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_LEFT_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_MIDDLE_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_MIDDLE_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_AUX1_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_AUX1_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_AUX2_DOWN, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_AUX1_UP, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_MOTION, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_MIDDLE_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_RIGHT_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_AUX1_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_AUX2_DCLICK, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_LEAVE_WINDOW, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_ENTER_WINDOW, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( ColorPickerPopupPanelBase::OnPickerMouseEvent ), NULL, this );
-	m_pickerPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnPickerPaint ), NULL, this );
-	m_previewPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnPreviewPaint ), NULL, this );
-	m_brightnessSlider->Connect( wxEVT_SLIDER, wxCommandEventHandler( ColorPickerPopupPanelBase::OnBrightnessSlider ), NULL, this );
-	m_brightnessPreviewPanel->Connect( wxEVT_PAINT, wxPaintEventHandler( ColorPickerPopupPanelBase::OnBrightnessPreviewPaint ), NULL, this );
-}
-
-ColorPickerPopupPanelBase::~ColorPickerPopupPanelBase()
 {
 }

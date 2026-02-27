@@ -16,26 +16,27 @@ namespace ui{ class ColoredListCtrl; }
 namespace ui{ class DatabasePanel; }
 namespace ui{ class ImageEditorPanel; }
 
-#include <wx/string.h>
-#include <wx/bitmap.h>
-#include <wx/image.h>
-#include <wx/icon.h>
-#include <wx/menu.h>
+#include <wx/panel.h>
 #include <wx/gdicmn.h>
 #include <wx/font.h>
 #include <wx/colour.h>
 #include <wx/settings.h>
+#include <wx/string.h>
+#include <wx/sizer.h>
+#include <wx/slider.h>
+#include <wx/statline.h>
+#include <wx/stattext.h>
+#include <wx/spinctrl.h>
+#include <wx/bitmap.h>
+#include <wx/image.h>
+#include <wx/icon.h>
+#include <wx/menu.h>
 #include <wx/toolbar.h>
 #include <wx/statusbr.h>
-#include <wx/panel.h>
-#include <wx/sizer.h>
 #include <wx/frame.h>
 #include <wx/listbox.h>
-#include <wx/stattext.h>
-#include <wx/statline.h>
 #include <wx/textctrl.h>
 #include <wx/combobox.h>
-#include <wx/spinctrl.h>
 #include <wx/simplebook.h>
 #include <wx/listctrl.h>
 #include <wx/button.h>
@@ -48,9 +49,43 @@ namespace ui{ class ImageEditorPanel; }
 #include <wx/radiobut.h>
 #include <wx/checkbox.h>
 #include <wx/gauge.h>
-#include <wx/slider.h>
 
 ///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ColorPickerPopupPanelBase
+///////////////////////////////////////////////////////////////////////////////
+class ColorPickerPopupPanelBase : public wxPanel
+{
+	private:
+
+	protected:
+		wxPanel* m_pickerPanel;
+		wxPanel* m_previewPanel;
+		wxSlider* m_brightnessSlider;
+		wxPanel* m_brightnessPreviewPanel;
+		wxSlider* m_redSlider;
+		wxSpinCtrlDouble* m_redSpinCtrl;
+		wxSlider* m_greenSlider;
+		wxSpinCtrlDouble* m_greenSpinCtrl;
+		wxSlider* m_blueSlider;
+		wxSpinCtrlDouble* m_blueSpinCtrl;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnPickerMouseEvent( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnPickerPaint( wxPaintEvent& event ) { event.Skip(); }
+		virtual void OnPreviewPaint( wxPaintEvent& event ) { event.Skip(); }
+		virtual void OnBrightnessSlider( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnBrightnessPreviewPaint( wxPaintEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		ColorPickerPopupPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 290,328 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~ColorPickerPopupPanelBase();
+
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class MainFrameBase
@@ -255,19 +290,53 @@ class EvolutionEditorDialogBase : public wxDialog
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class PokemonMoveEditorDialogBase
+/// Class MoveEditorDialogBase
 ///////////////////////////////////////////////////////////////////////////////
-class PokemonMoveEditorDialogBase : public wxDialog
+class MoveEditorDialogBase : public wxDialog
 {
 	private:
 
 	protected:
+		wxSpinCtrlDouble* m_levelSpinCtrl;
+		wxComboBox* m_movesComboBox;
+		wxStaticLine* m_staticline11;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
 
 	public:
 
-		PokemonMoveEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
+		MoveEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 240,162 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
 
-		~PokemonMoveEditorDialogBase();
+		~MoveEditorDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ImportMoveDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class ImportMoveDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		ui::ColoredListBox* m_pokemonListBox;
+		ui::ColoredListCtrl* m_movesListCtrl;
+		wxButton* m_ignoreButton;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnIgnoreButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		ImportMoveDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("가져오기..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,400 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~ImportMoveDialogBase();
 
 };
 
@@ -317,41 +386,6 @@ class BadDataDialogBase : public wxDialog
 		BadDataDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("데이터 손상 알림"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 560,440 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
 
 		~BadDataDialogBase();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class ColorPickerPopupPanelBase
-///////////////////////////////////////////////////////////////////////////////
-class ColorPickerPopupPanelBase : public wxPanel
-{
-	private:
-
-	protected:
-		wxPanel* m_pickerPanel;
-		wxPanel* m_previewPanel;
-		wxSlider* m_brightnessSlider;
-		wxPanel* m_brightnessPreviewPanel;
-		wxSlider* m_redSlider;
-		wxSpinCtrlDouble* m_redSpinCtrl;
-		wxSlider* m_greenSlider;
-		wxSpinCtrlDouble* m_greenSpinCtrl;
-		wxSlider* m_blueSlider;
-		wxSpinCtrlDouble* m_blueSpinCtrl;
-
-		// Virtual event handlers, override them in your derived class
-		virtual void OnPickerMouseEvent( wxMouseEvent& event ) { event.Skip(); }
-		virtual void OnPickerPaint( wxPaintEvent& event ) { event.Skip(); }
-		virtual void OnPreviewPaint( wxPaintEvent& event ) { event.Skip(); }
-		virtual void OnBrightnessSlider( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnBrightnessPreviewPaint( wxPaintEvent& event ) { event.Skip(); }
-
-
-	public:
-
-		ColorPickerPopupPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 290,328 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
-
-		~ColorPickerPopupPanelBase();
 
 };
 

@@ -32,6 +32,13 @@ namespace ui
     void ShowDropdownPopup(wxWindow *parent, wxWindow *popupCtrl);
 
     /**
+     * @brief 중첩 스크롤이 가능하도록 적용
+     *
+     * @param ctrls 적용할 컨트롤 모음
+     */
+    void ApplyNestedScrolling(const std::initializer_list<wxWindow *> &ctrls);
+
+    /**
      * @brief 이벤트가 발생되는 wxSpinCtrlDouble 값 설정
      *
      * @param ctrl 컨트롤

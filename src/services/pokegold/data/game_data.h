@@ -210,6 +210,10 @@ namespace pokegold
     public:
         u8 Level;
         u8 MoveId;
+
+    public:
+        bool operator==(const PokemonMove &rhs) const { return Level == rhs.Level && MoveId == rhs.MoveId; };
+        bool operator!=(const PokemonMove &rhs) const { return !(*this == rhs); }
     };
 
     struct Pokemon

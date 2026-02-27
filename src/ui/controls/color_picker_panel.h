@@ -8,7 +8,7 @@
 #include <wx/colour.h>
 #include <wx/event.h>
 #include <wx/gdicmn.h>
-#include <wx/msw/panel.h>
+#include <wx/panel.h>
 #include <wx/wx.h>
 
 namespace ui

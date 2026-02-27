@@ -8,7 +8,6 @@
 #include "ui/dialogs/file_dialogs.h"
 #include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
-#include "ui/generated/ui_base.h"
 
 #include <wx/persist/toplevel.h>
 

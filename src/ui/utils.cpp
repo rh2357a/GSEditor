@@ -3,6 +3,7 @@
 #include <commctrl.h>
 #include <windows.h>
 #include <wx/event.h>
+#include <wx/object.h>
 #include <wx/popupwin.h>
 #include <wx/spinctrl.h>
 #include <wx/wx.h>
@@ -62,6 +63,78 @@ void ui::ShowDropdownPopup(wxWindow *parent, wxWindow *popupCtrl)
 
     popupWindow->Move(screenPos);
     popupWindow->Popup();
+}
+
+void ui::ApplyNestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
+{
+    for (auto *ctrl : ctrls)
+    {
+        if (ctrl == nullptr)
+            continue;
+
+        if (auto *spin = wxDynamicCast(ctrl, wxSpinCtrlDouble))
+        {
+            spin->Bind(wxEVT_MOUSEWHEEL, [spin](wxMouseEvent &event) {
+                wxWindow *focus = wxWindow::FindFocus();
+                bool focused = focus == spin || spin->IsDescendant(focus);
+                event.Skip(focused);
+            });
+        }
+        else if (auto *scrolled = wxDynamicCast(ctrl, wxScrolledWindow))
+        {
+            scrolled->Bind(wxEVT_MOUSEWHEEL, [scrolled](wxMouseEvent &event) {
+                int vx, vy;
+                scrolled->GetViewStart(&vx, &vy);
+
+                int px, py;
+                scrolled->GetScrollPixelsPerUnit(&px, &py);
+
+                wxSize virt = scrolled->GetVirtualSize();
+                wxSize client = scrolled->GetClientSize();
+
+                bool scrollUp = event.GetWheelRotation() > 0;
+                bool scrollDown = event.GetWheelRotation() < 0;
+                bool canScrollToTop = vy > 0;
+                bool canScrollToBottom = vy < (virt.y - client.y) / py;
+                if ((scrollUp && canScrollToTop) || (scrollDown && canScrollToBottom))
+                {
+                    event.Skip();
+                    return;
+                }
+
+                event.ResumePropagation(wxEVENT_PROPAGATE_MAX);
+                event.Skip();
+            });
+        }
+        else if (auto *list = wxDynamicCast(ctrl, wxListCtrl))
+        {
+            list->Bind(wxEVT_MOUSEWHEEL, [list](wxMouseEvent &event) {
+                int pos = list->GetScrollPos(wxVERTICAL);
+                int range = list->GetScrollRange(wxVERTICAL);
+                int cntPage = list->GetCountPerPage();
+
+                bool scrollUp = event.GetWheelRotation() > 0;
+                bool scrollDown = event.GetWheelRotation() < 0;
+                bool canScrollToTop = pos > 0;
+                bool canScrollToBottom = pos <= range - cntPage - 1;
+                if ((scrollUp && canScrollToTop) || (scrollDown && canScrollToBottom))
+                {
+                    event.Skip();
+                    return;
+                }
+
+                event.ResumePropagation(wxEVENT_PROPAGATE_MAX);
+                event.Skip();
+            });
+        }
+        else if (auto *control = wxDynamicCast(ctrl, wxControl))
+        {
+            control->Bind(wxEVT_MOUSEWHEEL, [](wxMouseEvent &event) {
+                event.ResumePropagation(wxEVENT_PROPAGATE_MAX);
+                event.Skip();
+            });
+        }
+    }
 }
 
 void ui::SetValueSpinCtrlDouble(wxSpinCtrlDouble *ctrl, double value)

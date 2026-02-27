@@ -3,7 +3,6 @@
 #include "base/types/types.h"
 
 #include <wx/colour.h>
-#include <wx/msw/colour.h>
 #include <wx/wx.h>
 
 #include <span>

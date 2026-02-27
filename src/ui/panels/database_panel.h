@@ -1,11 +1,25 @@
 #pragma once
 
+#include "base/functional/guard.h"
+#include "base/functional/state.h"
+#include "services/pokegold.h"
 #include "ui/ui.h"
 
 namespace ui
 {
     class DatabasePanel : public DatabasePanelBase
     {
+    private:
+        inline static const auto TAG = "ui::DatabasePanel";
+
+        services::Pokegold &m_pokegold = services::Pokegold::Default();
+
+        base::Guard m_eventGuard;
+
+        base::MutableState<int> m_selectedPokemon = -1;
+        base::MutableState<int> m_selectedPokemonEvolution = -1;
+        base::MutableState<int> m_selectedPokemonMove = -1;
+
     public:
         DatabasePanel(wxWindow *parent,
                       wxWindowID id = wxID_ANY,
@@ -15,6 +29,14 @@ namespace ui
                       const wxString &name = wxEmptyString)
             : DatabasePanelBase(parent, id, pos, size, style, name)
         {
+            InitializePokemonTab();
         }
+
+    private:
+        void InitializePokemonTab();
+        void UpdatePokemonEvolutionsAndMoves();
+        void OnPokemonEvolutionsButtonClick(wxCommandEvent &event) override;
+        void OnPokemonMovesButtonClick(wxCommandEvent &event) override;
+        void OnPokemonTMHMsButtonClick(wxCommandEvent &event) override;
     };
 }

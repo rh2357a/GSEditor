@@ -149,15 +149,17 @@ namespace ui
         void InitItemColorEvent()
         {
             auto listCtrlFunc = [this](wxListEvent &ev) {
-                for (int i = 0; i < GetItemCount(); i++)
-                {
-                    if (i % 2 == 0)
-                        SetItemBackgroundColour(i, EvenItemColor);
-                    else
-                        SetItemBackgroundColour(i, OddItemColor);
-                }
-
                 ev.Skip();
+
+                CallAfter([this]() {
+                    Freeze();
+
+                    int count = GetItemCount();
+                    for (int i = 0; i < count; ++i)
+                        SetItemBackgroundColour(i, (i % 2 == 0) ? EvenItemColor : OddItemColor);
+
+                    Thaw();
+                });
             };
 
             Bind(wxEVT_LIST_DELETE_ITEM, listCtrlFunc);

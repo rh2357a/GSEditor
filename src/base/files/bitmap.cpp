@@ -6,7 +6,6 @@
 #include <lodepng/lodepng.h>
 #include <wx/colour.h>
 #include <wx/gdicmn.h>
-#include <wx/msw/colour.h>
 
 #include <array>
 #include <unordered_map>

@@ -3,8 +3,7 @@
 #include "base/types/types.h"
 
 #include <wx/bitmap.h>
-#include <wx/msw/bitmap.h>
-#include <wx/msw/colour.h>
+#include <wx/colour.h>
 
 #include <filesystem>
 #include <span>
