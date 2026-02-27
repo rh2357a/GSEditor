@@ -52,8 +52,11 @@ ui::internal::EvolutionEditorDialog::EvolutionEditorDialog(wxWindow *parent, std
 
         for (auto &e : m_pokegold.Data().Pokemons())
         {
-            const auto name = e.Name.ToEditorWxString();
-            m_pokemon->Append(name);
+            if (e.Type == pokegold::PokemonType::Pokemon || e.Type == pokegold::PokemonType::Unown)
+            {
+                const auto name = e.Name.ToEditorWxString();
+                m_pokemon->Append(name);
+            }
         }
 
         for (auto &e : m_pokegold.Data().Items())
