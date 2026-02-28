@@ -321,9 +321,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonStatsLabel->Wrap( -1 );
 	pokemonStatsLabelSizer->Add( pokemonStatsLabel, 0, wxALL, 5 );
 
-	wxStaticLine* pokemonStatsLabelLine;
-	pokemonStatsLabelLine = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	pokemonStatsLabelSizer->Add( pokemonStatsLabelLine, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	wxStaticLine* pokemonStatsLabelSeparator;
+	pokemonStatsLabelSeparator = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonStatsLabelSizer->Add( pokemonStatsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
 	pokemonPanelContentSizer->Add( pokemonStatsLabelSizer, 0, wxEXPAND, 5 );
@@ -670,9 +670,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonImageLabel->Wrap( -1 );
 	pokemonImageLabelSizer->Add( pokemonImageLabel, 0, wxALL, 5 );
 
-	wxStaticLine* pokemonImageLabelLine;
-	pokemonImageLabelLine = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	pokemonImageLabelSizer->Add( pokemonImageLabelLine, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	wxStaticLine* pokemonImageLabelSeparator;
+	pokemonImageLabelSeparator = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonImageLabelSizer->Add( pokemonImageLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
 	pokemonPanelContentSizer->Add( pokemonImageLabelSizer, 0, wxEXPAND, 5 );
@@ -718,20 +718,20 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonColorLabel->Wrap( -1 );
 	pokemonColorSizer->Add( pokemonColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_pokemonColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_pokemonColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_pokemonColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* pokemonColorSeparator;
 	pokemonColorSeparator = new wxStaticLine( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	pokemonColorSizer->Add( pokemonColorSeparator, 0, wxEXPAND|wxLEFT, 5 );
 
-	m_pokemonShinyColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_pokemonShinyColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonShinyColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonShinyColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_pokemonShinyColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonShinyColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -771,9 +771,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonDexLabel->Wrap( -1 );
 	pokemonDexLabelSizer->Add( pokemonDexLabel, 0, wxALL, 5 );
 
-	wxStaticLine* pokemonDexLabelLine;
-	pokemonDexLabelLine = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	pokemonDexLabelSizer->Add( pokemonDexLabelLine, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	wxStaticLine* pokemonDexLabelSeparator;
+	pokemonDexLabelSeparator = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonDexLabelSizer->Add( pokemonDexLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
 	pokemonPanelContentSizer->Add( pokemonDexLabelSizer, 0, wxEXPAND, 5 );
@@ -849,9 +849,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonEvoLearnsLabel->Wrap( -1 );
 	pokemonEvoLearnsLabelSizer->Add( pokemonEvoLearnsLabel, 0, wxALL, 5 );
 
-	wxStaticLine* pokemonEvoLearnsLabelLine;
-	pokemonEvoLearnsLabelLine = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	pokemonEvoLearnsLabelSizer->Add( pokemonEvoLearnsLabelLine, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	wxStaticLine* pokemonEvoLearnsLabelSeparator;
+	pokemonEvoLearnsLabelSeparator = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonEvoLearnsLabelSizer->Add( pokemonEvoLearnsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
 	pokemonPanelContentSizer->Add( pokemonEvoLearnsLabelSizer, 0, wxEXPAND, 5 );
@@ -975,9 +975,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonTMHMsLabel->Wrap( -1 );
 	pokemonTMHMsLabelSizer->Add( pokemonTMHMsLabel, 0, wxALL, 5 );
 
-	wxStaticLine* pokemonTMHMsLabelLine;
-	pokemonTMHMsLabelLine = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	pokemonTMHMsLabelSizer->Add( pokemonTMHMsLabelLine, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	wxStaticLine* pokemonTMHMsLabelSeparator;
+	pokemonTMHMsLabelSeparator = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonTMHMsLabelSizer->Add( pokemonTMHMsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
 	pokemonPanelContentSizer->Add( pokemonTMHMsLabelSizer, 0, wxEXPAND, 5 );
@@ -1102,8 +1102,125 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonPanel->Layout();
 	pokemonPanelSizer->Fit( pokemonPanel );
 	mainTabs->AddPage( pokemonPanel, wxT("포켓몬"), true );
+	wxPanel* unownPanel;
+	unownPanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* unownPanelSizer;
+	unownPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxPanel* unownInnerPanel;
+	unownInnerPanel = new wxPanel( unownPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* unownInnerSizer;
+	unownInnerSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_unownList = new ui::ColoredListBox( unownInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	unownInnerSizer->Add( m_unownList, 0, wxALL|wxEXPAND, 2 );
+
+	m_unownContainer = new wxPanel( unownInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_unownContainer->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* unownContainerSizer;
+	unownContainerSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* unownImageLabelSizer;
+	unownImageLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* unownImageLabel;
+	unownImageLabel = new wxStaticText( m_unownContainer, wxID_ANY, wxT("이미지"), wxDefaultPosition, wxDefaultSize, 0 );
+	unownImageLabel->Wrap( -1 );
+	unownImageLabelSizer->Add( unownImageLabel, 0, wxALL, 5 );
+
+	wxStaticLine* unownImageLabelSeparator;
+	unownImageLabelSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	unownImageLabelSizer->Add( unownImageLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	unownContainerSizer->Add( unownImageLabelSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* unownImageSizer;
+	unownImageSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_unownFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownImageSizer->Add( m_unownFrontImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_unownBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownImageSizer->Add( m_unownBackImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	wxStaticLine* unownImageSeparator;
+	unownImageSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	unownImageSizer->Add( unownImageSeparator, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxTOP, 5 );
+
+	m_unownShinyFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownImageSizer->Add( m_unownShinyFrontImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_unownShinyBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownImageSizer->Add( m_unownShinyBackImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	unownContainerSizer->Add( unownImageSizer, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
+
+	wxBoxSizer* unownColorsLabelSizer;
+	unownColorsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* unownColorsLabel;
+	unownColorsLabel = new wxStaticText( m_unownContainer, wxID_ANY, wxT("색상 (공용)"), wxDefaultPosition, wxDefaultSize, 0 );
+	unownColorsLabel->Wrap( -1 );
+	unownColorsLabelSizer->Add( unownColorsLabel, 0, wxALL, 5 );
+
+	wxStaticLine* unownColorsLabelSeparator;
+	unownColorsLabelSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	unownColorsLabelSizer->Add( unownColorsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	unownContainerSizer->Add( unownColorsLabelSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* unownColorsSizer;
+	unownColorsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_unownColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownColorsSizer->Add( m_unownColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_unownColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownColorsSizer->Add( m_unownColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	wxStaticLine* unownColorSeparator;
+	unownColorSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	unownColorsSizer->Add( unownColorSeparator, 0, wxEXPAND|wxLEFT, 5 );
+
+	m_unownShinyColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownColorsSizer->Add( m_unownShinyColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_unownShinyColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	unownColorsSizer->Add( m_unownShinyColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	unownContainerSizer->Add( unownColorsSizer, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
+
+
+	m_unownContainer->SetSizer( unownContainerSizer );
+	m_unownContainer->Layout();
+	unownContainerSizer->Fit( m_unownContainer );
+	unownInnerSizer->Add( m_unownContainer, 1, wxEXPAND | wxALL, 2 );
+
+
+	unownInnerPanel->SetSizer( unownInnerSizer );
+	unownInnerPanel->Layout();
+	unownInnerSizer->Fit( unownInnerPanel );
+	unownPanelSizer->Add( unownInnerPanel, 1, wxEXPAND | wxALL, 2 );
+
+
+	unownPanel->SetSizer( unownPanelSizer );
+	unownPanel->Layout();
+	unownPanelSizer->Fit( unownPanel );
+	mainTabs->AddPage( unownPanel, wxT("안농"), false );
 	wxPanel* movesPanel;
 	movesPanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* movesPanelSizer;
+	movesPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+
+	movesPanel->SetSizer( movesPanelSizer );
+	movesPanel->Layout();
+	movesPanelSizer->Fit( movesPanel );
 	mainTabs->AddPage( movesPanel, wxT("기술"), false );
 
 	mainSizer->Add( mainTabs, 1, wxALL|wxEXPAND, 5 );

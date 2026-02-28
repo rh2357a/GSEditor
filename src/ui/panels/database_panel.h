@@ -20,6 +20,8 @@ namespace ui
         base::MutableState<int> m_selectedPokemonEvolution = -1;
         base::MutableState<int> m_selectedPokemonMove = -1;
 
+        base::MutableState<int> m_selectedUnown = -1;
+
     public:
         DatabasePanel(wxWindow *parent,
                       wxWindowID id = wxID_ANY,
@@ -30,6 +32,7 @@ namespace ui
             : DatabasePanelBase(parent, id, pos, size, style, name)
         {
             InitializePokemonTab();
+            InitializeUnownTab();
         }
 
     private:
@@ -38,5 +41,7 @@ namespace ui
         void OnPokemonEvolutionsButtonClick(wxCommandEvent &event) override;
         void OnPokemonMovesButtonClick(wxCommandEvent &event) override;
         void OnPokemonTMHMsButtonClick(wxCommandEvent &event) override;
+
+        void InitializeUnownTab();
     };
 }
