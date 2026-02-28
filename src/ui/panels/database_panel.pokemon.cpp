@@ -555,17 +555,9 @@ void ui::DatabasePanel::InitializePokemonTab()
                 pokemon.FrontImage = result.Get2bppData();
                 pokemon.Colors[0] = result.GetPalette()[1];
                 pokemon.Colors[1] = result.GetPalette()[2];
-
-                m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
-                m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
-                m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
-                m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
-                m_pokemonColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_pokemonColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdatePokemonImages();
             }
         });
 
@@ -591,17 +583,9 @@ void ui::DatabasePanel::InitializePokemonTab()
                 pokemon.BackImage = result.Get2bppData();
                 pokemon.Colors[0] = result.GetPalette()[1];
                 pokemon.Colors[1] = result.GetPalette()[2];
-
-                m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
-                m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
-                m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
-                m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
-                m_pokemonColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_pokemonColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdatePokemonImages();
             }
         });
 
@@ -630,17 +614,9 @@ void ui::DatabasePanel::InitializePokemonTab()
                 pokemon.FrontImage = result.Get2bppData();
                 pokemon.ShinyColors[0] = result.GetPalette()[1];
                 pokemon.ShinyColors[1] = result.GetPalette()[2];
-
-                m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
-                m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
-                m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
-                m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
-                m_pokemonColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_pokemonColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdatePokemonImages();
             }
         });
 
@@ -666,17 +642,9 @@ void ui::DatabasePanel::InitializePokemonTab()
                 pokemon.BackImage = result.Get2bppData();
                 pokemon.ShinyColors[0] = result.GetPalette()[1];
                 pokemon.ShinyColors[1] = result.GetPalette()[2];
-
-                m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
-                m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
-                m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
-                m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
-                m_pokemonColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_pokemonColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdatePokemonImages();
             }
         });
 
@@ -688,11 +656,9 @@ void ui::DatabasePanel::InitializePokemonTab()
             pokemon.Colors[0].R(newColor.Red());
             pokemon.Colors[0].G(newColor.Green());
             pokemon.Colors[0].B(newColor.Blue());
-
-            m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
-            m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
-
             m_pokegold.Rom().NotifyRomChanged();
+
+            UpdatePokemonImages();
         });
 
         m_pokemonColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
@@ -703,11 +669,9 @@ void ui::DatabasePanel::InitializePokemonTab()
             pokemon.Colors[1].R(newColor.Red());
             pokemon.Colors[1].G(newColor.Green());
             pokemon.Colors[1].B(newColor.Blue());
-
-            m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
-            m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
-
             m_pokegold.Rom().NotifyRomChanged();
+
+            UpdatePokemonImages();
         });
 
         m_pokemonShinyColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
@@ -718,11 +682,9 @@ void ui::DatabasePanel::InitializePokemonTab()
             pokemon.ShinyColors[0].R(newColor.Red());
             pokemon.ShinyColors[0].G(newColor.Green());
             pokemon.ShinyColors[0].B(newColor.Blue());
-
-            m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
-            m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
-
             m_pokegold.Rom().NotifyRomChanged();
+
+            UpdatePokemonImages();
         });
 
         m_pokemonShinyColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
@@ -733,11 +695,9 @@ void ui::DatabasePanel::InitializePokemonTab()
             pokemon.ShinyColors[1].R(newColor.Red());
             pokemon.ShinyColors[1].G(newColor.Green());
             pokemon.ShinyColors[1].B(newColor.Blue());
-
-            m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
-            m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
-
             m_pokegold.Rom().NotifyRomChanged();
+
+            UpdatePokemonImages();
         });
     }
 
@@ -782,16 +742,6 @@ void ui::DatabasePanel::InitializePokemonTab()
                 SetValueSpinCtrlDouble(m_pokemonStatsSpdValue, 0);
                 SetValueSpinCtrlDouble(m_pokemonStatsExpValue, 0);
                 SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, 0);
-
-                m_pokemonFrontImage->Clear();
-                m_pokemonBackImage->Clear();
-                m_pokemonShinyFrontImage->Clear();
-                m_pokemonShinyBackImage->Clear();
-
-                m_pokemonColor_1->SetColor(*wxWHITE);
-                m_pokemonColor_2->SetColor(*wxWHITE);
-                m_pokemonShinyColor_1->SetColor(*wxWHITE);
-                m_pokemonShinyColor_2->SetColor(*wxWHITE);
 
                 m_pokemonDexSpeciesNameText->SetValue(wxT(""));
                 SetValueSpinCtrlDouble(m_pokemonDexHeightValue, 0);
@@ -838,31 +788,6 @@ void ui::DatabasePanel::InitializePokemonTab()
                 SetValueSpinCtrlDouble(m_pokemonStatsExpValue, e.BaseExp);
                 SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, e.CatchRate);
 
-                if (e.Type == pokegold::PokemonType::Pokemon)
-                {
-                    m_pokemonFrontImage->SetData(e.ImageDimensions, e.FrontImage, e.Colors);
-                    m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, e.BackImage, e.Colors);
-                    m_pokemonShinyFrontImage->SetData(e.ImageDimensions, e.FrontImage, e.ShinyColors);
-                    m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, e.BackImage, e.ShinyColors);
-
-                    m_pokemonColor_1->SetColor(e.Colors[0].ToWxColor());
-                    m_pokemonColor_2->SetColor(e.Colors[1].ToWxColor());
-                    m_pokemonShinyColor_1->SetColor(e.ShinyColors[0].ToWxColor());
-                    m_pokemonShinyColor_2->SetColor(e.ShinyColors[1].ToWxColor());
-                }
-                else
-                {
-                    m_pokemonFrontImage->Clear();
-                    m_pokemonBackImage->Clear();
-                    m_pokemonShinyFrontImage->Clear();
-                    m_pokemonShinyBackImage->Clear();
-
-                    m_pokemonColor_1->SetColor(*wxWHITE);
-                    m_pokemonColor_2->SetColor(*wxWHITE);
-                    m_pokemonShinyColor_1->SetColor(*wxWHITE);
-                    m_pokemonShinyColor_2->SetColor(*wxWHITE);
-                }
-
                 m_pokemonDexSpeciesNameText->SetValue(e.DexCategoryName.ToEditorWxString());
                 SetValueSpinCtrlDouble(m_pokemonDexHeightValue, double(e.Height / 10.0));
                 SetValueSpinCtrlDouble(m_pokemonDexWeightValue, double(e.Weight / 10.0));
@@ -877,11 +802,45 @@ void ui::DatabasePanel::InitializePokemonTab()
             }
         });
 
-        UpdatePokemonEvolutionsAndMoves();
+        UpdatePokemonImages();
+        UpdatePokemonEvolutionAndMoveList();
     });
 }
 
-void ui::DatabasePanel::UpdatePokemonEvolutionsAndMoves()
+void ui::DatabasePanel::UpdatePokemonImages()
+{
+    m_eventGuard([&] {
+        int index = *m_selectedPokemon;
+        if (index == -1 || m_pokegold.Data().Pokemons()[index].Type != pokegold::PokemonType::Pokemon)
+        {
+            m_pokemonFrontImage->Clear();
+            m_pokemonBackImage->Clear();
+            m_pokemonShinyFrontImage->Clear();
+            m_pokemonShinyBackImage->Clear();
+
+            m_pokemonColor_1->SetColor(*wxWHITE);
+            m_pokemonColor_2->SetColor(*wxWHITE);
+            m_pokemonShinyColor_1->SetColor(*wxWHITE);
+            m_pokemonShinyColor_2->SetColor(*wxWHITE);
+        }
+        else
+        {
+            auto &pokemon = m_pokegold.Data().Pokemons()[index];
+
+            m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
+            m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
+            m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
+            m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
+
+            m_pokemonColor_1->SetColor(pokemon.Colors[0].ToWxColor());
+            m_pokemonColor_2->SetColor(pokemon.Colors[1].ToWxColor());
+            m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
+            m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
+        }
+    });
+}
+
+void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
 {
     m_pokemonEvolutionsList->DeleteAllItems();
     m_pokemonMovesList->DeleteAllItems();
@@ -1016,7 +975,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
 
             selectedPokemon.EvolutionMethods.push_back(*result);
 
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }
         return;
@@ -1035,7 +994,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
 
             selectedPokemon.EvolutionMethods[selectedEvolveIdx] = *result;
 
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }
         return;
@@ -1048,7 +1007,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
         {
             auto position = selectedPokemon.EvolutionMethods.begin() + selectedEvolveIdx;
             selectedPokemon.EvolutionMethods.erase(position);
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }
         return;
@@ -1060,7 +1019,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
         if (result == MessageBoxResult::Yes)
         {
             selectedPokemon.EvolutionMethods.clear();
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }
         return;
@@ -1103,7 +1062,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
                     return a.Level < b.Level;
                 });
 
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }
         return;
@@ -1128,7 +1087,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
                     return a.Level < b.Level;
                 });
 
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
 
             // 추가된 항목 선택처리
@@ -1158,7 +1117,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
                     return a.Level < b.Level;
                 });
 
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
 
             // 항목 선택처리
@@ -1176,7 +1135,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
         {
             auto position = selectedPokemon.Moves.begin() + selectedMoveIdx;
             selectedPokemon.Moves.erase(position);
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }
         return;
@@ -1188,7 +1147,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
         if (result == MessageBoxResult::Yes)
         {
             selectedPokemon.Moves.clear();
-            UpdatePokemonEvolutionsAndMoves();
+            UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }
         return;

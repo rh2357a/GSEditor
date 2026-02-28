@@ -21,38 +21,8 @@ void ui::DatabasePanel::InitializeUnownTab()
         // 선택
         m_selectedUnown.Subscribe(this, [this](const int &idx) {
             base::Log(TAG, "unown selected (index={})", idx);
-
-            m_eventGuard([&] {
-                m_unownContainer->Enable(idx != -1);
-
-                if (idx == -1)
-                {
-                    m_unownFrontImage->Clear();
-                    m_unownBackImage->Clear();
-                    m_unownShinyFrontImage->Clear();
-                    m_unownShinyBackImage->Clear();
-
-                    m_unownColor_1->SetColor(*wxWHITE);
-                    m_unownColor_2->SetColor(*wxWHITE);
-                    m_unownShinyColor_1->SetColor(*wxWHITE);
-                    m_unownShinyColor_2->SetColor(*wxWHITE);
-                }
-                else
-                {
-                    auto &pokemon = m_pokegold.Data().Pokemons()[200];
-                    auto &unown = m_pokegold.Data().UnownImages()[idx];
-
-                    m_unownFrontImage->SetData(pokegold::ImageDimensions::Size_40x40, unown.FrontImage, pokemon.Colors);
-                    m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-                    m_unownShinyFrontImage->SetData(pokegold::ImageDimensions::Size_40x40, unown.FrontImage, pokemon.ShinyColors);
-                    m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
-
-                    m_unownColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                    m_unownColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                    m_unownShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                    m_unownShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-                }
-            });
+            m_unownContainer->Enable(idx != -1);
+            UpdateUnownImages();
         });
 
         // 내용 초기화
@@ -94,17 +64,9 @@ void ui::DatabasePanel::InitializeUnownTab()
                 pokemon.ImageDimensions = pokegold::ImageDimensions::Size_40x40;
                 pokemon.Colors[0] = result.GetPalette()[1];
                 pokemon.Colors[1] = result.GetPalette()[2];
-
-                m_unownFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.Colors);
-                m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-                m_unownShinyFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
-                m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
-                m_unownColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_unownColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_unownShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_unownShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdateUnownImages();
             }
         });
 
@@ -130,20 +92,11 @@ void ui::DatabasePanel::InitializeUnownTab()
                 unown.BackImage = result.Get2bppData();
 
                 auto &pokemon = m_pokegold.Data().Pokemons()[200];
-                pokemon.BackImage = result.Get2bppData();
                 pokemon.Colors[0] = result.GetPalette()[1];
                 pokemon.Colors[1] = result.GetPalette()[2];
-
-                m_unownFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.Colors);
-                m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-                m_unownShinyFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
-                m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
-                m_unownColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_unownColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_unownShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_unownShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdateUnownImages();
             }
         });
 
@@ -172,17 +125,9 @@ void ui::DatabasePanel::InitializeUnownTab()
                 pokemon.ImageDimensions = pokegold::ImageDimensions::Size_40x40;
                 pokemon.ShinyColors[0] = result.GetPalette()[1];
                 pokemon.ShinyColors[1] = result.GetPalette()[2];
-
-                m_unownFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.Colors);
-                m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-                m_unownShinyFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
-                m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
-                m_unownColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_unownColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_unownShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_unownShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdateUnownImages();
             }
         });
 
@@ -208,20 +153,11 @@ void ui::DatabasePanel::InitializeUnownTab()
                 unown.BackImage = result.Get2bppData();
 
                 auto &pokemon = m_pokegold.Data().Pokemons()[200];
-                pokemon.BackImage = result.Get2bppData();
                 pokemon.ShinyColors[0] = result.GetPalette()[1];
                 pokemon.ShinyColors[1] = result.GetPalette()[2];
-
-                m_unownFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.Colors);
-                m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-                m_unownShinyFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
-                m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
-                m_unownColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-                m_unownColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-                m_unownShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-                m_unownShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
-
                 m_pokegold.Rom().NotifyRomChanged();
+
+                UpdateUnownImages();
             }
         });
 
@@ -234,11 +170,9 @@ void ui::DatabasePanel::InitializeUnownTab()
             pokemon.Colors[0].R(newColor.Red());
             pokemon.Colors[0].G(newColor.Green());
             pokemon.Colors[0].B(newColor.Blue());
-
-            m_unownFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.Colors);
-            m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-
             m_pokegold.Rom().NotifyRomChanged();
+
+            UpdateUnownImages();
         });
 
         m_unownColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
@@ -250,11 +184,9 @@ void ui::DatabasePanel::InitializeUnownTab()
             pokemon.Colors[1].R(newColor.Red());
             pokemon.Colors[1].G(newColor.Green());
             pokemon.Colors[1].B(newColor.Blue());
-
-            m_unownFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.Colors);
-            m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-
             m_pokegold.Rom().NotifyRomChanged();
+
+            UpdateUnownImages();
         });
 
         m_unownShinyColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
@@ -266,11 +198,9 @@ void ui::DatabasePanel::InitializeUnownTab()
             pokemon.ShinyColors[0].R(newColor.Red());
             pokemon.ShinyColors[0].G(newColor.Green());
             pokemon.ShinyColors[0].B(newColor.Blue());
-
-            m_unownShinyFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
-            m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
-
             m_pokegold.Rom().NotifyRomChanged();
+
+            UpdateUnownImages();
         });
 
         m_unownShinyColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
@@ -282,11 +212,43 @@ void ui::DatabasePanel::InitializeUnownTab()
             pokemon.ShinyColors[1].R(newColor.Red());
             pokemon.ShinyColors[1].G(newColor.Green());
             pokemon.ShinyColors[1].B(newColor.Blue());
+            m_pokegold.Rom().NotifyRomChanged();
 
+            UpdateUnownImages();
+        });
+    }
+}
+
+void ui::DatabasePanel::UpdateUnownImages()
+{
+    m_eventGuard([&] {
+        int index = *m_selectedUnown;
+        if (index == -1)
+        {
+            m_unownFrontImage->Clear();
+            m_unownBackImage->Clear();
+            m_unownShinyFrontImage->Clear();
+            m_unownShinyBackImage->Clear();
+
+            m_unownColor_1->SetColor(*wxWHITE);
+            m_unownColor_2->SetColor(*wxWHITE);
+            m_unownShinyColor_1->SetColor(*wxWHITE);
+            m_unownShinyColor_2->SetColor(*wxWHITE);
+        }
+        else
+        {
+            auto &unown = m_pokegold.Data().UnownImages()[index];
+            auto &pokemon = m_pokegold.Data().Pokemons()[200];
+
+            m_unownFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.Colors);
+            m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
             m_unownShinyFrontImage->SetData(pokemon.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
             m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
 
-            m_pokegold.Rom().NotifyRomChanged();
-        });
-    }
+            m_unownColor_1->SetColor(pokemon.Colors[0].ToWxColor());
+            m_unownColor_2->SetColor(pokemon.Colors[1].ToWxColor());
+            m_unownShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
+            m_unownShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
+        }
+    });
 }

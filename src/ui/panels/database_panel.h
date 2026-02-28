@@ -37,11 +37,13 @@ namespace ui
 
     private:
         void InitializePokemonTab();
-        void UpdatePokemonEvolutionsAndMoves();
+        void UpdatePokemonImages();
+        void UpdatePokemonEvolutionAndMoveList();
         void OnPokemonEvolutionsButtonClick(wxCommandEvent &event) override;
         void OnPokemonMovesButtonClick(wxCommandEvent &event) override;
         void OnPokemonTMHMsButtonClick(wxCommandEvent &event) override;
 
         void InitializeUnownTab();
+        void UpdateUnownImages();
     };
 }
