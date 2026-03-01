@@ -118,6 +118,12 @@ namespace pokegold
 
         Pokedex,
 
+        ItemName,
+        ItemDescription,
+
+        MoveName,
+        MoveDescription,
+
         PokemonName,
         TrainerGroupName,
         TypeName,

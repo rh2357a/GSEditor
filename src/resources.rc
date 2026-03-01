@@ -30,9 +30,9 @@ VS_VERSION_INFO VERSIONINFO
     }
 }
 
-RES_ID_APP_MANIFEST RT_MANIFEST "app.exe.manifest"
+RES_ID_APP_MANIFEST RT_MANIFEST "GSEditor.exe.manifest"
 
-RES_ID_APP_ICON     ICON        "app.ico"
+RES_ID_APP_ICON     ICON        "GSEditor.exe.ico"
 
 RES_ID_RGBASM       RCDATA      "sidecar/rgbasm.exe"
 RES_ID_RGBLINK      RCDATA      "sidecar/rgblink.exe"

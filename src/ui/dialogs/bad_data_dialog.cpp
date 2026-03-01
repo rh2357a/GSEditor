@@ -70,6 +70,44 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
             }
             break;
 
+        case pokegold::BadDataReason::ItemName:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("아이템명 손상 (번호: {})", idx)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경 (해당 아이템부터 전체 변경)"));
+            }
+            break;
+
+        case pokegold::BadDataReason::ItemDescription:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                const auto name = m_pokegold.Data().Items()[idx].Name.ToEditorString();
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("아이템 설명 손상 (번호: {}, 이름: {})", idx, name)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경"));
+            }
+            break;
+
+        case pokegold::BadDataReason::MoveName:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("기술명 손상 (번호: {})", idx)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경 (해당 아이템부터 전체 변경)"));
+            }
+            break;
+
+        case pokegold::BadDataReason::MoveDescription:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                const auto name = m_pokegold.Data().Moves()[idx].Name.ToEditorString();
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("기술 설명 손상 (번호: {}, 이름: {})", idx, name)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경"));
+            }
+            break;
+
         case pokegold::BadDataReason::PokemonName:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
