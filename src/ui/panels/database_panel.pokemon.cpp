@@ -196,8 +196,15 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonList->Thaw();
     });
 
+    // 기술명 갱신
+    m_pokegold.Data().MoveNameUpdated().Subscribe(this, [this](const int &idx) {
+        UpdatePokemonEvolutionAndMoveList();
+    });
+
     // 아이템 이름 갱신
     m_pokegold.Data().ItemNameUpdated().Subscribe(this, [this](const int &idx) {
+        UpdatePokemonEvolutionAndMoveList();
+
         m_pokemonItem1ComboBox->Freeze();
         m_pokemonItem2ComboBox->Freeze();
 
