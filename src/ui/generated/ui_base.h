@@ -221,6 +221,18 @@ class DatabasePanelBase : public wxPanel
 		ui::ColorPickerPanel* m_unownColor_2;
 		ui::ColorPickerPanel* m_unownShinyColor_1;
 		ui::ColorPickerPanel* m_unownShinyColor_2;
+		ui::ColoredListBox* m_itemList;
+		wxScrolledWindow* m_itemContainer;
+		wxComboBox* m_itemPrimaryGroupComboBox;
+		wxTextCtrl* m_itemPrimaryNameText;
+		wxSpinCtrlDouble* m_itemPrimaryPriceSpinCtrl;
+		wxStaticText* m_itemPrimaryDescriptionLabel;
+		wxTextCtrl* m_itemPrimaryDescriptionText;
+		wxComboBox* m_itemFieldMenuComboBox;
+		wxComboBox* m_itemBattleMenuComboBox;
+		wxComboBox* m_itemEtcEffectComboBox;
+		wxComboBox* m_itemEtcRegisterComboBox;
+		wxSpinCtrlDouble* m_itemEtcValueSpinCtrl;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonEvolutionsButtonClick( wxCommandEvent& event ) { event.Skip(); }

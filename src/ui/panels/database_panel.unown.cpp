@@ -14,7 +14,7 @@ void ui::DatabasePanel::InitializeUnownTab()
         BindControlSelection(this, m_unownList, m_selectedUnown);
 
         // 롬 열기 시, 선택 초기화...
-        m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &isRomOpened) {
+        m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
             m_selectedUnown.Update(-1);
         });
 
@@ -23,6 +23,7 @@ void ui::DatabasePanel::InitializeUnownTab()
             base::Log(TAG, "unown selected (index={})", idx);
             m_unownContainer->Enable(idx != -1);
             UpdateUnownImages();
+            m_unownList->SetFocus();
         });
 
         // 내용 초기화

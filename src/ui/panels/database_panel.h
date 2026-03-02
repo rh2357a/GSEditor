@@ -22,6 +22,8 @@ namespace ui
 
         base::MutableState<int> m_selectedUnown = -1;
 
+        base::MutableState<int> m_selectedItem = -1;
+
     public:
         DatabasePanel(wxWindow *parent,
                       wxWindowID id = wxID_ANY,
@@ -33,6 +35,7 @@ namespace ui
         {
             InitializePokemonTab();
             InitializeUnownTab();
+            InitializeItemTab();
         }
 
     private:
@@ -45,5 +48,8 @@ namespace ui
 
         void InitializeUnownTab();
         void UpdateUnownImages();
+
+        void InitializeItemTab();
+        void InitializeItemEditor();
     };
 }

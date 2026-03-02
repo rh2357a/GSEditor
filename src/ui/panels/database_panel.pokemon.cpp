@@ -163,7 +163,7 @@ void ui::DatabasePanel::InitializePokemonTab()
     BindControlSelection(this, m_pokemonMovesList, m_selectedPokemonMove);
 
     // 롬을 다시 열었을 때, 선택 초기화...
-    m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &isRomOpened) {
+    m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
         m_selectedPokemon.Update(-1);
         m_selectedPokemonEvolution.Update(-1);
         m_selectedPokemonMove.Update(-1);
@@ -804,6 +804,8 @@ void ui::DatabasePanel::InitializePokemonTab()
 
         UpdatePokemonImages();
         UpdatePokemonEvolutionAndMoveList();
+
+        m_pokemonList->SetFocus();
     });
 }
 

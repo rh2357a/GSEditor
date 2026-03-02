@@ -824,7 +824,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	pokemonDexSizer->Add( pokemonDexInfoGrid, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
 
-	m_pokemonDexDescriptionLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("{description_label}"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonDexDescriptionLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("설명 (너비 %d/18)："), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonDexDescriptionLabel->Wrap( -1 );
 	pokemonDexSizer->Add( m_pokemonDexDescriptionLabel, 0, wxALL, 5 );
 
@@ -1109,11 +1109,11 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	wxPanel* unownInnerPanel;
 	unownInnerPanel = new wxPanel( unownPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* unownInnerSizer;
-	unownInnerSizer = new wxBoxSizer( wxHORIZONTAL );
+	wxBoxSizer* unownInnerPanelSizer;
+	unownInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
 
 	m_unownList = new ui::ColoredListBox( unownInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
-	unownInnerSizer->Add( m_unownList, 0, wxALL|wxEXPAND, 2 );
+	unownInnerPanelSizer->Add( m_unownList, 0, wxALL|wxEXPAND, 2 );
 
 	m_unownContainer = new wxPanel( unownInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
 	m_unownContainer->SetBackgroundColour( wxColour( 255, 255, 255 ) );
@@ -1199,12 +1199,12 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_unownContainer->SetSizer( unownContainerSizer );
 	m_unownContainer->Layout();
 	unownContainerSizer->Fit( m_unownContainer );
-	unownInnerSizer->Add( m_unownContainer, 1, wxEXPAND | wxALL, 2 );
+	unownInnerPanelSizer->Add( m_unownContainer, 1, wxEXPAND | wxALL, 2 );
 
 
-	unownInnerPanel->SetSizer( unownInnerSizer );
+	unownInnerPanel->SetSizer( unownInnerPanelSizer );
 	unownInnerPanel->Layout();
-	unownInnerSizer->Fit( unownInnerPanel );
+	unownInnerPanelSizer->Fit( unownInnerPanel );
 	unownPanelSizer->Add( unownInnerPanel, 1, wxEXPAND | wxALL, 2 );
 
 
@@ -1212,6 +1212,491 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	unownPanel->Layout();
 	unownPanelSizer->Fit( unownPanel );
 	mainTabs->AddPage( unownPanel, wxT("안농"), false );
+	wxPanel* itemPanel;
+	itemPanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* itemPanelSizer;
+	itemPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* itemInnerPanel;
+	itemInnerPanel = new wxPanel( itemPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* itemInnerPanelSizer;
+	itemInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_itemList = new ui::ColoredListBox( itemInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 170,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	itemInnerPanelSizer->Add( m_itemList, 0, wxALL|wxEXPAND, 2 );
+
+	m_itemContainer = new wxScrolledWindow( itemInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxHSCROLL|wxVSCROLL );
+	m_itemContainer->SetScrollRate( 5, 16 );
+	m_itemContainer->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* itemContainerPanel;
+	itemContainerPanel = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* itemPrimaryLabelSizer;
+	itemPrimaryLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* itemPrimaryLabel;
+	itemPrimaryLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("기본 정보"), wxDefaultPosition, wxDefaultSize, 0 );
+	itemPrimaryLabel->Wrap( -1 );
+	itemPrimaryLabelSizer->Add( itemPrimaryLabel, 0, wxALL, 5 );
+
+	wxStaticLine* itemPrimaryLabelSeparator;
+	itemPrimaryLabelSeparator = new wxStaticLine( m_itemContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	itemPrimaryLabelSizer->Add( itemPrimaryLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	itemContainerPanel->Add( itemPrimaryLabelSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* itemPrimarySizer;
+	itemPrimarySizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* itemPrimaryGrid;
+	itemPrimaryGrid = new wxFlexGridSizer( 3, 2, 0, 0 );
+	itemPrimaryGrid->AddGrowableCol( 1 );
+	itemPrimaryGrid->SetFlexibleDirection( wxBOTH );
+	itemPrimaryGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	itemPrimaryGrid->SetMinSize( wxSize( 220,-1 ) );
+	wxStaticText* itemPrimaryGroupLabel;
+	itemPrimaryGroupLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("분류："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemPrimaryGroupLabel->Wrap( -1 );
+	itemPrimaryGrid->Add( itemPrimaryGroupLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemPrimaryGroupComboBox = new wxComboBox( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_itemPrimaryGroupComboBox->Append( wxT("없음") );
+	m_itemPrimaryGroupComboBox->Append( wxT("도구") );
+	m_itemPrimaryGroupComboBox->Append( wxT("중요한") );
+	m_itemPrimaryGroupComboBox->Append( wxT("볼") );
+	m_itemPrimaryGroupComboBox->Append( wxT("기술머신") );
+	itemPrimaryGrid->Add( m_itemPrimaryGroupComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* itemPrimaryNameLabel;
+	itemPrimaryNameLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("이름："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemPrimaryNameLabel->Wrap( -1 );
+	itemPrimaryGrid->Add( itemPrimaryNameLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemPrimaryNameText = new wxTextCtrl( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	#ifdef __WXGTK__
+	if ( !m_itemPrimaryNameText->HasFlag( wxTE_MULTILINE ) )
+	{
+	m_itemPrimaryNameText->SetMaxLength( 12 );
+	}
+	#else
+	m_itemPrimaryNameText->SetMaxLength( 12 );
+	#endif
+	itemPrimaryGrid->Add( m_itemPrimaryNameText, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* itemPrimaryPriceLabel;
+	itemPrimaryPriceLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("가격："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemPrimaryPriceLabel->Wrap( -1 );
+	itemPrimaryGrid->Add( itemPrimaryPriceLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemPrimaryPriceSpinCtrl = new wxSpinCtrlDouble( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 39321, 0, 1 );
+	m_itemPrimaryPriceSpinCtrl->SetDigits( 0 );
+	itemPrimaryGrid->Add( m_itemPrimaryPriceSpinCtrl, 0, wxALL|wxEXPAND, 5 );
+
+
+	itemPrimarySizer->Add( itemPrimaryGrid, 0, 0, 0 );
+
+
+	itemPrimarySizer->Add( 0, 8, 0, 0, 0 );
+
+	m_itemPrimaryDescriptionLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("설명 (너비 %d/18)："), wxDefaultPosition, wxDefaultSize, 0 );
+	m_itemPrimaryDescriptionLabel->Wrap( -1 );
+	itemPrimarySizer->Add( m_itemPrimaryDescriptionLabel, 0, wxALL, 5 );
+
+	m_itemPrimaryDescriptionText = new wxTextCtrl( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 320,48 ), wxTE_MULTILINE|wxTE_NO_VSCROLL|wxBORDER_SIMPLE );
+	m_itemPrimaryDescriptionText->SetFont( wxFont( 14, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
+	m_itemPrimaryDescriptionText->SetMinSize( wxSize( 320,48 ) );
+	m_itemPrimaryDescriptionText->SetMaxSize( wxSize( 320,48 ) );
+
+	itemPrimarySizer->Add( m_itemPrimaryDescriptionText, 0, wxALL, 5 );
+
+
+	itemContainerPanel->Add( itemPrimarySizer, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 5 );
+
+	wxBoxSizer* itemMenuLabelSizer;
+	itemMenuLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* itemMenuLabel;
+	itemMenuLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("메뉴"), wxDefaultPosition, wxDefaultSize, 0 );
+	itemMenuLabel->Wrap( -1 );
+	itemMenuLabelSizer->Add( itemMenuLabel, 0, wxALL, 5 );
+
+	wxStaticLine* itemMenuLabelSeparator;
+	itemMenuLabelSeparator = new wxStaticLine( m_itemContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	itemMenuLabelSizer->Add( itemMenuLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	itemContainerPanel->Add( itemMenuLabelSizer, 0, wxEXPAND, 5 );
+
+	wxFlexGridSizer* itemMenuGrid;
+	itemMenuGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	itemMenuGrid->AddGrowableCol( 1 );
+	itemMenuGrid->SetFlexibleDirection( wxBOTH );
+	itemMenuGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	itemMenuGrid->SetMinSize( wxSize( 220,-1 ) );
+	wxStaticText* itemFieldMenuLabel;
+	itemFieldMenuLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("필드："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemFieldMenuLabel->Wrap( -1 );
+	itemMenuGrid->Add( itemFieldMenuLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemFieldMenuComboBox = new wxComboBox( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_itemFieldMenuComboBox->Append( wxT("사용할 수 없음") );
+	m_itemFieldMenuComboBox->Append( wxT("?") );
+	m_itemFieldMenuComboBox->Append( wxT("?") );
+	m_itemFieldMenuComboBox->Append( wxT("?") );
+	m_itemFieldMenuComboBox->Append( wxT("사용만 함") );
+	m_itemFieldMenuComboBox->Append( wxT("포켓몬에게 사용") );
+	m_itemFieldMenuComboBox->Append( wxT("사용할 때 필드로 돌아감") );
+	itemMenuGrid->Add( m_itemFieldMenuComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* itemBattleMenuLabel;
+	itemBattleMenuLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("배틀："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemBattleMenuLabel->Wrap( -1 );
+	itemMenuGrid->Add( itemBattleMenuLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemBattleMenuComboBox = new wxComboBox( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_itemBattleMenuComboBox->Append( wxT("사용할 수 없음") );
+	m_itemBattleMenuComboBox->Append( wxT("?") );
+	m_itemBattleMenuComboBox->Append( wxT("?") );
+	m_itemBattleMenuComboBox->Append( wxT("?") );
+	m_itemBattleMenuComboBox->Append( wxT("사용만 함") );
+	m_itemBattleMenuComboBox->Append( wxT("포켓몬에게 사용") );
+	m_itemBattleMenuComboBox->Append( wxT("사용할 때 필드로 돌아감") );
+	itemMenuGrid->Add( m_itemBattleMenuComboBox, 0, wxALL|wxEXPAND, 5 );
+
+
+	itemContainerPanel->Add( itemMenuGrid, 0, wxALL, 5 );
+
+	wxBoxSizer* itemEtcLabelSizer;
+	itemEtcLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* itemEtcLabel;
+	itemEtcLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("기타"), wxDefaultPosition, wxDefaultSize, 0 );
+	itemEtcLabel->Wrap( -1 );
+	itemEtcLabelSizer->Add( itemEtcLabel, 0, wxALL, 5 );
+
+	wxStaticLine* itemEtcLabelSeparator;
+	itemEtcLabelSeparator = new wxStaticLine( m_itemContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	itemEtcLabelSizer->Add( itemEtcLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	itemContainerPanel->Add( itemEtcLabelSizer, 0, wxEXPAND, 5 );
+
+	wxFlexGridSizer* itemEtcGrid;
+	itemEtcGrid = new wxFlexGridSizer( 3, 2, 0, 0 );
+	itemEtcGrid->AddGrowableCol( 1 );
+	itemEtcGrid->SetFlexibleDirection( wxBOTH );
+	itemEtcGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	itemEtcGrid->SetMinSize( wxSize( 320,-1 ) );
+	wxStaticText* itemEtcEffectLabel;
+	itemEtcEffectLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("지닌 도구 효과："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemEtcEffectLabel->Wrap( -1 );
+	itemEtcGrid->Add( itemEtcEffectLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemEtcEffectComboBox = new wxComboBox( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_itemEtcEffectComboBox->Append( wxT("00 - 없음") );
+	m_itemEtcEffectComboBox->Append( wxT("01 - HP 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("02 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("03 - HP 회복 (개수 소모 없음)") );
+	m_itemEtcEffectComboBox->Append( wxT("04 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("05 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("06 - PP 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("07 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("08 - 야생 포켓몬과 만날 확률 낮아짐") );
+	m_itemEtcEffectComboBox->Append( wxT("09 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("0A - 독상태 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("0B - 얼음상태 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("0C - 화상상태 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("0D - 잠듦상태 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("0E - 마비상태 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("0F - 모든 상태이상 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("10 - 혼란상태 회복") );
+	m_itemEtcEffectComboBox->Append( wxT("11 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("12 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("13 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("14 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("15 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("16 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("17 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("18 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("19 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("1A - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("1B - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("1C - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("1D - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("1E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("1F - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("20 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("21 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("22 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("23 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("24 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("25 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("26 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("27 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("28 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("29 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("2A - 메타몽의 방어력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("2B - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("2C - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("2D - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("2E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("2F - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("30 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("31 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("32 - 노말 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("33 - 격투 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("34 - 비행 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("35 - 독 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("36 - 땅 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("37 - 바위 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("38 - 벌레 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("39 - 고스트 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("3A - 화염 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("3B - 물 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("3C - 풀 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("3D - 전기 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("3E - 에스퍼 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("3F - 얼음 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("40 - 드래곤 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("41 - 악 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("42 - 강철 타입 기술 위력 상승") );
+	m_itemEtcEffectComboBox->Append( wxT("43 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("44 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("45 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("46 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("47 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("48 - 야생 포켓몬 전투에서 반드시 도망") );
+	m_itemEtcEffectComboBox->Append( wxT("49 - 급소에 명중하기 쉽게된다") );
+	m_itemEtcEffectComboBox->Append( wxT("4A - 포켓몬이 선제 공격한다") );
+	m_itemEtcEffectComboBox->Append( wxT("4B - 상대 포켓몬의 기가 죽는다") );
+	m_itemEtcEffectComboBox->Append( wxT("4C - 지닌 포켓몬이 배틀 참여 시 돈 2배") );
+	m_itemEtcEffectComboBox->Append( wxT("4D - 상대 포켓몬의 명중률을 낮춘다") );
+	m_itemEtcEffectComboBox->Append( wxT("4E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("4F - HP를 1 남기고 버틸 때가 있다") );
+	m_itemEtcEffectComboBox->Append( wxT("50 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("51 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("52 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("53 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("54 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("55 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("56 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("57 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("58 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("59 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("5A - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("5B - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("5C - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("5D - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("5E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("5F - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("60 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("61 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("62 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("63 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("64 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("65 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("66 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("67 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("68 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("69 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("6A - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("6B - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("6C - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("6D - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("6E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("6F - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("70 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("71 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("72 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("73 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("74 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("75 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("76 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("77 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("78 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("79 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("7A - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("7B - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("7C - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("7D - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("7E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("7F - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("80 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("81 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("82 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("83 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("84 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("85 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("86 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("87 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("88 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("89 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("8A - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("8B - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("8C - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("8D - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("8E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("8F - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("90 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("91 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("92 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("93 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("94 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("95 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("96 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("97 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("98 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("99 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("9A - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("9B - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("9C - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("9D - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("9E - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("9F - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A0 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A1 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A2 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A3 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A4 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A5 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A6 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A7 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A8 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("A9 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("AA - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("AB - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("AC - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("AD - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("AE - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("AF - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B0 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B1 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B2 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B3 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B4 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B5 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B6 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B7 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B8 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("B9 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("BA - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("BB - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("BC - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("BD - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("BE - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("BF - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C0 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C1 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C2 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C3 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C4 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C5 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C6 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C7 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C8 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("C9 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("CA - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("CB - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("CC - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("CD - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("CE - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("CF - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D0 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D1 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D2 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D3 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D4 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D5 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D6 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D7 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D8 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("D9 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("DA - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("DB - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("DC - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("DD - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("DE - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("DF - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E0 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E1 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E2 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E3 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E4 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E5 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E6 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E7 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E8 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("E9 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("EA - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("EB - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("EC - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("ED - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("EE - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("EF - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F0 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F1 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F2 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F3 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F4 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F5 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F6 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F7 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F8 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("F9 - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("FA - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("FB - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("FC - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("FD - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("FE - ?") );
+	m_itemEtcEffectComboBox->Append( wxT("FF - ?") );
+	itemEtcGrid->Add( m_itemEtcEffectComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* itemEtcRegisterLabel;
+	itemEtcRegisterLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("판매·등록 설정："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemEtcRegisterLabel->Wrap( -1 );
+	itemEtcGrid->Add( itemEtcRegisterLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemEtcRegisterComboBox = new wxComboBox( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_itemEtcRegisterComboBox->Append( wxT("없음") );
+	m_itemEtcRegisterComboBox->Append( wxT("등록 불가") );
+	m_itemEtcRegisterComboBox->Append( wxT("판매 불가") );
+	m_itemEtcRegisterComboBox->Append( wxT("판매·등록 불가") );
+	itemEtcGrid->Add( m_itemEtcRegisterComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* itemEtcValueLabel;
+	itemEtcValueLabel = new wxStaticText( m_itemContainer, wxID_ANY, wxT("아이템 값："), wxDefaultPosition, wxDefaultSize, 0 );
+	itemEtcValueLabel->Wrap( -1 );
+	itemEtcGrid->Add( itemEtcValueLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_itemEtcValueSpinCtrl = new wxSpinCtrlDouble( m_itemContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 255, 0, 1 );
+	m_itemEtcValueSpinCtrl->SetDigits( 0 );
+	itemEtcGrid->Add( m_itemEtcValueSpinCtrl, 0, wxALL|wxEXPAND, 5 );
+
+
+	itemContainerPanel->Add( itemEtcGrid, 0, wxALL, 5 );
+
+
+	m_itemContainer->SetSizer( itemContainerPanel );
+	m_itemContainer->Layout();
+	itemContainerPanel->Fit( m_itemContainer );
+	itemInnerPanelSizer->Add( m_itemContainer, 1, wxEXPAND | wxALL, 2 );
+
+
+	itemInnerPanel->SetSizer( itemInnerPanelSizer );
+	itemInnerPanel->Layout();
+	itemInnerPanelSizer->Fit( itemInnerPanel );
+	itemPanelSizer->Add( itemInnerPanel, 1, wxEXPAND | wxALL, 2 );
+
+
+	itemPanel->SetSizer( itemPanelSizer );
+	itemPanel->Layout();
+	itemPanelSizer->Fit( itemPanel );
+	mainTabs->AddPage( itemPanel, wxT("아이템"), false );
 	wxPanel* movesPanel;
 	movesPanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* movesPanelSizer;
