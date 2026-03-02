@@ -154,6 +154,7 @@ class DatabasePanelBase : public wxPanel
 			wxID_POKEMON_MOVES_CLEAR,
 			wxID_POKEMON_TMHMS_CHECK_ALL,
 			wxID_POKEMON_TMHMS_CLEAR,
+			wxID_CHECK_ALL,
 		};
 
 		ui::ColoredListBox* m_pokemonList;
@@ -233,11 +234,30 @@ class DatabasePanelBase : public wxPanel
 		wxComboBox* m_itemEtcEffectComboBox;
 		wxComboBox* m_itemEtcRegisterComboBox;
 		wxSpinCtrlDouble* m_itemEtcValueSpinCtrl;
+		ui::ColoredListBox* m_moveList;
+		wxScrolledWindow* m_moveContainer;
+		wxTextCtrl* m_movePrimaryNumberText;
+		wxTextCtrl* m_movePrimaryNameText;
+		wxComboBox* m_movePrimaryTypeComboBox;
+		wxSpinCtrlDouble* m_movePrimaryPowerSpinCtrl;
+		wxSpinCtrlDouble* m_movePrimaryAccuracySpinCtrl;
+		wxStaticText* m_movePrimaryAccuracyPercentageLabel;
+		wxSpinCtrlDouble* m_movePrimaryPPSpinCtrl;
+		wxStaticText* m_movePrimaryDescriptionLabel;
+		wxTextCtrl* m_movePrimaryDescriptionText;
+		wxComboBox* m_moveEffectTypeComboBox;
+		wxSpinCtrlDouble* m_moveEffectValueSpinCtrl;
+		ui::ColoredListBox* m_tmhmList;
+		wxPanel* m_tmhmContainer;
+		wxComboBox* m_tmhmMoveComboBox;
+		wxButton* tmhmPokemonClearButton;
+		ui::ColoredCheckListBox* m_tmhmPokemonList;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonEvolutionsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPokemonMovesButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPokemonTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:

@@ -21,8 +21,9 @@ namespace ui
         base::MutableState<int> m_selectedPokemonMove = -1;
 
         base::MutableState<int> m_selectedUnown = -1;
-
         base::MutableState<int> m_selectedItem = -1;
+        base::MutableState<int> m_selectedMove = -1;
+        base::MutableState<int> m_selectedTMHM = -1;
 
     public:
         DatabasePanel(wxWindow *parent,
@@ -36,6 +37,8 @@ namespace ui
             InitializePokemonTab();
             InitializeUnownTab();
             InitializeItemTab();
+            InitializeMoveTab();
+            InitializeTmHmTab();
         }
 
     private:
@@ -51,5 +54,12 @@ namespace ui
 
         void InitializeItemTab();
         void InitializeItemEditor();
+
+        void InitializeMoveTab();
+        void InitializeMoveEditor();
+
+        void InitializeTmHmTab();
+        void UpdateTMHMsTab();
+        void OnTMHMsButtonClick(wxCommandEvent &event) override;
     };
 }

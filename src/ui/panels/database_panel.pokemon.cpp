@@ -291,7 +291,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             m_pokemonHmTmList8,
         });
 
-        m_pokegold.Data().MoveNameUpdated().Subscribe(this, [this, tmhmCtrls](const int &idx) {
+        auto tmhmsUpdateFunc = [this, tmhmCtrls] {
             for (size_t i = 0; i < 57; i++)
             {
                 auto &e = m_pokegold.Data().Moves()[m_pokegold.Data().TMHMs()[i].MoveId - 1];
@@ -304,7 +304,21 @@ void ui::DatabasePanel::InitializePokemonTab()
                         int(i < 50 ? i + 1 : i - 49),
                         e.Name.ToEditorWxString()));
             }
-        });
+
+            int pokemonIdx = *m_selectedPokemon;
+            if (pokemonIdx != -1)
+            {
+                size_t tmhmIdx = 0;
+                for (auto *ctrl : *tmhmCtrls)
+                {
+                    for (unsigned int i = 0; i < ctrl->GetCount(); i++)
+                        ctrl->Check(i, m_pokegold.Data().Pokemons()[pokemonIdx].TMHMs[tmhmIdx++]);
+                }
+            }
+        };
+
+        m_pokegold.Data().TMHMsUpdated().Subscribe(this, [tmhmsUpdateFunc] { tmhmsUpdateFunc(); });
+        m_pokegold.Data().MoveNameUpdated().Subscribe(this, [tmhmsUpdateFunc](const int &) { tmhmsUpdateFunc(); });
 
         for (auto *ctrl : *tmhmCtrls)
         {
@@ -322,6 +336,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                         pokemon.TMHMs[i++] = ctrl2->IsChecked(j);
                 }
 
+                m_pokegold.Data().TMHMsUpdated()();
                 m_pokegold.Rom().NotifyRomChanged();
             });
         }
@@ -1200,6 +1215,7 @@ void ui::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)
             for (auto &e : selectedPokemon.TMHMs)
                 e = true;
 
+            m_pokegold.Data().TMHMsUpdated()();
             m_pokegold.Rom().NotifyRomChanged();
         });
         return;
@@ -1221,6 +1237,7 @@ void ui::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)
             for (auto &e : selectedPokemon.TMHMs)
                 e = false;
 
+            m_pokegold.Data().TMHMsUpdated()();
             m_pokegold.Rom().NotifyRomChanged();
         });
         return;

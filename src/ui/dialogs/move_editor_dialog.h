@@ -2,7 +2,6 @@
 
 #include "services/pokegold.h"
 #include "services/pokegold/data/game_data.h"
-#include "ui/generated/ui_base.h"
 #include "ui/ui.h"
 
 #include <wx/window.h>
