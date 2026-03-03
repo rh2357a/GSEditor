@@ -6,9 +6,11 @@
 #include <wx/listctrl.h>
 #include <wx/slider.h>
 #include <wx/spinctrl.h>
+#include <wx/vlbox.h>
 #include <wx/wx.h>
 
 #include <memory>
+
 
 namespace ui
 {
@@ -74,6 +76,15 @@ namespace ui
      * @param state 바인딩 대상 상태 객체
      */
     void BindControlSelection(wxWindowBase *hostControl, wxListCtrl *control, base::MutableState<int> &state);
+
+    /**
+     * @brief 선택 값 상태 바인딩
+     *
+     * @param hostControl 바인딩 자동 해제를 위한 호스트 윈도우
+     * @param control 선택 가능한 컨트롤
+     * @param state 바인딩 대상 상태 객체
+     */
+    void BindControlSelection(wxWindowBase *hostControl, wxVListBox *control, base::MutableState<int> &state);
 }
 
 namespace ui

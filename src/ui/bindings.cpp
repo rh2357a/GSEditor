@@ -1,5 +1,8 @@
 #include "bindings.h"
 
+#include <wx/event.h>
+
+
 namespace
 {
     wxEventTypeTag<wxCommandEvent> GetControlSelectionEvent(wxControlWithItemsBase *control)
@@ -215,6 +218,42 @@ void ui::BindControlSelection(wxWindowBase *hostControl, wxListCtrl *control, ba
             {
                 (*guard)([control, &state] {
                     state.Update(control->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED));
+                });
+            }
+
+            ev.Skip();
+        });
+    }
+}
+
+void ui::BindControlSelection(wxWindowBase *hostControl, wxVListBox *control, base::MutableState<int> &state)
+{
+    if (control != nullptr)
+    {
+        control->SetSelection(*state);
+
+        auto guard = std::make_shared<base::Guard>();
+
+        auto itemChangedEvent = [control, &state, guard](wxListEvent &ev) {
+            if (!(*guard).IsGuarded())
+                control->SetSelection(*state);
+            ev.Skip();
+        };
+
+        control->Bind(wxEVT_LIST_DELETE_ITEM, itemChangedEvent);
+        control->Bind(wxEVT_LIST_DELETE_ALL_ITEMS, itemChangedEvent);
+        control->Bind(wxEVT_LIST_INSERT_ITEM, itemChangedEvent);
+
+        state.Subscribe(hostControl, [control, guard](const int &val) {
+            if (!(*guard).IsGuarded())
+                control->SetSelection(val);
+        });
+
+        control->Bind(wxEVT_LISTBOX, [control, &state, guard](wxCommandEvent &ev) {
+            if (!(*guard).IsGuarded())
+            {
+                (*guard)([control, &state] {
+                    state.Update(control->GetSelection());
                 });
             }
 

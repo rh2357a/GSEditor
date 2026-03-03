@@ -1008,56 +1008,56 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	wxString m_pokemonHmTmList1Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList1NChoices = sizeof( m_pokemonHmTmList1Choices ) / sizeof( wxString );
-	m_pokemonHmTmList1 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList1NChoices, m_pokemonHmTmList1Choices, wxLB_NO_SB );
+	m_pokemonHmTmList1 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList1NChoices, m_pokemonHmTmList1Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList1->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList1, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList2Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList2NChoices = sizeof( m_pokemonHmTmList2Choices ) / sizeof( wxString );
-	m_pokemonHmTmList2 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList2NChoices, m_pokemonHmTmList2Choices, wxLB_NO_SB );
+	m_pokemonHmTmList2 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList2NChoices, m_pokemonHmTmList2Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList2->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList2, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList3Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList3NChoices = sizeof( m_pokemonHmTmList3Choices ) / sizeof( wxString );
-	m_pokemonHmTmList3 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList3NChoices, m_pokemonHmTmList3Choices, wxLB_NO_SB );
+	m_pokemonHmTmList3 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList3NChoices, m_pokemonHmTmList3Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList3->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList3, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList4Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList4NChoices = sizeof( m_pokemonHmTmList4Choices ) / sizeof( wxString );
-	m_pokemonHmTmList4 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList4NChoices, m_pokemonHmTmList4Choices, wxLB_NO_SB );
+	m_pokemonHmTmList4 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList4NChoices, m_pokemonHmTmList4Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList4->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList4, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList5Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList5NChoices = sizeof( m_pokemonHmTmList5Choices ) / sizeof( wxString );
-	m_pokemonHmTmList5 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList5NChoices, m_pokemonHmTmList5Choices, wxLB_NO_SB );
+	m_pokemonHmTmList5 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList5NChoices, m_pokemonHmTmList5Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList5->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList5, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList6Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList6NChoices = sizeof( m_pokemonHmTmList6Choices ) / sizeof( wxString );
-	m_pokemonHmTmList6 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList6NChoices, m_pokemonHmTmList6Choices, wxLB_NO_SB );
+	m_pokemonHmTmList6 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList6NChoices, m_pokemonHmTmList6Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList6->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList6, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList7Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList7NChoices = sizeof( m_pokemonHmTmList7Choices ) / sizeof( wxString );
-	m_pokemonHmTmList7 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList7NChoices, m_pokemonHmTmList7Choices, wxLB_NO_SB );
+	m_pokemonHmTmList7 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList7NChoices, m_pokemonHmTmList7Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList7->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList7, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList8Choices[] = { wxEmptyString };
 	int m_pokemonHmTmList8NChoices = sizeof( m_pokemonHmTmList8Choices ) / sizeof( wxString );
-	m_pokemonHmTmList8 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList8NChoices, m_pokemonHmTmList8Choices, wxLB_NO_SB );
+	m_pokemonHmTmList8 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList8NChoices, m_pokemonHmTmList8Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
 	m_pokemonHmTmList8->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList8, 0, wxALL|wxEXPAND, 2 );
@@ -2238,7 +2238,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	tmhmContainerSizer->Add( tmhmPokemonButtonsSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 5 );
 
 	wxArrayString m_tmhmPokemonListChoices;
-	m_tmhmPokemonList = new ui::ColoredCheckListBox( m_tmhmContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_tmhmPokemonListChoices, wxLB_SINGLE );
+	m_tmhmPokemonList = new ui::ColoredCheckListBox( m_tmhmContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_tmhmPokemonListChoices, wxLB_SINGLE|wxBORDER_SIMPLE );
 	tmhmContainerSizer->Add( m_tmhmPokemonList, 1, wxALL|wxEXPAND, 8 );
 
 

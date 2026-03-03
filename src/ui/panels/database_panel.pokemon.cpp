@@ -7,6 +7,7 @@
 #include "services/pokegold/data/game_data.h"
 #include "ui/bindings.h"
 #include "ui/controls/color_picker_panel.h"
+#include "ui/controls/colored_list_ctrl.h"
 #include "ui/controls/image_editor_panel.h"
 #include "ui/dialogs/evolution_editor_dialog.h"
 #include "ui/dialogs/file_dialogs.h"
@@ -280,7 +281,7 @@ void ui::DatabasePanel::InitializePokemonTab()
 
     // 기술, 비전머신 목록 갱신 & 선택 이벤트 설정
     {
-        auto tmhmCtrls = std::make_shared<std::vector<wxCheckListBox *>>(std::vector<wxCheckListBox *>{
+        auto tmhmCtrls = std::make_shared<std::vector<ui::ColoredCheckListBox *>>(std::vector<ColoredCheckListBox *>{
             m_pokemonHmTmList1,
             m_pokemonHmTmList2,
             m_pokemonHmTmList3,
@@ -730,7 +731,7 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_eventGuard([&] {
             m_pokemonContainer->Enable(idx != -1);
 
-            auto tmhmCtrls = std::vector<wxCheckListBox *>{
+            auto tmhmCtrls = std::vector<ui::ColoredCheckListBox *>{
                 m_pokemonHmTmList1,
                 m_pokemonHmTmList2,
                 m_pokemonHmTmList3,
@@ -1188,7 +1189,7 @@ void ui::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)
     const int id = event.GetId();
     auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
 
-    auto tmhmCtrls = std::vector<wxCheckListBox *>{
+    auto tmhmCtrls = std::vector<ui::ColoredCheckListBox *>{
         m_pokemonHmTmList1,
         m_pokemonHmTmList2,
         m_pokemonHmTmList3,

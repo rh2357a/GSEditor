@@ -1,7 +1,6 @@
 #include "database_panel.h"
 
 #include "ui/bindings.h"
-#include "ui/controls/colored.h"
 #include "ui/dialogs/message_box.h"
 
 #include <wx/event.h>

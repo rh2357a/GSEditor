@@ -1440,7 +1440,7 @@
         </object>
       </object>
     </object>
-    <object class="Panel" expanded="false">
+    <object class="Panel" expanded="true">
       <property name="aui_managed">0</property>
       <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
       <property name="bg"></property>
@@ -1464,16 +1464,16 @@
       <property name="window_extra_style"></property>
       <property name="window_name"></property>
       <property name="window_style">wxTAB_TRAVERSAL</property>
-      <object class="wxBoxSizer" expanded="false">
+      <object class="wxBoxSizer" expanded="true">
         <property name="minimum_size"></property>
         <property name="name">mainSizer</property>
         <property name="orient">wxVERTICAL</property>
         <property name="permission">none</property>
-        <object class="sizeritem" expanded="false">
+        <object class="sizeritem" expanded="true">
           <property name="border">5</property>
           <property name="flag">wxALL|wxEXPAND</property>
           <property name="proportion">1</property>
-          <object class="wxNotebook" expanded="false">
+          <object class="wxNotebook" expanded="true">
             <property name="BottomDockable">1</property>
             <property name="LeftDockable">1</property>
             <property name="RightDockable">1</property>
@@ -7939,7 +7939,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                       <object class="sizeritem" expanded="false">
@@ -8003,7 +8003,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                       <object class="sizeritem" expanded="false">
@@ -8067,7 +8067,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                       <object class="sizeritem" expanded="false">
@@ -8131,7 +8131,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                       <object class="sizeritem" expanded="false">
@@ -8195,7 +8195,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                       <object class="sizeritem" expanded="false">
@@ -8259,7 +8259,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                       <object class="sizeritem" expanded="false">
@@ -8323,7 +8323,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                       <object class="sizeritem" expanded="false">
@@ -8387,7 +8387,7 @@
                                           <property name="validator_variable"></property>
                                           <property name="window_extra_style"></property>
                                           <property name="window_name"></property>
-                                          <property name="window_style"></property>
+                                          <property name="window_style">wxBORDER_SIMPLE</property>
                                         </object>
                                       </object>
                                     </object>
@@ -14242,7 +14242,7 @@
                                   <property name="validator_variable"></property>
                                   <property name="window_extra_style"></property>
                                   <property name="window_name"></property>
-                                  <property name="window_style"></property>
+                                  <property name="window_style">wxBORDER_SIMPLE</property>
                                 </object>
                               </object>
                             </object>

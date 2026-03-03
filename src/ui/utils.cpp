@@ -6,6 +6,7 @@
 #include <wx/object.h>
 #include <wx/popupwin.h>
 #include <wx/spinctrl.h>
+#include <wx/vlbox.h>
 #include <wx/wx.h>
 
 namespace
@@ -78,6 +79,36 @@ void ui::ApplyNestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
                 wxWindow *focus = wxWindow::FindFocus();
                 bool focused = focus == spin || spin->IsDescendant(focus);
                 event.Skip(focused);
+            });
+        }
+        else if (auto *list = wxDynamicCast(ctrl, wxVListBox))
+        {
+            list->Bind(wxEVT_MOUSEWHEEL, [list](wxMouseEvent &event) {
+                size_t total = list->GetItemCount();
+                if (total == 0)
+                {
+                    event.Skip();
+                    return;
+                }
+
+                bool scrollUp = event.GetWheelRotation() > 0;
+                bool scrollDown = event.GetWheelRotation() < 0;
+
+                size_t first = list->GetVisibleBegin();
+                size_t end = list->GetVisibleEnd();
+
+                bool atTop = (first == 0);
+                bool atBottom = (end >= total);
+
+                if ((scrollUp && atTop) || (scrollDown && atBottom))
+                {
+                    wxMouseEvent evt(event);
+                    evt.SetEventObject(list->GetParent());
+                    list->GetParent()->GetEventHandler()->ProcessEvent(evt);
+                    return;
+                }
+
+                event.Skip();
             });
         }
         else if (auto *scrolled = wxDynamicCast(ctrl, wxScrolledWindow))
