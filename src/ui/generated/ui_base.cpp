@@ -199,25 +199,28 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	#endif
 	gameMenu->Append( m_gameTestPlayMenuItem );
 
-	wxMenu* gameTestPlaySubMenu;
-	gameTestPlaySubMenu = new wxMenu();
-	wxMenuItem* gameTestPlaySubMenuItem = new wxMenuItem( gameMenu, wxID_ANY, wxT("테스트 플레이 설정(&T)"), wxEmptyString, wxITEM_NORMAL, gameTestPlaySubMenu );
+	wxMenu* gameSettingsSubMenu;
+	gameSettingsSubMenu = new wxMenu();
+	wxMenuItem* gameSettingsSubMenuItem = new wxMenuItem( gameMenu, wxID_ANY, wxT("설정"), wxEmptyString, wxITEM_NORMAL, gameSettingsSubMenu );
 	#if (defined( __WXMSW__ ) || defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	gameTestPlaySubMenuItem->SetBitmap( wxNullBitmap );
+	gameSettingsSubMenuItem->SetBitmap( wxNullBitmap );
 	#endif
 
-	m_gameTestPlaySetEmulatorMenuItem = new wxMenuItem( gameTestPlaySubMenu, wxID_EMULATOR, wxString( wxT("에뮬레이터 설정(&E)...") ) , wxEmptyString, wxITEM_NORMAL );
-	gameTestPlaySubMenu->Append( m_gameTestPlaySetEmulatorMenuItem );
+	m_gameSettingsEmulatorMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_EMULATOR, wxString( wxT("에뮬레이터 설정(&E)...") ) , wxEmptyString, wxITEM_NORMAL );
+	gameSettingsSubMenu->Append( m_gameSettingsEmulatorMenuItem );
 
-	gameTestPlaySubMenu->AppendSeparator();
+	gameSettingsSubMenu->AppendSeparator();
 
-	m_gameTestPlayShowDebugLabelMenuItem = new wxMenuItem( gameTestPlaySubMenu, wxID_DEBUG_LABEL, wxString( wxT("디버그 라벨 켜기/끄기(&D)") ) , wxT("디버거에서 롬 파일에 기록된 라벨을 표시합니다."), wxITEM_CHECK );
-	gameTestPlaySubMenu->Append( m_gameTestPlayShowDebugLabelMenuItem );
+	m_gameSettingsShowDebugLabelMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_DEBUG_LABEL, wxString( wxT("디버그 라벨 켜기/끄기(&D)") ) , wxT("디버거에서 롬 파일에 기록된 라벨을 표시합니다."), wxITEM_CHECK );
+	gameSettingsSubMenu->Append( m_gameSettingsShowDebugLabelMenuItem );
 
-	m_gameTestPlaySaveMenuItem = new wxMenuItem( gameTestPlaySubMenu, wxID_TEST_PLAY_SAVE, wxString( wxT("테스트 플레이 세이브 켜기/끄기(&S)") ) , wxT("테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다."), wxITEM_CHECK );
-	gameTestPlaySubMenu->Append( m_gameTestPlaySaveMenuItem );
+	m_gameSettingsSaveMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_TEST_PLAY_SAVE, wxString( wxT("테스트 플레이 세이브 켜기/끄기(&S)") ) , wxT("테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다. (권장: 켜기)"), wxITEM_CHECK );
+	gameSettingsSubMenu->Append( m_gameSettingsSaveMenuItem );
 
-	gameMenu->Append( gameTestPlaySubMenuItem );
+	m_gameSettingsCleanupMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_BUILD_CLEANUP, wxString( wxT("데이터 삽입 공간에 0 채우기 켜기/끄기(&C)") ) , wxT("롬 파일 빌드 시, 데이터가 삽입될 곳에 0을 채우는 기능을 켜거나 끕니다. (권장: 끄기)"), wxITEM_CHECK );
+	gameSettingsSubMenu->Append( m_gameSettingsCleanupMenuItem );
+
+	gameMenu->Append( gameSettingsSubMenuItem );
 
 	m_mainMenuBar->Append( gameMenu, wxT("게임(&G)") );
 
@@ -270,9 +273,10 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_fileExportToXdeltaMenuItem->GetId());
 	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, fileExitMenuItem->GetId());
 	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameTestPlayMenuItem->GetId());
-	gameTestPlaySubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameTestPlaySetEmulatorMenuItem->GetId());
-	gameTestPlaySubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameTestPlayShowDebugLabelMenuItem->GetId());
-	gameTestPlaySubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameTestPlaySaveMenuItem->GetId());
+	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameSettingsEmulatorMenuItem->GetId());
+	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsShowDebugLabelMenuItem->GetId());
+	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsSaveMenuItem->GetId());
+	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsCleanupMenuItem->GetId());
 	helpMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, helpAboutMenuItem->GetId());
 	this->Connect( openToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 	this->Connect( m_saveToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
@@ -1005,41 +1009,57 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxString m_pokemonHmTmList1Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList1NChoices = sizeof( m_pokemonHmTmList1Choices ) / sizeof( wxString );
 	m_pokemonHmTmList1 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList1NChoices, m_pokemonHmTmList1Choices, wxLB_NO_SB );
+	m_pokemonHmTmList1->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList1, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList2Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList2NChoices = sizeof( m_pokemonHmTmList2Choices ) / sizeof( wxString );
 	m_pokemonHmTmList2 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList2NChoices, m_pokemonHmTmList2Choices, wxLB_NO_SB );
+	m_pokemonHmTmList2->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList2, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList3Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList3NChoices = sizeof( m_pokemonHmTmList3Choices ) / sizeof( wxString );
 	m_pokemonHmTmList3 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList3NChoices, m_pokemonHmTmList3Choices, wxLB_NO_SB );
+	m_pokemonHmTmList3->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList3, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList4Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList4NChoices = sizeof( m_pokemonHmTmList4Choices ) / sizeof( wxString );
 	m_pokemonHmTmList4 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList4NChoices, m_pokemonHmTmList4Choices, wxLB_NO_SB );
+	m_pokemonHmTmList4->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList4, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList5Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList5NChoices = sizeof( m_pokemonHmTmList5Choices ) / sizeof( wxString );
 	m_pokemonHmTmList5 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList5NChoices, m_pokemonHmTmList5Choices, wxLB_NO_SB );
+	m_pokemonHmTmList5->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList5, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList6Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList6NChoices = sizeof( m_pokemonHmTmList6Choices ) / sizeof( wxString );
 	m_pokemonHmTmList6 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList6NChoices, m_pokemonHmTmList6Choices, wxLB_NO_SB );
+	m_pokemonHmTmList6->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList6, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList7Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList7NChoices = sizeof( m_pokemonHmTmList7Choices ) / sizeof( wxString );
 	m_pokemonHmTmList7 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList7NChoices, m_pokemonHmTmList7Choices, wxLB_NO_SB );
+	m_pokemonHmTmList7->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList7, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList8Choices[] = { wxEmptyString };
 	int m_pokemonHmTmList8NChoices = sizeof( m_pokemonHmTmList8Choices ) / sizeof( wxString );
 	m_pokemonHmTmList8 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList8NChoices, m_pokemonHmTmList8Choices, wxLB_NO_SB );
+	m_pokemonHmTmList8->SetMinSize( wxSize( 160,-1 ) );
+
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList8, 0, wxALL|wxEXPAND, 2 );
 
 

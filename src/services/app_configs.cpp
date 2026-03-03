@@ -10,6 +10,7 @@ namespace
 
     constexpr const auto k_showDebugLabelKey = wxT("App/TestPlay/ShowDebugLabel");
     constexpr const auto k_testPlaySaveKey = wxT("App/TestPlay/TestPlaySave");
+    constexpr const auto k_buildCleanupKey = wxT("App/Build/Cleanup");
 }
 
 void services::AppConfigs::Initialize()
@@ -79,7 +80,7 @@ bool services::AppConfigs::GetShowDebugLabel()
 {
     if (m_configs != nullptr && m_configs->Exists(k_showDebugLabelKey))
     {
-        const bool value = m_configs->ReadBool(k_showDebugLabelKey, false);
+        const bool value = m_configs->ReadBool(k_showDebugLabelKey, true);
         return value;
     }
     return true;
@@ -100,7 +101,7 @@ bool services::AppConfigs::GetTestPlaySave()
 {
     if (m_configs != nullptr && m_configs->Exists(k_testPlaySaveKey))
     {
-        const bool value = m_configs->ReadBool(k_testPlaySaveKey, false);
+        const bool value = m_configs->ReadBool(k_testPlaySaveKey, true);
         return value;
     }
     return true;
@@ -114,5 +115,26 @@ void services::AppConfigs::SetTestPlaySave(bool value)
         m_configs->Flush();
 
         m_testPlaySaveState.Update(value);
+    }
+}
+
+bool services::AppConfigs::GetBuildCleanup()
+{
+    if (m_configs != nullptr && m_configs->Exists(k_buildCleanupKey))
+    {
+        const bool value = m_configs->ReadBool(k_buildCleanupKey, false);
+        return value;
+    }
+    return false;
+}
+
+void services::AppConfigs::SetBuildCleanup(bool value)
+{
+    if (m_configs != nullptr)
+    {
+        m_configs->Write(k_buildCleanupKey, value);
+        m_configs->Flush();
+
+        m_buildCleanupState.Update(value);
     }
 }

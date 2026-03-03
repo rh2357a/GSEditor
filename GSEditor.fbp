@@ -1154,8 +1154,8 @@
           </object>
           <object class="submenu" expanded="false">
             <property name="bitmap">Load From File; </property>
-            <property name="label">테스트 플레이 설정(&amp;T)</property>
-            <property name="name">gameTestPlaySubMenu</property>
+            <property name="label">설정</property>
+            <property name="name">gameSettingsSubMenu</property>
             <property name="permission">none</property>
             <object class="wxMenuItem" expanded="false">
               <property name="bitmap"></property>
@@ -1165,14 +1165,14 @@
               <property name="id">wxID_EMULATOR</property>
               <property name="kind">wxITEM_NORMAL</property>
               <property name="label">에뮬레이터 설정(&amp;E)...</property>
-              <property name="name">m_gameTestPlaySetEmulatorMenuItem</property>
+              <property name="name">m_gameSettingsEmulatorMenuItem</property>
               <property name="permission">protected</property>
               <property name="shortcut"></property>
               <property name="unchecked_bitmap"></property>
               <event name="OnMenuSelection">OnMenuSelected</event>
             </object>
             <object class="separator" expanded="false">
-              <property name="name">gameTestPlaySeparator_0</property>
+              <property name="name">gameSettingsSeparator_0</property>
               <property name="permission">none</property>
             </object>
             <object class="wxMenuItem" expanded="false">
@@ -1183,7 +1183,7 @@
               <property name="id">wxID_DEBUG_LABEL</property>
               <property name="kind">wxITEM_CHECK</property>
               <property name="label">디버그 라벨 켜기/끄기(&amp;D)</property>
-              <property name="name">m_gameTestPlayShowDebugLabelMenuItem</property>
+              <property name="name">m_gameSettingsShowDebugLabelMenuItem</property>
               <property name="permission">protected</property>
               <property name="shortcut"></property>
               <property name="unchecked_bitmap"></property>
@@ -1193,11 +1193,25 @@
               <property name="bitmap"></property>
               <property name="checked">0</property>
               <property name="enabled">1</property>
-              <property name="help">테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다.</property>
+              <property name="help">테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다. (권장: 켜기)</property>
               <property name="id">wxID_TEST_PLAY_SAVE</property>
               <property name="kind">wxITEM_CHECK</property>
               <property name="label">테스트 플레이 세이브 켜기/끄기(&amp;S)</property>
-              <property name="name">m_gameTestPlaySaveMenuItem</property>
+              <property name="name">m_gameSettingsSaveMenuItem</property>
+              <property name="permission">protected</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">OnMenuItemSelected</event>
+            </object>
+            <object class="wxMenuItem" expanded="false">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help">롬 파일 빌드 시, 데이터가 삽입될 곳에 0을 채우는 기능을 켜거나 끕니다. (권장: 끄기)</property>
+              <property name="id">wxID_BUILD_CLEANUP</property>
+              <property name="kind">wxITEM_CHECK</property>
+              <property name="label">데이터 삽입 공간에 0 채우기 켜기/끄기(&amp;C)</property>
+              <property name="name">m_gameSettingsCleanupMenuItem</property>
               <property name="permission">protected</property>
               <property name="shortcut"></property>
               <property name="unchecked_bitmap"></property>
@@ -1426,7 +1440,7 @@
         </object>
       </object>
     </object>
-    <object class="Panel" expanded="true">
+    <object class="Panel" expanded="false">
       <property name="aui_managed">0</property>
       <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
       <property name="bg"></property>
@@ -1450,16 +1464,16 @@
       <property name="window_extra_style"></property>
       <property name="window_name"></property>
       <property name="window_style">wxTAB_TRAVERSAL</property>
-      <object class="wxBoxSizer" expanded="true">
+      <object class="wxBoxSizer" expanded="false">
         <property name="minimum_size"></property>
         <property name="name">mainSizer</property>
         <property name="orient">wxVERTICAL</property>
         <property name="permission">none</property>
-        <object class="sizeritem" expanded="true">
+        <object class="sizeritem" expanded="false">
           <property name="border">5</property>
           <property name="flag">wxALL|wxEXPAND</property>
           <property name="proportion">1</property>
-          <object class="wxNotebook" expanded="true">
+          <object class="wxNotebook" expanded="false">
             <property name="BottomDockable">1</property>
             <property name="LeftDockable">1</property>
             <property name="RightDockable">1</property>
@@ -7903,7 +7917,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList1</property>
                                           <property name="pane_border">1</property>
@@ -7967,7 +7981,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList2</property>
                                           <property name="pane_border">1</property>
@@ -8031,7 +8045,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList3</property>
                                           <property name="pane_border">1</property>
@@ -8095,7 +8109,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList4</property>
                                           <property name="pane_border">1</property>
@@ -8159,7 +8173,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList5</property>
                                           <property name="pane_border">1</property>
@@ -8223,7 +8237,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList6</property>
                                           <property name="pane_border">1</property>
@@ -8287,7 +8301,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList7</property>
                                           <property name="pane_border">1</property>
@@ -8351,7 +8365,7 @@
                                           <property name="maximum_size"></property>
                                           <property name="min_size"></property>
                                           <property name="minimize_button">0</property>
-                                          <property name="minimum_size">-1,-1</property>
+                                          <property name="minimum_size">160,-1</property>
                                           <property name="moveable">1</property>
                                           <property name="name">m_pokemonHmTmList8</property>
                                           <property name="pane_border">1</property>
@@ -13408,11 +13422,11 @@
                 </object>
               </object>
             </object>
-            <object class="notebookpage" expanded="true">
+            <object class="notebookpage" expanded="false">
               <property name="bitmap"></property>
               <property name="label">기술머신</property>
               <property name="select">0</property>
-              <object class="wxPanel" expanded="true">
+              <object class="wxPanel" expanded="false">
                 <property name="BottomDockable">1</property>
                 <property name="LeftDockable">1</property>
                 <property name="RightDockable">1</property>
@@ -13464,16 +13478,16 @@
                 <property name="window_extra_style"></property>
                 <property name="window_name"></property>
                 <property name="window_style">wxTAB_TRAVERSAL</property>
-                <object class="wxBoxSizer" expanded="true">
+                <object class="wxBoxSizer" expanded="false">
                   <property name="minimum_size"></property>
                   <property name="name">tmhmPanelSizer</property>
                   <property name="orient">wxVERTICAL</property>
                   <property name="permission">none</property>
-                  <object class="sizeritem" expanded="true">
+                  <object class="sizeritem" expanded="false">
                     <property name="border">2</property>
                     <property name="flag">wxEXPAND | wxALL</property>
                     <property name="proportion">1</property>
-                    <object class="wxPanel" expanded="true">
+                    <object class="wxPanel" expanded="false">
                       <property name="BottomDockable">1</property>
                       <property name="LeftDockable">1</property>
                       <property name="RightDockable">1</property>
@@ -13525,7 +13539,7 @@
                       <property name="window_extra_style"></property>
                       <property name="window_name"></property>
                       <property name="window_style">wxTAB_TRAVERSAL</property>
-                      <object class="wxBoxSizer" expanded="true">
+                      <object class="wxBoxSizer" expanded="false">
                         <property name="minimum_size"></property>
                         <property name="name">tmhmInnerPanelSizer</property>
                         <property name="orient">wxHORIZONTAL</property>
@@ -13594,11 +13608,11 @@
                             <property name="window_style">wxBORDER_STATIC</property>
                           </object>
                         </object>
-                        <object class="sizeritem" expanded="true">
+                        <object class="sizeritem" expanded="false">
                           <property name="border">2</property>
                           <property name="flag">wxEXPAND | wxALL</property>
                           <property name="proportion">1</property>
-                          <object class="wxPanel" expanded="true">
+                          <object class="wxPanel" expanded="false">
                             <property name="BottomDockable">1</property>
                             <property name="LeftDockable">1</property>
                             <property name="RightDockable">1</property>
@@ -13650,7 +13664,7 @@
                             <property name="window_extra_style"></property>
                             <property name="window_name"></property>
                             <property name="window_style">wxBORDER_STATIC|wxTAB_TRAVERSAL</property>
-                            <object class="wxBoxSizer" expanded="true">
+                            <object class="wxBoxSizer" expanded="false">
                               <property name="minimum_size"></property>
                               <property name="name">tmhmContainerSizer</property>
                               <property name="orient">wxVERTICAL</property>
@@ -14167,11 +14181,11 @@
                                   </object>
                                 </object>
                               </object>
-                              <object class="sizeritem" expanded="true">
+                              <object class="sizeritem" expanded="false">
                                 <property name="border">8</property>
                                 <property name="flag">wxALL|wxEXPAND</property>
                                 <property name="proportion">1</property>
-                                <object class="wxCheckListBox" expanded="true">
+                                <object class="wxCheckListBox" expanded="false">
                                   <property name="BottomDockable">1</property>
                                   <property name="LeftDockable">1</property>
                                   <property name="RightDockable">1</property>
@@ -14263,7 +14277,7 @@
       <property name="minimum_size"></property>
       <property name="name">AboutDialogBase</property>
       <property name="pos"></property>
-      <property name="size">620,540</property>
+      <property name="size">624,540</property>
       <property name="style">wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE</property>
       <property name="subclass">; ; forward_declare</property>
       <property name="title">GS 에디터 정보...</property>

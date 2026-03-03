@@ -8,6 +8,7 @@
 #include "ui/dialogs/file_dialogs.h"
 #include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
+#include "ui/generated/ui_base.h"
 
 #include <wx/persist/toplevel.h>
 
@@ -39,6 +40,7 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
     m_configs.GetEmulatorPathState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetShowDebugLabelState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetTestPlaySaveState().Subscribe(this, [this] { SettingsMenusHandler(); });
+    m_configs.GetBuildCleanupState().Subscribe(this, [this] { SettingsMenusHandler(); });
 }
 
 void ui::MainFrame::RomOpenedControlHandler()
@@ -80,20 +82,18 @@ void ui::MainFrame::SettingsMenusHandler()
     if (path == base::GetNullPath())
     {
         wxString help = wxT("테스트 플레이 에뮬레이터를 등록합니다.");
-        m_gameTestPlaySetEmulatorMenuItem->SetHelp(help);
+        m_gameSettingsEmulatorMenuItem->SetHelp(help);
     }
     else
     {
         std::string realPath = path.string();
         wxString help = wxString::Format(wxT("테스트 플레이 에뮬레이터를 등록합니다. (등록: '%s')"), wxString::FromUTF8(realPath));
-        m_gameTestPlaySetEmulatorMenuItem->SetHelp(help);
+        m_gameSettingsEmulatorMenuItem->SetHelp(help);
     }
 
-    auto showDebugLabel = m_configs.GetShowDebugLabel();
-    m_gameTestPlayShowDebugLabelMenuItem->Check(showDebugLabel);
-
-    auto testPlaySave = m_configs.GetTestPlaySave();
-    m_gameTestPlaySaveMenuItem->Check(testPlaySave);
+    m_gameSettingsShowDebugLabelMenuItem->Check(m_configs.GetShowDebugLabel());
+    m_gameSettingsSaveMenuItem->Check(m_configs.GetTestPlaySave());
+    m_gameSettingsCleanupMenuItem->Check(m_configs.GetBuildCleanup());
 }
 
 void ui::MainFrame::OnClose(wxCloseEvent &event)
@@ -301,6 +301,13 @@ void ui::MainFrame::OnMenuItemSelected(wxCommandEvent &event)
     {
         auto newValue = !(m_configs.GetTestPlaySave());
         m_configs.SetTestPlaySave(newValue);
+        return;
+    }
+
+    if (id == wxID_BUILD_CLEANUP)
+    {
+        auto newValue = !(m_configs.GetBuildCleanup());
+        m_configs.SetBuildCleanup(newValue);
         return;
     }
 }

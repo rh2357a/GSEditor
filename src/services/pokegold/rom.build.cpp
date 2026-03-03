@@ -151,56 +151,64 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
         if (m_buildProgressState.HandlePausedOrCanceled())
             return false;
 
-        m_buildProgressState.UpdateMessage("롬 정리 소스 작성");
-        m_buildProgressState.Increase();
-
-        constexpr auto filename = "GSEditor.Cleanup.asm";
-        data.GetSourceStream() << GetAsmInclude(filename);
-
-        std::ofstream srcStream(*m_workspacePathState / filename);
-        srcStream << GetAsmSection(0x1a0000, "GSEditor_Cleanup_Pokedex_0")
-                  << GetAsmLine("ds $4000")
-                  << GetAsmSection(0x1a4000, "GSEditor_Cleanup_Pokedex_1")
-                  << GetAsmLine("ds $4000")
-
-                  << GetAsmSection(0x1b0000, "GSEditor_Cleanup_Strings_0")
-                  << GetAsmLine("ds $4000")
-                  << GetAsmSection(0x1b4000, "GSEditor_Cleanup_Strings_1")
-                  << GetAsmLine("ds $4000")
-                  << GetAsmSection(0x1b8000, "GSEditor_Cleanup_Strings_2")
-                  << GetAsmLine("ds $4000")
-
-                  << GetAsmSection(0x34d01, "GSEditor_Cleanup_TypeMatchups_0")
-                  << GetAsmLine("ds 332")
-                  << GetAsmSection(0x1fc7d4, "GSEditor_Cleanup_TypeMatchups_1")
-                  << GetAsmLine("ds $382c");
-
-        for (size_t current = 0, max = k_typeNameFreeSpaces.size(); current < max; current++)
+        if (m_appConfigs.GetBuildCleanup())
         {
-            const auto &freeSpace = k_typeNameFreeSpaces[current];
-
-            if (m_buildProgressState.HandlePausedOrCanceled())
-                return false;
-
-            m_buildProgressState.UpdateMessage(std::format("롬 정리 소스 작성 (타입 이름: {}/{})", current + 1, max));
+            m_buildProgressState.UpdateMessage("롬 정리 소스 작성");
             m_buildProgressState.Increase();
 
-            srcStream << GetAsmSection(freeSpace.From, "GSEditor_Cleanup_TypeNameFreeSpace_0x{:x}", freeSpace.From)
-                      << GetAsmLine("ds {}", freeSpace.To - freeSpace.From + 1);
+            constexpr auto filename = "GSEditor.Cleanup.asm";
+            data.GetSourceStream() << GetAsmInclude(filename);
+
+            std::ofstream srcStream(*m_workspacePathState / filename);
+            srcStream << GetAsmSection(0x1a0000, "GSEditor_Cleanup_Pokedex_0")
+                      << GetAsmLine("ds $4000")
+                      << GetAsmSection(0x1a4000, "GSEditor_Cleanup_Pokedex_1")
+                      << GetAsmLine("ds $4000")
+
+                      << GetAsmSection(0x1b0000, "GSEditor_Cleanup_Strings_0")
+                      << GetAsmLine("ds $4000")
+                      << GetAsmSection(0x1b4000, "GSEditor_Cleanup_Strings_1")
+                      << GetAsmLine("ds $4000")
+                      << GetAsmSection(0x1b8000, "GSEditor_Cleanup_Strings_2")
+                      << GetAsmLine("ds $4000")
+
+                      << GetAsmSection(0x34d01, "GSEditor_Cleanup_TypeMatchups_0")
+                      << GetAsmLine("ds 332")
+                      << GetAsmSection(0x1fc7d4, "GSEditor_Cleanup_TypeMatchups_1")
+                      << GetAsmLine("ds $382c");
+
+            for (size_t current = 0, max = k_typeNameFreeSpaces.size(); current < max; current++)
+            {
+                const auto &freeSpace = k_typeNameFreeSpaces[current];
+
+                if (m_buildProgressState.HandlePausedOrCanceled())
+                    return false;
+
+                m_buildProgressState.UpdateMessage(std::format("롬 정리 소스 작성 (타입 이름: {}/{})", current + 1, max));
+                m_buildProgressState.Increase();
+
+                srcStream << GetAsmSection(freeSpace.From, "GSEditor_Cleanup_TypeNameFreeSpace_0x{:x}", freeSpace.From)
+                          << GetAsmLine("ds {}", freeSpace.To - freeSpace.From + 1);
+            }
+
+            for (size_t current = 0, max = k_imageFreeSpaces.size(); current < max; current++)
+            {
+                const auto &freeSpace = k_imageFreeSpaces[current];
+
+                if (m_buildProgressState.HandlePausedOrCanceled())
+                    return false;
+
+                m_buildProgressState.UpdateMessage(std::format("롬 정리 소스 작성 (이미지: {}/{})", current + 1, max));
+                m_buildProgressState.Increase();
+
+                srcStream << GetAsmSection(freeSpace.From, "GSEditor_Cleanup_ImageFreeSpace_0x{:x}", freeSpace.From)
+                          << GetAsmLine("ds {}", freeSpace.To - freeSpace.From + 1);
+            }
         }
-
-        for (size_t current = 0, max = k_imageFreeSpaces.size(); current < max; current++)
+        else
         {
-            const auto &freeSpace = k_imageFreeSpaces[current];
-
-            if (m_buildProgressState.HandlePausedOrCanceled())
-                return false;
-
-            m_buildProgressState.UpdateMessage(std::format("롬 정리 소스 작성 (이미지: {}/{})", current + 1, max));
+            m_buildProgressState.UpdateMessage("롬 정리 소스 작성 (생략)");
             m_buildProgressState.Increase();
-
-            srcStream << GetAsmSection(freeSpace.From, "GSEditor_Cleanup_ImageFreeSpace_0x{:x}", freeSpace.From)
-                      << GetAsmLine("ds {}", freeSpace.To - freeSpace.From + 1);
         }
     }
 

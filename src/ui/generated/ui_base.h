@@ -103,6 +103,7 @@ class MainFrameBase : public wxFrame
 			wxID_EMULATOR,
 			wxID_DEBUG_LABEL,
 			wxID_TEST_PLAY_SAVE,
+			wxID_BUILD_CLEANUP,
 		};
 
 		wxMenuBar* m_mainMenuBar;
@@ -110,9 +111,10 @@ class MainFrameBase : public wxFrame
 		wxMenuItem* m_fileExportToIpsMenuItem;
 		wxMenuItem* m_fileExportToXdeltaMenuItem;
 		wxMenuItem* m_gameTestPlayMenuItem;
-		wxMenuItem* m_gameTestPlaySetEmulatorMenuItem;
-		wxMenuItem* m_gameTestPlayShowDebugLabelMenuItem;
-		wxMenuItem* m_gameTestPlaySaveMenuItem;
+		wxMenuItem* m_gameSettingsEmulatorMenuItem;
+		wxMenuItem* m_gameSettingsShowDebugLabelMenuItem;
+		wxMenuItem* m_gameSettingsSaveMenuItem;
+		wxMenuItem* m_gameSettingsCleanupMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
@@ -288,7 +290,7 @@ class AboutDialogBase : public wxDialog
 
 	public:
 
-		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 620,540 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
+		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 624,540 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
 
 		~AboutDialogBase();
 
