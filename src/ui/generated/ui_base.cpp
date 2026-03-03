@@ -2258,6 +2258,146 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	tmhmPanel->Layout();
 	tmhmPanelSizer->Fit( tmhmPanel );
 	mainTabs->AddPage( tmhmPanel, wxT("기술머신"), false );
+	wxPanel* trainerGroupPanel;
+	trainerGroupPanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* trainerGroupPanelSizer;
+	trainerGroupPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* trainerGroupInnerPanel;
+	trainerGroupInnerPanel = new wxPanel( trainerGroupPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* trainerGroupInnerPanelSizer;
+	trainerGroupInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_trainerGroupList = new ui::ColoredListBox( trainerGroupInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 200,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	trainerGroupInnerPanelSizer->Add( m_trainerGroupList, 0, wxALL|wxEXPAND, 2 );
+
+	m_trainerGroupContainer = new wxScrolledWindow( trainerGroupInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxHSCROLL|wxVSCROLL );
+	m_trainerGroupContainer->SetScrollRate( 5, 16 );
+	m_trainerGroupContainer->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* trainerGroupContainerSizer;
+	trainerGroupContainerSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* trainerGroupNameLabelSizer;
+	trainerGroupNameLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* trainerGroupNameLabel;
+	trainerGroupNameLabel = new wxStaticText( m_trainerGroupContainer, wxID_ANY, wxT("이름"), wxDefaultPosition, wxDefaultSize, 0 );
+	trainerGroupNameLabel->Wrap( -1 );
+	trainerGroupNameLabelSizer->Add( trainerGroupNameLabel, 0, wxALL, 5 );
+
+	wxStaticLine* trainerGroupNameLabelSeparator;
+	trainerGroupNameLabelSeparator = new wxStaticLine( m_trainerGroupContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	trainerGroupNameLabelSizer->Add( trainerGroupNameLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	trainerGroupContainerSizer->Add( trainerGroupNameLabelSizer, 0, wxEXPAND, 5 );
+
+	m_trainerGroupNameText = new wxTextCtrl( m_trainerGroupContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 160,-1 ), 0 );
+	#ifdef __WXGTK__
+	if ( !m_trainerGroupNameText->HasFlag( wxTE_MULTILINE ) )
+	{
+	m_trainerGroupNameText->SetMaxLength( 12 );
+	}
+	#else
+	m_trainerGroupNameText->SetMaxLength( 12 );
+	#endif
+	trainerGroupContainerSizer->Add( m_trainerGroupNameText, 0, wxBOTTOM|wxLEFT|wxRIGHT|wxTOP, 8 );
+
+
+	trainerGroupContainerSizer->Add( 0, 8, 0, 0, 0 );
+
+	wxBoxSizer* trainerGroupImageLabelSizer;
+	trainerGroupImageLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* trainerGroupImageLabel;
+	trainerGroupImageLabel = new wxStaticText( m_trainerGroupContainer, wxID_ANY, wxT("이미지 && 색상"), wxDefaultPosition, wxDefaultSize, 0 );
+	trainerGroupImageLabel->Wrap( -1 );
+	trainerGroupImageLabelSizer->Add( trainerGroupImageLabel, 0, wxALL, 5 );
+
+	wxStaticLine* trainerGroupImageLabelSeparator;
+	trainerGroupImageLabelSeparator = new wxStaticLine( m_trainerGroupContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	trainerGroupImageLabelSizer->Add( trainerGroupImageLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	trainerGroupContainerSizer->Add( trainerGroupImageLabelSizer, 0, wxEXPAND, 5 );
+
+	m_trainerGroupImageContainer = new wxSimplebook( m_trainerGroupContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	wxPanel* trainerGroupImagePanel;
+	trainerGroupImagePanel = new wxPanel( m_trainerGroupImageContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* trainerGroupImagePanelSizer;
+	trainerGroupImagePanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* trainerGroupImageSizer;
+	trainerGroupImageSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* trainerGroupImageImageLabel;
+	trainerGroupImageImageLabel = new wxStaticText( trainerGroupImagePanel, wxID_ANY, wxT("이미지："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
+	trainerGroupImageImageLabel->Wrap( -1 );
+	trainerGroupImageSizer->Add( trainerGroupImageImageLabel, 0, wxALL, 5 );
+
+	m_trainerGroupImage = new ui::ImageEditorPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	trainerGroupImageSizer->Add( m_trainerGroupImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	trainerGroupImagePanelSizer->Add( trainerGroupImageSizer, 0, wxLEFT|wxRIGHT|wxTOP, 5 );
+
+	wxBoxSizer* trainerGroupColorSizer;
+	trainerGroupColorSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* trainerGroupImageColorLabel;
+	trainerGroupImageColorLabel = new wxStaticText( trainerGroupImagePanel, wxID_ANY, wxT("색상："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
+	trainerGroupImageColorLabel->Wrap( -1 );
+	trainerGroupColorSizer->Add( trainerGroupImageColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_trainerGroupColor_1 = new ui::ColorPickerPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	trainerGroupColorSizer->Add( m_trainerGroupColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_trainerGroupColor_2 = new ui::ColorPickerPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	trainerGroupColorSizer->Add( m_trainerGroupColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	trainerGroupImagePanelSizer->Add( trainerGroupColorSizer, 0, wxLEFT|wxRIGHT, 5 );
+
+
+	trainerGroupImagePanel->SetSizer( trainerGroupImagePanelSizer );
+	trainerGroupImagePanel->Layout();
+	trainerGroupImagePanelSizer->Fit( trainerGroupImagePanel );
+	m_trainerGroupImageContainer->AddPage( trainerGroupImagePanel, wxEmptyString, true );
+	wxPanel* trainerGroupImageWarningPanel;
+	trainerGroupImageWarningPanel = new wxPanel( m_trainerGroupImageContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* trainerGroupImageWarningPanelSizer;
+	trainerGroupImageWarningPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_trainerGroupImageWarningLabel = new wxStaticText( trainerGroupImageWarningPanel, wxID_ANY, wxT("'{rival}' 항목의 이미지를 편집해 주세요."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_trainerGroupImageWarningLabel->Wrap( -1 );
+	trainerGroupImageWarningPanelSizer->Add( m_trainerGroupImageWarningLabel, 0, wxALL, 32 );
+
+
+	trainerGroupImageWarningPanel->SetSizer( trainerGroupImageWarningPanelSizer );
+	trainerGroupImageWarningPanel->Layout();
+	trainerGroupImageWarningPanelSizer->Fit( trainerGroupImageWarningPanel );
+	m_trainerGroupImageContainer->AddPage( trainerGroupImageWarningPanel, wxEmptyString, false );
+
+	trainerGroupContainerSizer->Add( m_trainerGroupImageContainer, 0, wxEXPAND | wxALL, 5 );
+
+
+	m_trainerGroupContainer->SetSizer( trainerGroupContainerSizer );
+	m_trainerGroupContainer->Layout();
+	trainerGroupContainerSizer->Fit( m_trainerGroupContainer );
+	trainerGroupInnerPanelSizer->Add( m_trainerGroupContainer, 1, wxEXPAND | wxALL, 2 );
+
+
+	trainerGroupInnerPanel->SetSizer( trainerGroupInnerPanelSizer );
+	trainerGroupInnerPanel->Layout();
+	trainerGroupInnerPanelSizer->Fit( trainerGroupInnerPanel );
+	trainerGroupPanelSizer->Add( trainerGroupInnerPanel, 1, wxEXPAND | wxALL, 2 );
+
+
+	trainerGroupPanel->SetSizer( trainerGroupPanelSizer );
+	trainerGroupPanel->Layout();
+	trainerGroupPanelSizer->Fit( trainerGroupPanel );
+	mainTabs->AddPage( trainerGroupPanel, wxT("트레이너 그룹"), false );
 
 	mainSizer->Add( mainTabs, 1, wxALL|wxEXPAND, 5 );
 

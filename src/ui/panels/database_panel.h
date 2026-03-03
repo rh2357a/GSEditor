@@ -24,6 +24,7 @@ namespace ui
         base::MutableState<int> m_selectedItem = -1;
         base::MutableState<int> m_selectedMove = -1;
         base::MutableState<int> m_selectedTMHM = -1;
+        base::MutableState<int> m_selectedTrainerGroup = -1;
 
     public:
         DatabasePanel(wxWindow *parent,
@@ -39,6 +40,7 @@ namespace ui
             InitializeItemTab();
             InitializeMoveTab();
             InitializeTmHmTab();
+            InitializeTrainerGroupTab();
         }
 
     private:
@@ -61,5 +63,8 @@ namespace ui
         void InitializeTmHmTab();
         void UpdateTMHMsTab();
         void OnTMHMsButtonClick(wxCommandEvent &event) override;
+
+        void InitializeTrainerGroupTab();
+        void UpdateTrainerGroupImages();
     };
 }

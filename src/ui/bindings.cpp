@@ -2,7 +2,6 @@
 
 #include <wx/event.h>
 
-
 namespace
 {
     wxEventTypeTag<wxCommandEvent> GetControlSelectionEvent(wxControlWithItemsBase *control)
