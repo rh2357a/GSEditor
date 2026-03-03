@@ -81,9 +81,9 @@ std::optional<std::filesystem::path> pokegold::Rom::Build()
 
     std::vector<std::function<bool(internal::RomBuildData &)>> funcs = {
         [this](auto &data) { return Build_Startup(data); },
-        [this](auto &data) { return Build_ItemSources(data); },
-        [this](auto &data) { return Build_MoveSources(data); },
         [this](auto &data) { return Build_PokemonSources(data); },
+        [this](auto &data) { return Build_MoveSources(data); },
+        [this](auto &data) { return Build_ItemSources(data); },
         [this](auto &data) { return Build_TrainerGroupSources(data); },
         [this](auto &data) { return Build_TypeSources(data); },
         [this](auto &data) { return Build_Assemble(data); },
@@ -213,7 +213,7 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
     }
 
     // names section 기록
-    data.GetNamesSourceStream() << GetAsmSection(0x1b0000, "GSEditor_Names");
+    data.GetNamesSourceStream() << GetAsmSection(0x1b0c4a, "GSEditor_Names");
 
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
