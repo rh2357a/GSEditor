@@ -10,9 +10,9 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
 {
     ApplyListCtrlFixedHeader(m_badDataList);
 
-    m_badDataList->InsertColumn(0, wxT("순번"));
-    m_badDataList->InsertColumn(1, wxT("손상 내용"));
-    m_badDataList->InsertColumn(2, wxT("대응 내용"));
+    m_badDataList->AppendColumn(wxT("순번"));
+    m_badDataList->AppendColumn(wxT("손상 내용"));
+    m_badDataList->AppendColumn(wxT("대응 내용"));
 
     m_badDataList->Freeze();
 

@@ -2,6 +2,11 @@
 
 #include "ui/utils.h"
 
+#include <wx/listbase.h>
+#include <wx/listctrl.h>
+
+#include <vector>
+
 namespace
 {
     const wxColour k_oddItemColor(255, 255, 255);
@@ -20,7 +25,7 @@ ui::ColoredListCtrl::ColoredListCtrl(wxWindow *parent,
                                      long style,
                                      const wxValidator &validator,
                                      const wxString &name)
-    : wxListCtrl(parent, id, pos, size, style, validator, name)
+    : wxListCtrl(parent, id, pos, size, style | wxLC_VIRTUAL, validator, name)
 {
     Initialize();
 }
@@ -28,22 +33,70 @@ ui::ColoredListCtrl::ColoredListCtrl(wxWindow *parent,
 void ui::ColoredListCtrl::Initialize()
 {
     FixBorderThemeBug(this);
+    SetItemCount(0);
+}
 
-    auto listCtrlFunc = [this](wxListEvent &ev) {
-        ev.Skip();
+wxString ui::ColoredListCtrl::OnGetItemText(long item, long column) const
+{
+    return m_items[item][column];
+}
 
-        CallAfter([this]() {
-            Freeze();
+wxListItemAttr *ui::ColoredListCtrl::OnGetItemAttr(long item) const
+{
+    static wxListItemAttr oddAttr;
+    static wxListItemAttr evenAttr;
+    oddAttr.SetBackgroundColour(k_oddItemColor);
+    evenAttr.SetBackgroundColour(k_evenItemColor);
+    return (item % 2) ? &oddAttr : &evenAttr;
+}
 
-            int count = GetItemCount();
-            for (int i = 0; i < count; ++i)
-                SetItemBackgroundColour(i, i % 2 ? k_oddItemColor : k_evenItemColor);
+long ui::ColoredListCtrl::AppendColumn(const wxString &heading)
+{
+    long ret = ((wxListCtrl *)this)->AppendColumn(heading);
+    m_columnCount++;
+    return ret;
+}
 
-            Thaw();
-        });
-    };
+long ui::ColoredListCtrl::InsertItem(int idx, const wxString &str)
+{
+    m_items.emplace_back(std::vector<wxString>(m_columnCount, wxT("")));
+    SetItemCount((long)m_items.size());
 
-    Bind(wxEVT_LIST_DELETE_ITEM, listCtrlFunc);
-    Bind(wxEVT_LIST_DELETE_ALL_ITEMS, listCtrlFunc);
-    Bind(wxEVT_LIST_INSERT_ITEM, listCtrlFunc);
+    wxListEvent ev(wxEVT_LIST_INSERT_ITEM, GetId());
+    ev.SetEventObject(this);
+    ev.m_itemIndex = idx;
+    ProcessWindowEvent(ev);
+
+    return long(m_items.size() - 1);
+}
+
+bool ui::ColoredListCtrl::DeleteAllItems()
+{
+    m_items.clear();
+    SetItemCount(0);
+
+    wxListEvent ev(wxEVT_LIST_DELETE_ALL_ITEMS, GetId());
+    ev.SetEventObject(this);
+    ProcessWindowEvent(ev);
+
+    return true;
+}
+
+bool ui::ColoredListCtrl::DeleteItem(long item)
+{
+    m_items.erase(m_items.begin() + item);
+    SetItemCount((long)m_items.size());
+
+    wxListEvent ev(wxEVT_LIST_DELETE_ITEM, GetId());
+    ev.SetEventObject(this);
+    ev.m_itemIndex = item;
+    ProcessWindowEvent(ev);
+
+    return true;
+}
+
+bool ui::ColoredListCtrl::SetItem(long index, int col, const wxString &label)
+{
+    m_items[index][col] = label;
+    return true;
 }
