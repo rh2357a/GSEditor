@@ -142,22 +142,25 @@ void ui::ApplyNestedScrolling(const std::initializer_list<wxWindow *> &ctrls)
         else if (auto *list = wxDynamicCast(ctrl, wxListCtrl))
         {
             list->Bind(wxEVT_MOUSEWHEEL, [list](wxMouseEvent &event) {
-                int pos = list->GetScrollPos(wxVERTICAL);
-                int range = list->GetScrollRange(wxVERTICAL);
-                int cntPage = list->GetCountPerPage();
+                int top = list->GetTopItem();
+                int total = list->GetItemCount();
+                int perPage = list->GetCountPerPage();
 
                 bool scrollUp = event.GetWheelRotation() > 0;
                 bool scrollDown = event.GetWheelRotation() < 0;
-                bool canScrollToTop = pos > 0;
-                bool canScrollToBottom = pos <= range - cntPage - 1;
-                if ((scrollUp && canScrollToTop) || (scrollDown && canScrollToBottom))
+
+                bool atTop = (top == 0);
+                bool atBottom = (top + perPage >= total);
+
+                if ((scrollUp && !atTop) || (scrollDown && !atBottom))
                 {
                     event.Skip();
-                    return;
                 }
-
-                event.ResumePropagation(wxEVENT_PROPAGATE_MAX);
-                event.Skip();
+                else
+                {
+                    event.ResumePropagation(wxEVENT_PROPAGATE_MAX);
+                    event.Skip();
+                }
             });
         }
         else if (auto *control = wxDynamicCast(ctrl, wxControl))

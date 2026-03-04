@@ -262,12 +262,27 @@ class DatabasePanelBase : public wxPanel
 		ui::ColorPickerPanel* m_trainerGroupColor_1;
 		ui::ColorPickerPanel* m_trainerGroupColor_2;
 		wxStaticText* m_trainerGroupImageWarningLabel;
+		ui::ColoredListBox* m_typeList;
+		wxScrolledWindow* m_typeContainer;
+		wxTextCtrl* m_typeNameText;
+		ui::ColoredListCtrl* m_typeMatchupList;
+		wxButton* m_typeMatchupsAddButton;
+		wxButton* m_typeMatchupsEditButton;
+		wxButton* m_typeMatchupsRemoveButton;
+		wxButton* m_typeMatchupsClearButton;
+		ui::ColoredListCtrl* m_typeWeatherModifierList;
+		wxButton* m_typeWeatherModifiersAddButton;
+		wxButton* m_typeWeatherModifiersEditButton;
+		wxButton* m_typeWeatherModifiersRemoveButton;
+		wxButton* m_typeWeatherModifiersClearButton;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonEvolutionsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPokemonMovesButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPokemonTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTypeMatchupsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTypeWeatherModifiersButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -351,7 +366,6 @@ class MoveEditorDialogBase : public wxDialog
 	protected:
 		wxSpinCtrlDouble* m_levelSpinCtrl;
 		wxComboBox* m_movesComboBox;
-		wxStaticLine* m_staticline11;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
@@ -363,6 +377,55 @@ class MoveEditorDialogBase : public wxDialog
 		MoveEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 240,162 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
 
 		~MoveEditorDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class TypeMatchupEditorDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class TypeMatchupEditorDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxComboBox* m_typeComboBox;
+		wxComboBox* m_effectivenessComboBox;
+		wxCheckBox* m_foresightCheckBox;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		TypeMatchupEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 285,186 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
+
+		~TypeMatchupEditorDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class TypeWeatherModifierEditorDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class TypeWeatherModifierEditorDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxComboBox* m_weatherComboBox;
+		wxComboBox* m_effectivenessComboBox;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		TypeWeatherModifierEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 247,158 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
+
+		~TypeWeatherModifierEditorDialogBase();
 
 };
 

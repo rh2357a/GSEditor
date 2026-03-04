@@ -695,20 +695,20 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonImageDataLabel->Wrap( -1 );
 	pokemonImageSizer->Add( pokemonImageDataLabel, 0, wxALL, 5 );
 
-	m_pokemonFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonFrontImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonBackImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* pokemonImageSeparator;
 	pokemonImageSeparator = new wxStaticLine( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	pokemonImageSizer->Add( pokemonImageSeparator, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxTOP, 5 );
 
-	m_pokemonShinyFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonShinyFrontImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonShinyFrontImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonShinyBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonShinyBackImage = new ui::ImageEditorPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonImageSizer->Add( m_pokemonShinyBackImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -722,20 +722,20 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonColorLabel->Wrap( -1 );
 	pokemonColorSizer->Add( pokemonColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_pokemonColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* pokemonColorSeparator;
 	pokemonColorSeparator = new wxStaticLine( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	pokemonColorSizer->Add( pokemonColorSeparator, 0, wxEXPAND|wxLEFT, 5 );
 
-	m_pokemonShinyColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonShinyColor_1 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonShinyColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_pokemonShinyColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_pokemonShinyColor_2 = new ui::ColorPickerPanel( pokemonImageCommonTypePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	pokemonColorSizer->Add( m_pokemonShinyColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -1008,56 +1008,56 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	wxString m_pokemonHmTmList1Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList1NChoices = sizeof( m_pokemonHmTmList1Choices ) / sizeof( wxString );
-	m_pokemonHmTmList1 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList1NChoices, m_pokemonHmTmList1Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList1 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList1NChoices, m_pokemonHmTmList1Choices, wxLB_NO_SB );
 	m_pokemonHmTmList1->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList1, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList2Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList2NChoices = sizeof( m_pokemonHmTmList2Choices ) / sizeof( wxString );
-	m_pokemonHmTmList2 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList2NChoices, m_pokemonHmTmList2Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList2 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList2NChoices, m_pokemonHmTmList2Choices, wxLB_NO_SB );
 	m_pokemonHmTmList2->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList2, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList3Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList3NChoices = sizeof( m_pokemonHmTmList3Choices ) / sizeof( wxString );
-	m_pokemonHmTmList3 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList3NChoices, m_pokemonHmTmList3Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList3 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList3NChoices, m_pokemonHmTmList3Choices, wxLB_NO_SB );
 	m_pokemonHmTmList3->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList3, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList4Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList4NChoices = sizeof( m_pokemonHmTmList4Choices ) / sizeof( wxString );
-	m_pokemonHmTmList4 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList4NChoices, m_pokemonHmTmList4Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList4 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList4NChoices, m_pokemonHmTmList4Choices, wxLB_NO_SB );
 	m_pokemonHmTmList4->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList4, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList5Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList5NChoices = sizeof( m_pokemonHmTmList5Choices ) / sizeof( wxString );
-	m_pokemonHmTmList5 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList5NChoices, m_pokemonHmTmList5Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList5 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList5NChoices, m_pokemonHmTmList5Choices, wxLB_NO_SB );
 	m_pokemonHmTmList5->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList5, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList6Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList6NChoices = sizeof( m_pokemonHmTmList6Choices ) / sizeof( wxString );
-	m_pokemonHmTmList6 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList6NChoices, m_pokemonHmTmList6Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList6 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList6NChoices, m_pokemonHmTmList6Choices, wxLB_NO_SB );
 	m_pokemonHmTmList6->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList6, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList7Choices[] = { wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString, wxEmptyString };
 	int m_pokemonHmTmList7NChoices = sizeof( m_pokemonHmTmList7Choices ) / sizeof( wxString );
-	m_pokemonHmTmList7 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList7NChoices, m_pokemonHmTmList7Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList7 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList7NChoices, m_pokemonHmTmList7Choices, wxLB_NO_SB );
 	m_pokemonHmTmList7->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList7, 0, wxALL|wxEXPAND, 2 );
 
 	wxString m_pokemonHmTmList8Choices[] = { wxEmptyString };
 	int m_pokemonHmTmList8NChoices = sizeof( m_pokemonHmTmList8Choices ) / sizeof( wxString );
-	m_pokemonHmTmList8 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList8NChoices, m_pokemonHmTmList8Choices, wxLB_NO_SB|wxBORDER_SIMPLE );
+	m_pokemonHmTmList8 = new ui::ColoredCheckListBox( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_pokemonHmTmList8NChoices, m_pokemonHmTmList8Choices, wxLB_NO_SB );
 	m_pokemonHmTmList8->SetMinSize( wxSize( 160,-1 ) );
 
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList8, 0, wxALL|wxEXPAND, 2 );
@@ -1143,20 +1143,20 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* unownImageSizer;
 	unownImageSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_unownFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownFrontImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownBackImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* unownImageSeparator;
 	unownImageSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	unownImageSizer->Add( unownImageSeparator, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxTOP, 5 );
 
-	m_unownShinyFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownShinyFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownShinyFrontImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownShinyBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownShinyBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownShinyBackImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -1180,20 +1180,20 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* unownColorsSizer;
 	unownColorsSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_unownColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* unownColorSeparator;
 	unownColorSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	unownColorsSizer->Add( unownColorSeparator, 0, wxEXPAND|wxLEFT, 5 );
 
-	m_unownShinyColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownShinyColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownShinyColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownShinyColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_unownShinyColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownShinyColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -2238,7 +2238,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	tmhmContainerSizer->Add( tmhmPokemonButtonsSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 5 );
 
 	wxArrayString m_tmhmPokemonListChoices;
-	m_tmhmPokemonList = new ui::ColoredCheckListBox( m_tmhmContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_tmhmPokemonListChoices, wxLB_SINGLE|wxBORDER_SIMPLE );
+	m_tmhmPokemonList = new ui::ColoredCheckListBox( m_tmhmContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), m_tmhmPokemonListChoices, wxLB_SINGLE );
 	tmhmContainerSizer->Add( m_tmhmPokemonList, 1, wxALL|wxEXPAND, 8 );
 
 
@@ -2302,7 +2302,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	#else
 	m_trainerGroupNameText->SetMaxLength( 12 );
 	#endif
-	trainerGroupContainerSizer->Add( m_trainerGroupNameText, 0, wxBOTTOM|wxLEFT|wxRIGHT|wxTOP, 8 );
+	trainerGroupContainerSizer->Add( m_trainerGroupNameText, 0, wxALL, 8 );
 
 
 	trainerGroupContainerSizer->Add( 0, 8, 0, 0, 0 );
@@ -2336,7 +2336,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	trainerGroupImageImageLabel->Wrap( -1 );
 	trainerGroupImageSizer->Add( trainerGroupImageImageLabel, 0, wxALL, 5 );
 
-	m_trainerGroupImage = new ui::ImageEditorPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_trainerGroupImage = new ui::ImageEditorPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	trainerGroupImageSizer->Add( m_trainerGroupImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -2350,10 +2350,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	trainerGroupImageColorLabel->Wrap( -1 );
 	trainerGroupColorSizer->Add( trainerGroupImageColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-	m_trainerGroupColor_1 = new ui::ColorPickerPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_trainerGroupColor_1 = new ui::ColorPickerPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	trainerGroupColorSizer->Add( m_trainerGroupColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_trainerGroupColor_2 = new ui::ColorPickerPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_SUNKEN|wxTAB_TRAVERSAL );
+	m_trainerGroupColor_2 = new ui::ColorPickerPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	trainerGroupColorSizer->Add( m_trainerGroupColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
@@ -2398,6 +2398,168 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	trainerGroupPanel->Layout();
 	trainerGroupPanelSizer->Fit( trainerGroupPanel );
 	mainTabs->AddPage( trainerGroupPanel, wxT("트레이너 그룹"), false );
+	wxPanel* typePanel;
+	typePanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* typePanelSizer;
+	typePanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* typeInnerPanel;
+	typeInnerPanel = new wxPanel( typePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* typeInnerPanelSizer;
+	typeInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_typeList = new ui::ColoredListBox( typeInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	typeInnerPanelSizer->Add( m_typeList, 0, wxALL|wxEXPAND, 2 );
+
+	m_typeContainer = new wxScrolledWindow( typeInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxHSCROLL|wxVSCROLL );
+	m_typeContainer->SetScrollRate( 5, 16 );
+	m_typeContainer->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* typeContainerSizer;
+	typeContainerSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* typeNameLabelSizer;
+	typeNameLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* typeNameLabel;
+	typeNameLabel = new wxStaticText( m_typeContainer, wxID_ANY, wxT("이름"), wxDefaultPosition, wxDefaultSize, 0 );
+	typeNameLabel->Wrap( -1 );
+	typeNameLabelSizer->Add( typeNameLabel, 0, wxALL, 5 );
+
+	wxStaticLine* typeNameLabelSeparator;
+	typeNameLabelSeparator = new wxStaticLine( m_typeContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	typeNameLabelSizer->Add( typeNameLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	typeContainerSizer->Add( typeNameLabelSizer, 0, wxEXPAND, 5 );
+
+	m_typeNameText = new wxTextCtrl( m_typeContainer, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 160,-1 ), 0 );
+	#ifdef __WXGTK__
+	if ( !m_typeNameText->HasFlag( wxTE_MULTILINE ) )
+	{
+	m_typeNameText->SetMaxLength( 5 );
+	}
+	#else
+	m_typeNameText->SetMaxLength( 5 );
+	#endif
+	typeContainerSizer->Add( m_typeNameText, 0, wxALL, 8 );
+
+
+	typeContainerSizer->Add( 0, 8, 0, wxEXPAND, 0 );
+
+	wxBoxSizer* typeMatchupsLabelSizer;
+	typeMatchupsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* typeMatchupsLabel;
+	typeMatchupsLabel = new wxStaticText( m_typeContainer, wxID_ANY, wxT("상성"), wxDefaultPosition, wxDefaultSize, 0 );
+	typeMatchupsLabel->Wrap( -1 );
+	typeMatchupsLabelSizer->Add( typeMatchupsLabel, 0, wxALL, 5 );
+
+	wxStaticLine* typeMatchupsLabelSeparator;
+	typeMatchupsLabelSeparator = new wxStaticLine( m_typeContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	typeMatchupsLabelSizer->Add( typeMatchupsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	typeContainerSizer->Add( typeMatchupsLabelSizer, 0, wxEXPAND, 5 );
+
+	m_typeMatchupList = new ui::ColoredListCtrl( m_typeContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,240 ), wxLC_REPORT|wxLC_SINGLE_SEL );
+	typeContainerSizer->Add( m_typeMatchupList, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 8 );
+
+	wxBoxSizer* typeMatchupsButtonsSizer;
+	typeMatchupsButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_typeMatchupsAddButton = new wxButton( m_typeContainer, wxID_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeMatchupsAddButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	typeMatchupsButtonsSizer->Add( m_typeMatchupsAddButton, 0, wxRIGHT, 5 );
+
+	m_typeMatchupsEditButton = new wxButton( m_typeContainer, wxID_EDIT, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeMatchupsEditButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	typeMatchupsButtonsSizer->Add( m_typeMatchupsEditButton, 0, wxRIGHT, 5 );
+
+	m_typeMatchupsRemoveButton = new wxButton( m_typeContainer, wxID_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeMatchupsRemoveButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	typeMatchupsButtonsSizer->Add( m_typeMatchupsRemoveButton, 0, wxRIGHT, 5 );
+
+	m_typeMatchupsClearButton = new wxButton( m_typeContainer, wxID_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeMatchupsClearButton->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
+	m_typeMatchupsClearButton->SetForegroundColour( wxColour( 255, 0, 0 ) );
+
+	typeMatchupsButtonsSizer->Add( m_typeMatchupsClearButton, 0, wxRIGHT, 5 );
+
+
+	typeContainerSizer->Add( typeMatchupsButtonsSizer, 0, wxLEFT|wxRIGHT, 8 );
+
+
+	typeContainerSizer->Add( 0, 8, 0, 0, 0 );
+
+	wxBoxSizer* typeWeatherModifierLabelSizer;
+	typeWeatherModifierLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* typeWeatherModifierLabel;
+	typeWeatherModifierLabel = new wxStaticText( m_typeContainer, wxID_ANY, wxT("날씨 보정"), wxDefaultPosition, wxDefaultSize, 0 );
+	typeWeatherModifierLabel->Wrap( -1 );
+	typeWeatherModifierLabelSizer->Add( typeWeatherModifierLabel, 0, wxALL, 5 );
+
+	wxStaticLine* typeWeatherModifierLabelSeparator;
+	typeWeatherModifierLabelSeparator = new wxStaticLine( m_typeContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	typeWeatherModifierLabelSizer->Add( typeWeatherModifierLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	typeContainerSizer->Add( typeWeatherModifierLabelSizer, 0, wxEXPAND, 5 );
+
+	m_typeWeatherModifierList = new ui::ColoredListCtrl( m_typeContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,160 ), wxLC_REPORT|wxLC_SINGLE_SEL );
+	typeContainerSizer->Add( m_typeWeatherModifierList, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 8 );
+
+	wxBoxSizer* typeWeatherModifiersButtonsSizer;
+	typeWeatherModifiersButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_typeWeatherModifiersAddButton = new wxButton( m_typeContainer, wxID_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeWeatherModifiersAddButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersAddButton, 0, wxRIGHT, 5 );
+
+	m_typeWeatherModifiersEditButton = new wxButton( m_typeContainer, wxID_EDIT, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeWeatherModifiersEditButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersEditButton, 0, wxRIGHT, 5 );
+
+	m_typeWeatherModifiersRemoveButton = new wxButton( m_typeContainer, wxID_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeWeatherModifiersRemoveButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersRemoveButton, 0, wxRIGHT, 5 );
+
+	m_typeWeatherModifiersClearButton = new wxButton( m_typeContainer, wxID_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_typeWeatherModifiersClearButton->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
+	m_typeWeatherModifiersClearButton->SetForegroundColour( wxColour( 255, 0, 0 ) );
+
+	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersClearButton, 0, wxRIGHT, 5 );
+
+
+	typeContainerSizer->Add( typeWeatherModifiersButtonsSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 8 );
+
+
+	typeContainerSizer->Add( 0, 8, 0, 0, 0 );
+
+
+	m_typeContainer->SetSizer( typeContainerSizer );
+	m_typeContainer->Layout();
+	typeContainerSizer->Fit( m_typeContainer );
+	typeInnerPanelSizer->Add( m_typeContainer, 1, wxEXPAND | wxALL, 2 );
+
+
+	typeInnerPanel->SetSizer( typeInnerPanelSizer );
+	typeInnerPanel->Layout();
+	typeInnerPanelSizer->Fit( typeInnerPanel );
+	typePanelSizer->Add( typeInnerPanel, 1, wxEXPAND | wxALL, 2 );
+
+
+	typePanel->SetSizer( typePanelSizer );
+	typePanel->Layout();
+	typePanelSizer->Fit( typePanel );
+	mainTabs->AddPage( typePanel, wxT("타입"), false );
 
 	mainSizer->Add( mainTabs, 1, wxALL|wxEXPAND, 5 );
 
@@ -2419,6 +2581,14 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonTMHMsClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonTMHMsButtonClick ), NULL, this );
 	tmhmPokemonCheckAllButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTMHMsButtonClick ), NULL, this );
 	tmhmPokemonClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTMHMsButtonClick ), NULL, this );
+	m_typeMatchupsAddButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeMatchupsButtonClick ), NULL, this );
+	m_typeMatchupsEditButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeMatchupsButtonClick ), NULL, this );
+	m_typeMatchupsRemoveButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeMatchupsButtonClick ), NULL, this );
+	m_typeMatchupsClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeMatchupsButtonClick ), NULL, this );
+	m_typeWeatherModifiersAddButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
+	m_typeWeatherModifiersEditButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
+	m_typeWeatherModifiersRemoveButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
+	m_typeWeatherModifiersClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
 }
 
 DatabasePanelBase::~DatabasePanelBase()
@@ -2742,8 +2912,9 @@ MoveEditorDialogBase::MoveEditorDialogBase( wxWindow* parent, wxWindowID id, con
 
 	contentPanelSizer->Add( contentGrid, 0, wxEXPAND, 5 );
 
-	m_staticline11 = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	contentPanelSizer->Add( m_staticline11, 0, wxEXPAND | wxALL, 5 );
+	wxStaticLine* contentSeparator;
+	contentSeparator = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentPanelSizer->Add( contentSeparator, 0, wxEXPAND | wxALL, 5 );
 
 
 	contentPanel->SetSizer( contentPanelSizer );
@@ -2784,6 +2955,183 @@ MoveEditorDialogBase::MoveEditorDialogBase( wxWindow* parent, wxWindowID id, con
 }
 
 MoveEditorDialogBase::~MoveEditorDialogBase()
+{
+}
+
+TypeMatchupEditorDialogBase::TypeMatchupEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentPanel;
+	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* contentPanelSizer;
+	contentPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* contentGrid;
+	contentGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	contentGrid->AddGrowableCol( 1 );
+	contentGrid->SetFlexibleDirection( wxBOTH );
+	contentGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxStaticText* typeLabel;
+	typeLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("공격 대상 타입："), wxDefaultPosition, wxDefaultSize, 0 );
+	typeLabel->Wrap( -1 );
+	contentGrid->Add( typeLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_typeComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	contentGrid->Add( m_typeComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* effectivenessLabel;
+	effectivenessLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("효과："), wxDefaultPosition, wxDefaultSize, 0 );
+	effectivenessLabel->Wrap( -1 );
+	contentGrid->Add( effectivenessLabel, 0, wxALL, 5 );
+
+	m_effectivenessComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_effectivenessComboBox->Append( wxT("효과가 부족함") );
+	m_effectivenessComboBox->Append( wxT("효과가 굉장함") );
+	m_effectivenessComboBox->Append( wxT("효과가 없음") );
+	contentGrid->Add( m_effectivenessComboBox, 0, wxALL|wxEXPAND, 5 );
+
+
+	contentPanelSizer->Add( contentGrid, 0, wxEXPAND, 5 );
+
+	m_foresightCheckBox = new wxCheckBox( contentPanel, wxID_ANY, wxT("꿰뚫어보기 상태일 때 효과를 무시"), wxDefaultPosition, wxDefaultSize, 0 );
+	contentPanelSizer->Add( m_foresightCheckBox, 0, wxALL, 5 );
+
+	wxStaticLine* contentSeparator;
+	contentSeparator = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentPanelSizer->Add( contentSeparator, 0, wxEXPAND | wxALL, 5 );
+
+
+	contentPanel->SetSizer( contentPanelSizer );
+	contentPanel->Layout();
+	contentPanelSizer->Fit( contentPanel );
+	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButton;
+	confirmButton = new wxButton( buttonsPanel, wxID_OK, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	confirmButton->SetDefault();
+	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
+
+	wxButton* cancelButton;
+	cancelButton = new wxButton( buttonsPanel, wxID_CANCEL, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TypeMatchupEditorDialogBase::OnConfirmButtonClick ), NULL, this );
+	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TypeMatchupEditorDialogBase::OnCancelButtonClick ), NULL, this );
+}
+
+TypeMatchupEditorDialogBase::~TypeMatchupEditorDialogBase()
+{
+}
+
+TypeWeatherModifierEditorDialogBase::TypeWeatherModifierEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentPanel;
+	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* contentPanelSizer;
+	contentPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* contentGrid;
+	contentGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	contentGrid->AddGrowableCol( 1 );
+	contentGrid->SetFlexibleDirection( wxBOTH );
+	contentGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxStaticText* weatherLabel;
+	weatherLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("날씨："), wxDefaultPosition, wxDefaultSize, 0 );
+	weatherLabel->Wrap( -1 );
+	contentGrid->Add( weatherLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_weatherComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_weatherComboBox->Append( wxT("비바라기") );
+	m_weatherComboBox->Append( wxT("모래바람") );
+	m_weatherComboBox->Append( wxT("쾌청") );
+	contentGrid->Add( m_weatherComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticText* effectivenessLabel;
+	effectivenessLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("보정 효과："), wxDefaultPosition, wxDefaultSize, 0 );
+	effectivenessLabel->Wrap( -1 );
+	contentGrid->Add( effectivenessLabel, 0, wxALL, 5 );
+
+	m_effectivenessComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
+	m_effectivenessComboBox->Append( wxT("위력을 증가") );
+	m_effectivenessComboBox->Append( wxT("위력을 낮춤") );
+	contentGrid->Add( m_effectivenessComboBox, 0, wxALL|wxEXPAND, 5 );
+
+
+	contentPanelSizer->Add( contentGrid, 0, wxEXPAND, 5 );
+
+	wxStaticLine* contentSeparator;
+	contentSeparator = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	contentPanelSizer->Add( contentSeparator, 0, wxEXPAND | wxALL, 5 );
+
+
+	contentPanel->SetSizer( contentPanelSizer );
+	contentPanel->Layout();
+	contentPanelSizer->Fit( contentPanel );
+	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButton;
+	confirmButton = new wxButton( buttonsPanel, wxID_OK, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	confirmButton->SetDefault();
+	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
+
+	wxButton* cancelButton;
+	cancelButton = new wxButton( buttonsPanel, wxID_CANCEL, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TypeWeatherModifierEditorDialogBase::OnConfirmButtonClick ), NULL, this );
+	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TypeWeatherModifierEditorDialogBase::OnCancelButtonClick ), NULL, this );
+}
+
+TypeWeatherModifierEditorDialogBase::~TypeWeatherModifierEditorDialogBase()
 {
 }
 

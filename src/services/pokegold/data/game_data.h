@@ -143,6 +143,16 @@ namespace pokegold
         u8 DefenderTypeId;
         TypeEffectiveness TypeEffectiveness;
         bool IsForesight;
+
+    public:
+        bool operator!=(const TypeMatchup &rhs) const { return !(*this == rhs); }
+        bool operator==(const TypeMatchup &rhs) const
+        {
+            return AttackerTypeId == rhs.AttackerTypeId
+                   && DefenderTypeId == rhs.DefenderTypeId
+                   && TypeEffectiveness == rhs.TypeEffectiveness
+                   && IsForesight == rhs.IsForesight;
+        }
     };
 
     class WeatherTypeModifier
@@ -151,6 +161,15 @@ namespace pokegold
         u8 TypeId;
         BattleWeather Weather;
         TypeEffectiveness TypeEffectiveness;
+
+    public:
+        bool operator!=(const WeatherTypeModifier &rhs) const { return !(*this == rhs); }
+        bool operator==(const WeatherTypeModifier &rhs) const
+        {
+            return TypeId == rhs.TypeId
+                   && Weather == rhs.Weather
+                   && TypeEffectiveness == rhs.TypeEffectiveness;
+        }
     };
 
     class WeatherMoveModifier
@@ -218,7 +237,7 @@ namespace pokegold
         u8 MoveId;
 
     public:
-        bool operator==(const PokemonMove &rhs) const { return Level == rhs.Level && MoveId == rhs.MoveId; };
+        bool operator==(const PokemonMove &rhs) const { return Level == rhs.Level && MoveId == rhs.MoveId; }
         bool operator!=(const PokemonMove &rhs) const { return !(*this == rhs); }
     };
 

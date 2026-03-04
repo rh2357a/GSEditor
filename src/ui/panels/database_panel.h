@@ -26,6 +26,10 @@ namespace ui
         base::MutableState<int> m_selectedTMHM = -1;
         base::MutableState<int> m_selectedTrainerGroup = -1;
 
+        base::MutableState<int> m_selectedType = -1;
+        base::MutableState<int> m_selectedTypeMatchup = -1;
+        base::MutableState<int> m_selectedTypeWeatherModifier = -1;
+
     public:
         DatabasePanel(wxWindow *parent,
                       wxWindowID id = wxID_ANY,
@@ -41,6 +45,7 @@ namespace ui
             InitializeMoveTab();
             InitializeTmHmTab();
             InitializeTrainerGroupTab();
+            InitializeTypeTab();
         }
 
     private:
@@ -66,5 +71,10 @@ namespace ui
 
         void InitializeTrainerGroupTab();
         void UpdateTrainerGroupImages();
+
+        void InitializeTypeTab();
+        void UpdateTypeMatchups();
+        void OnTypeMatchupsButtonClick(wxCommandEvent &event) override;
+        void OnTypeWeatherModifiersButtonClick(wxCommandEvent &event) override;
     };
 }
