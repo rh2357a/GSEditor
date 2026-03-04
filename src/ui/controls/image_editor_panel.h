@@ -6,6 +6,7 @@
 #include "services/pokegold/data/color.h"
 #include "services/pokegold/data/game_data.h"
 #include "ui/ui.h"
+#include "ui/utils.h"
 
 #include <wx/bitmap.h>
 #include <wx/event.h>
@@ -70,6 +71,8 @@ namespace ui
             Bind(wxEVT_MENU, &ImageEditorPanel::OnImportFromPng, this, ImageEditorPopupMenu::Import);
             Bind(wxEVT_MENU, &ImageEditorPanel::OnWritePng, this, ImageEditorPopupMenu::WritePng);
             Bind(wxEVT_MENU, &ImageEditorPanel::OnWriteBinary, this, ImageEditorPopupMenu::WriteBinary);
+
+            FixBorderThemeBug(this);
         }
 
     private:

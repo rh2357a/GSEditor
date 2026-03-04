@@ -1,5 +1,7 @@
 #include "colored_list_box.h"
 
+#include "ui/utils.h"
+
 namespace
 {
     const wxColour k_oddItemColor(255, 255, 255);
@@ -10,6 +12,7 @@ namespace
 ui::ColoredListBox::ColoredListBox() : wxVListBox()
 {
     SetItemCount(0);
+    FixBorderThemeBug(this);
 }
 
 ui::ColoredListBox::ColoredListBox(wxWindow *parent,
@@ -25,7 +28,9 @@ ui::ColoredListBox::ColoredListBox(wxWindow *parent,
 {
     if (choices && n > 0)
         m_items.assign(choices, choices + n);
+
     SetItemCount(m_items.size());
+    FixBorderThemeBug(this);
 }
 
 ui::ColoredListBox::ColoredListBox(wxWindow *parent,
@@ -39,7 +44,9 @@ ui::ColoredListBox::ColoredListBox(wxWindow *parent,
     : wxVListBox(parent, id, pos, size, style, name)
 {
     m_items.insert(m_items.end(), choices.begin(), choices.end());
+
     SetItemCount(m_items.size());
+    FixBorderThemeBug(this);
 }
 
 wxCoord ui::ColoredListBox::OnMeasureItem(size_t n) const
@@ -49,19 +56,31 @@ wxCoord ui::ColoredListBox::OnMeasureItem(size_t n) const
 
 void ui::ColoredListBox::OnDrawItem(wxDC &dc, const wxRect &rect, size_t n) const
 {
-    if (IsSelected(n))
+    bool isEnabled = IsEnabled();
+
+    if (isEnabled)
     {
-        dc.SetBrush(wxBrush(k_focusItemColor));
-        dc.SetPen(*wxTRANSPARENT_PEN);
-        dc.DrawRectangle(rect);
-        dc.SetTextForeground(*wxWHITE);
+        if (IsSelected(n))
+        {
+            dc.SetBrush(wxBrush(k_focusItemColor));
+            dc.SetPen(*wxTRANSPARENT_PEN);
+            dc.DrawRectangle(rect);
+            dc.SetTextForeground(*wxWHITE);
+        }
+        else
+        {
+            dc.SetBrush(wxBrush(n % 2 ? k_oddItemColor : k_evenItemColor));
+            dc.SetPen(*wxTRANSPARENT_PEN);
+            dc.DrawRectangle(rect);
+            dc.SetTextForeground(*wxBLACK);
+        }
     }
     else
     {
-        dc.SetBrush(wxBrush(n % 2 ? k_oddItemColor : k_evenItemColor));
+        dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE)));
         dc.SetPen(*wxTRANSPARENT_PEN);
         dc.DrawRectangle(rect);
-        dc.SetTextForeground(*wxBLACK);
+        dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
     }
 
     dc.DrawText(m_items[n], rect.x + 4, rect.y + 3);

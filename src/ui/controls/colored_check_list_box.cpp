@@ -1,5 +1,7 @@
 #include "colored_check_list_box.h"
 
+#include "ui/utils.h"
+
 #include <wx/gdicmn.h>
 #include <wx/renderer.h>
 
@@ -16,6 +18,7 @@ ui::ColoredCheckListBox::ColoredCheckListBox() : wxVListBox()
 {
     SetItemCount(0);
     Bind(wxEVT_LEFT_DOWN, &ColoredCheckListBox::OnLeftDown, this);
+    FixBorderThemeBug(this);
 }
 
 ui::ColoredCheckListBox::ColoredCheckListBox(wxWindow *parent,
@@ -37,6 +40,7 @@ ui::ColoredCheckListBox::ColoredCheckListBox(wxWindow *parent,
 
     SetItemCount(m_items.size());
     Bind(wxEVT_LEFT_DOWN, &ColoredCheckListBox::OnLeftDown, this);
+    FixBorderThemeBug(this);
 }
 
 ui::ColoredCheckListBox::ColoredCheckListBox(wxWindow *parent,
@@ -54,6 +58,7 @@ ui::ColoredCheckListBox::ColoredCheckListBox(wxWindow *parent,
 
     SetItemCount(m_items.size());
     Bind(wxEVT_LEFT_DOWN, &ColoredCheckListBox::OnLeftDown, this);
+    FixBorderThemeBug(this);
 }
 
 wxCoord ui::ColoredCheckListBox::OnMeasureItem(size_t n) const
@@ -71,7 +76,7 @@ wxSize ui::ColoredCheckListBox::DoGetBestSize() const
         totalHeight += OnMeasureItem(i);
 
     totalHeight += GetMargins().y * 2;
-    totalHeight += 2;
+    totalHeight += 5;
 
     wxSize size = wxVListBox::DoGetBestSize();
     size.SetHeight(totalHeight);
@@ -80,25 +85,30 @@ wxSize ui::ColoredCheckListBox::DoGetBestSize() const
 
 void ui::ColoredCheckListBox::OnDrawItem(wxDC &dc, const wxRect &rect, size_t n) const
 {
-    dc.SetBrush(wxBrush(n % 2 ? k_oddItemColor : k_evenItemColor));
+    bool isEnabled = IsEnabled();
+
+    wxColour bg = isEnabled
+                      ? (n % 2 ? k_oddItemColor : k_evenItemColor)
+                      : wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE);
+    dc.SetBrush(wxBrush(bg));
+
     dc.SetPen(*wxTRANSPARENT_PEN);
     dc.DrawRectangle(rect);
-    dc.SetTextForeground(*wxBLACK);
+
+    dc.SetTextForeground(wxSystemSettings::GetColour(isEnabled ? wxSYS_COLOUR_WINDOWTEXT : wxSYS_COLOUR_GRAYTEXT));
 
     wxRect checkRect(rect.x + FromDIP(4), rect.y + FromDIP(2), FromDIP(16), FromDIP(16));
 
-    wxRendererNative::Get().DrawCheckBox(
-        m_win,
-        dc,
-        checkRect,
-        m_checked[n] ? wxCONTROL_CHECKED : wxCONTROL_NONE);
+    int flags = wxCONTROL_NONE;
+    flags |= m_checked[n] ? wxCONTROL_CHECKED : wxCONTROL_NONE;
+    flags |= !isEnabled ? wxCONTROL_DISABLED : wxCONTROL_NONE;
+    wxRendererNative::Get().DrawCheckBox(m_win, dc, checkRect, flags);
 
     dc.DrawText(m_items[n], rect.x + FromDIP(22), rect.y + 3);
 }
 
 void ui::ColoredCheckListBox::OnLeftDown(wxMouseEvent &event)
 {
-
     wxPoint pt = event.GetPosition();
 
     wxCoord h = OnMeasureItem(0);

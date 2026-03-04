@@ -1,5 +1,7 @@
 #include "colored_list_ctrl.h"
 
+#include "ui/utils.h"
+
 namespace
 {
     const wxColour k_oddItemColor(255, 255, 255);
@@ -25,6 +27,8 @@ ui::ColoredListCtrl::ColoredListCtrl(wxWindow *parent,
 
 void ui::ColoredListCtrl::Initialize()
 {
+    FixBorderThemeBug(this);
+
     auto listCtrlFunc = [this](wxListEvent &ev) {
         ev.Skip();
 

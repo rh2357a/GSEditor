@@ -45,4 +45,11 @@ namespace ui
      * @param value 값
      */
     void SetValueSpinCtrlDouble(wxSpinCtrlDouble *ctrl, double value);
+
+    /**
+     * @brief 컨트롤 외선 버그 수정
+     *
+     * @param ctrl 컨트롤
+     */
+    void FixBorderThemeBug(wxWindow *ctrl);
 }

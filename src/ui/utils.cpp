@@ -9,6 +9,8 @@
 #include <wx/vlbox.h>
 #include <wx/wx.h>
 
+#include <memory>
+
 namespace
 {
     class DestroyPopupTransientWindow : public wxPopupTransientWindow
@@ -178,5 +180,23 @@ void ui::SetValueSpinCtrlDouble(wxSpinCtrlDouble *ctrl, double value)
         event.SetEventObject(ctrl);
         event.SetValue(value);
         ctrl->GetEventHandler()->ProcessEvent(event);
+    }
+}
+
+void ui::FixBorderThemeBug(wxWindow *ctrl)
+{
+    if (ctrl != nullptr)
+    {
+        auto lastEnabled = std::make_shared<bool>(false);
+        ctrl->Bind(wxEVT_UPDATE_UI, [ctrl, lastEnabled](wxUpdateUIEvent &ev) {
+            bool isEnabled = ctrl->IsEnabled();
+            if (isEnabled != *lastEnabled)
+            {
+                *lastEnabled = isEnabled;
+                ::RedrawWindow(ctrl->GetHandle(), nullptr, nullptr, RDW_INVALIDATE | RDW_FRAME | RDW_UPDATENOW);
+            }
+
+            ev.Skip();
+        });
     }
 }

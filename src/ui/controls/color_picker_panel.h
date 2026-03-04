@@ -3,6 +3,7 @@
 #include "base/functional/guard.h"
 #include "base/functional/state.h"
 #include "ui/ui.h"
+#include "ui/utils.h"
 
 #include <wx/button.h>
 #include <wx/colour.h>
@@ -80,6 +81,8 @@ namespace ui
                     m_mouseDown = false;
                 }
             });
+
+            FixBorderThemeBug(this);
         }
 
     public:
