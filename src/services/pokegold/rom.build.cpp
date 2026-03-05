@@ -9,6 +9,7 @@
 #include "services/pokegold/utils.h"
 #include "utils/free_space.h"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <filesystem>
@@ -835,6 +836,36 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 //   * PokemonType::Dummy: 생략
             }
         }
+    }
+
+    base::Log(TAG, "write pokemon (pokedex order)");
+    {
+        srcStream << GetAsmSection(0x40b66, "GSEditor_Pokemon_AlphaDexOrder");
+
+        std::vector<pokegold::Pokemon> sortedPokemons;
+        for (size_t i = 0; i < 251; i++)
+            sortedPokemons.push_back(m_data.Pokemons()[i]);
+
+        std::sort(
+            sortedPokemons.begin(),
+            sortedPokemons.end(),
+            [&](pokegold::Pokemon &a, pokegold::Pokemon &b) {
+                return a.Name.ToEditorString() < b.Name.ToEditorString();
+            });
+
+        for (size_t i = 0; i < 251; i++)
+        {
+            if (m_buildProgressState.HandlePausedOrCanceled())
+                return false;
+
+            m_buildProgressState.UpdateMessage(std::format("포켓몬 (도감 가나다 순서: {}/{})", i + 1, 251));
+            m_buildProgressState.Increase();
+
+            const auto &e = sortedPokemons[i];
+            srcStream << GetAsmBytes({e.Id});
+        }
+
+        // TODO: 사용자 지정 신형 도감 순서 추가... (0x40c61)
     }
 
     base::Log(TAG, "write pokemon (unown image)");
