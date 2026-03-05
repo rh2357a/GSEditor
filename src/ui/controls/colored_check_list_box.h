@@ -44,6 +44,7 @@ namespace ui
         unsigned int GetCount() const;
         void Append(wxString item);
 
+        wxString GetString(int index);
         void SetString(int index, wxString str);
 
         void Check(int index, bool checked);

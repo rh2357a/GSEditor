@@ -9,6 +9,7 @@
 
 void ui::DatabasePanel::InitializeMoveTab()
 {
+    ApplyListSearch(this, {m_moveList, m_moveEffectTypeComboBox});
     ApplyNestedScrolling({
         m_moveContainer,
 

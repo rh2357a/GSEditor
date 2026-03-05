@@ -52,4 +52,12 @@ namespace ui
      * @param ctrl 컨트롤
      */
     void FixBorderThemeBug(wxWindow *ctrl);
+
+    /**
+     * @brief 검색 기능 적용
+     *
+     * @param parent 부모 윈도우
+     * @param ctrls 적용할 컨트롤 모음
+     */
+    void ApplyListSearch(wxWindow *parent, const std::initializer_list<wxWindow *> &ctrls);
 }

@@ -19,8 +19,8 @@
 
 ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
 {
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* panelSizer;
+	panelSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxBoxSizer* topPickerSizer;
 	topPickerSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -41,20 +41,20 @@ ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindow
 	topPickerSizer->Add( m_previewPanel, 0, wxALL, 0 );
 
 
-	mainSizer->Add( topPickerSizer, 0, wxALL|wxEXPAND, 4 );
+	panelSizer->Add( topPickerSizer, 0, wxALL|wxEXPAND, 4 );
 
 	m_brightnessSlider = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
-	mainSizer->Add( m_brightnessSlider, 0, wxEXPAND, 5 );
+	panelSizer->Add( m_brightnessSlider, 0, wxEXPAND, 5 );
 
 	m_brightnessPreviewPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
 	m_brightnessPreviewPanel->SetForegroundColour( wxColour( 0, 0, 0 ) );
 	m_brightnessPreviewPanel->SetBackgroundColour( wxColour( 0, 0, 0 ) );
 
-	mainSizer->Add( m_brightnessPreviewPanel, 1, wxEXPAND|wxLEFT|wxRIGHT, 12 );
+	panelSizer->Add( m_brightnessPreviewPanel, 1, wxEXPAND|wxLEFT|wxRIGHT, 12 );
 
 	wxStaticLine* separator_0;
 	separator_0 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	mainSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
+	panelSizer->Add( separator_0, 0, wxEXPAND | wxALL, 5 );
 
 	wxBoxSizer* redSizer;
 	redSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -72,7 +72,7 @@ ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindow
 	redSizer->Add( m_redSpinCtrl, 0, wxALL, 5 );
 
 
-	mainSizer->Add( redSizer, 0, wxEXPAND, 0 );
+	panelSizer->Add( redSizer, 0, wxEXPAND, 0 );
 
 	wxBoxSizer* greenSizer;
 	greenSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -90,7 +90,7 @@ ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindow
 	greenSizer->Add( m_greenSpinCtrl, 0, wxALL, 5 );
 
 
-	mainSizer->Add( greenSizer, 0, wxEXPAND, 5 );
+	panelSizer->Add( greenSizer, 0, wxEXPAND, 5 );
 
 	wxBoxSizer* blueSizer;
 	blueSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -108,10 +108,10 @@ ColorPickerPopupPanelBase::ColorPickerPopupPanelBase( wxWindow* parent, wxWindow
 	blueSizer->Add( m_blueSpinCtrl, 0, wxALL, 5 );
 
 
-	mainSizer->Add( blueSizer, 0, wxEXPAND, 5 );
+	panelSizer->Add( blueSizer, 0, wxEXPAND, 5 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( panelSizer );
 	this->Layout();
 
 	// Connect Events
@@ -290,8 +290,8 @@ MainFrameBase::~MainFrameBase()
 
 DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
 {
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* panelSizer;
+	panelSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxNotebook* mainTabs;
 	mainTabs = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
@@ -2561,10 +2561,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	typePanelSizer->Fit( typePanel );
 	mainTabs->AddPage( typePanel, wxT("타입"), false );
 
-	mainSizer->Add( mainTabs, 1, wxALL|wxEXPAND, 5 );
+	panelSizer->Add( mainTabs, 1, wxALL|wxEXPAND, 5 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( panelSizer );
 	this->Layout();
 
 	// Connect Events
@@ -2599,8 +2599,8 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
-	wxBoxSizer* mainBSizer;
-	mainBSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxBoxSizer* appInfoSizer;
 	appInfoSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -2624,7 +2624,7 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 	appInfoSizer->Add( appInfoAuthorSizer, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	mainBSizer->Add( appInfoSizer, 0, wxALL|wxEXPAND, 5 );
+	dialogSizer->Add( appInfoSizer, 0, wxALL|wxEXPAND, 5 );
 
 	wxNotebook* aboutContentTabs;
 	aboutContentTabs = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
@@ -2668,7 +2668,7 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 	thirdPartyNoticesSizer->Fit( thirdPartyNoticesPanel );
 	aboutContentTabs->AddPage( thirdPartyNoticesPanel, wxT("3자 라이선스 고지"), false );
 
-	mainBSizer->Add( aboutContentTabs, 1, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 5 );
+	dialogSizer->Add( aboutContentTabs, 1, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 5 );
 
 	wxPanel* bottomPanel;
 	bottomPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -2691,10 +2691,10 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 	bottomPanel->SetSizer( bottomSizer );
 	bottomPanel->Layout();
 	bottomSizer->Fit( bottomPanel );
-	mainBSizer->Add( bottomPanel, 0, wxALIGN_RIGHT|wxALL, 10 );
+	dialogSizer->Add( bottomPanel, 0, wxALIGN_RIGHT|wxALL, 10 );
 
 
-	this->SetSizer( mainBSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -2712,8 +2712,8 @@ EvolutionEditorDialogBase::EvolutionEditorDialogBase( wxWindow* parent, wxWindow
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxPanel* contentPanel;
 	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -2836,7 +2836,7 @@ EvolutionEditorDialogBase::EvolutionEditorDialogBase( wxWindow* parent, wxWindow
 	contentPanel->SetSizer( contentSizer );
 	contentPanel->Layout();
 	contentSizer->Fit( contentPanel );
-	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 8 );
+	dialogSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 8 );
 
 	wxPanel* buttonsPanel;
 	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -2857,10 +2857,10 @@ EvolutionEditorDialogBase::EvolutionEditorDialogBase( wxWindow* parent, wxWindow
 	buttonsPanel->SetSizer( buttonsSizer );
 	buttonsPanel->Layout();
 	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 8 );
+	dialogSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 8 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -2878,8 +2878,8 @@ MoveEditorDialogBase::MoveEditorDialogBase( wxWindow* parent, wxWindowID id, con
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxPanel* contentPanel;
 	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -2920,7 +2920,7 @@ MoveEditorDialogBase::MoveEditorDialogBase( wxWindow* parent, wxWindowID id, con
 	contentPanel->SetSizer( contentPanelSizer );
 	contentPanel->Layout();
 	contentPanelSizer->Fit( contentPanel );
-	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
+	dialogSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
 
 	wxPanel* buttonsPanel;
 	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -2941,10 +2941,10 @@ MoveEditorDialogBase::MoveEditorDialogBase( wxWindow* parent, wxWindowID id, con
 	buttonsPanel->SetSizer( buttonsSizer );
 	buttonsPanel->Layout();
 	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+	dialogSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -2962,8 +2962,8 @@ TypeMatchupEditorDialogBase::TypeMatchupEditorDialogBase( wxWindow* parent, wxWi
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxPanel* contentPanel;
 	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3009,7 +3009,7 @@ TypeMatchupEditorDialogBase::TypeMatchupEditorDialogBase( wxWindow* parent, wxWi
 	contentPanel->SetSizer( contentPanelSizer );
 	contentPanel->Layout();
 	contentPanelSizer->Fit( contentPanel );
-	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
+	dialogSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
 
 	wxPanel* buttonsPanel;
 	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3030,10 +3030,10 @@ TypeMatchupEditorDialogBase::TypeMatchupEditorDialogBase( wxWindow* parent, wxWi
 	buttonsPanel->SetSizer( buttonsSizer );
 	buttonsPanel->Layout();
 	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+	dialogSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -3051,8 +3051,8 @@ TypeWeatherModifierEditorDialogBase::TypeWeatherModifierEditorDialogBase( wxWind
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxPanel* contentPanel;
 	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3097,7 +3097,7 @@ TypeWeatherModifierEditorDialogBase::TypeWeatherModifierEditorDialogBase( wxWind
 	contentPanel->SetSizer( contentPanelSizer );
 	contentPanel->Layout();
 	contentPanelSizer->Fit( contentPanel );
-	mainSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
+	dialogSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
 
 	wxPanel* buttonsPanel;
 	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3118,10 +3118,10 @@ TypeWeatherModifierEditorDialogBase::TypeWeatherModifierEditorDialogBase( wxWind
 	buttonsPanel->SetSizer( buttonsSizer );
 	buttonsPanel->Layout();
 	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+	dialogSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -3139,8 +3139,8 @@ ImportMoveDialogBase::ImportMoveDialogBase( wxWindow* parent, wxWindowID id, con
 {
 	this->SetSizeHints( wxSize( 500,400 ), wxDefaultSize );
 
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxPanel* contentsPanel;
 	contentsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3175,7 +3175,7 @@ ImportMoveDialogBase::ImportMoveDialogBase( wxWindow* parent, wxWindowID id, con
 	contentsPanel->SetSizer( contentsSizer );
 	contentsPanel->Layout();
 	contentsSizer->Fit( contentsPanel );
-	mainSizer->Add( contentsPanel, 1, wxEXPAND | wxALL, 2 );
+	dialogSizer->Add( contentsPanel, 1, wxEXPAND | wxALL, 2 );
 
 	wxPanel* buttonsPanel;
 	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3196,10 +3196,10 @@ ImportMoveDialogBase::ImportMoveDialogBase( wxWindow* parent, wxWindowID id, con
 	buttonsPanel->SetSizer( buttonsSizer );
 	buttonsPanel->Layout();
 	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+	dialogSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -3218,8 +3218,8 @@ ProgressDialogBase::ProgressDialogBase( wxWindow* parent, wxWindowID id, const w
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxPanel* contentsPanel;
 	contentsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3246,7 +3246,7 @@ ProgressDialogBase::ProgressDialogBase( wxWindow* parent, wxWindowID id, const w
 	contentsPanel->SetSizer( contentsSizer );
 	contentsPanel->Layout();
 	contentsSizer->Fit( contentsPanel );
-	mainSizer->Add( contentsPanel, 1, wxEXPAND, 5 );
+	dialogSizer->Add( contentsPanel, 1, wxEXPAND, 5 );
 
 	wxPanel* buttonsPanel;
 	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3263,10 +3263,10 @@ ProgressDialogBase::ProgressDialogBase( wxWindow* parent, wxWindowID id, const w
 	buttonsPanel->SetSizer( buttonsSizer );
 	buttonsPanel->Layout();
 	buttonsSizer->Fit( buttonsPanel );
-	mainSizer->Add( buttonsPanel, 0, wxALL|wxEXPAND, 10 );
+	dialogSizer->Add( buttonsPanel, 0, wxALL|wxEXPAND, 10 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -3284,8 +3284,8 @@ BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxS
 {
 	this->SetSizeHints( wxSize( 560,440 ), wxDefaultSize );
 
-	wxBoxSizer* mainSizer;
-	mainSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxPanel* topPanel;
 	topPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3306,7 +3306,7 @@ BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxS
 	topPanel->SetSizer( listSizer );
 	topPanel->Layout();
 	listSizer->Fit( topPanel );
-	mainSizer->Add( topPanel, 1, wxEXPAND | wxALL, 0 );
+	dialogSizer->Add( topPanel, 1, wxEXPAND | wxALL, 0 );
 
 	wxPanel* bottomPanel;
 	bottomPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -3329,10 +3329,10 @@ BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxS
 	bottomPanel->SetSizer( buttonSizer );
 	bottomPanel->Layout();
 	buttonSizer->Fit( bottomPanel );
-	mainSizer->Add( bottomPanel, 0, wxALIGN_RIGHT|wxALL, 10 );
+	dialogSizer->Add( bottomPanel, 0, wxALIGN_RIGHT|wxALL, 10 );
 
 
-	this->SetSizer( mainSizer );
+	this->SetSizer( dialogSizer );
 	this->Layout();
 
 	this->Centre( wxBOTH );
@@ -3344,5 +3344,76 @@ BadDataDialogBase::BadDataDialogBase( wxWindow* parent, wxWindowID id, const wxS
 }
 
 BadDataDialogBase::~BadDataDialogBase()
+{
+}
+
+SearchDialogBase::SearchDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxSize( 400,400 ), wxDefaultSize );
+
+	wxBoxSizer* dialogSizer;
+	dialogSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* contentsPanel;
+	contentsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* contentsPanelSizer;
+	contentsPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* keywordLabelSizer;
+	keywordLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* keywordLabel;
+	keywordLabel = new wxStaticText( contentsPanel, wxID_ANY, wxT("입력："), wxDefaultPosition, wxDefaultSize, 0 );
+	keywordLabel->Wrap( -1 );
+	keywordLabelSizer->Add( keywordLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_keywordText = new wxTextCtrl( contentsPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	keywordLabelSizer->Add( m_keywordText, 1, wxALL, 5 );
+
+
+	contentsPanelSizer->Add( keywordLabelSizer, 0, wxALL|wxEXPAND, 5 );
+
+	m_list = new ui::ColoredListCtrl( contentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL );
+	contentsPanelSizer->Add( m_list, 1, wxALL|wxEXPAND, 0 );
+
+
+	contentsPanel->SetSizer( contentsPanelSizer );
+	contentsPanel->Layout();
+	contentsPanelSizer->Fit( contentsPanel );
+	dialogSizer->Add( contentsPanel, 1, wxEXPAND | wxALL, 4 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_confirmButton = new wxButton( buttonsPanel, wxID_OK, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	m_confirmButton->SetDefault();
+	buttonsSizer->Add( m_confirmButton, 0, wxALL, 5 );
+
+	wxButton* cancelButton;
+	cancelButton = new wxButton( buttonsPanel, wxID_CANCEL, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	dialogSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	this->SetSizer( dialogSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_keywordText->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( SearchDialogBase::OnKeywordTextChanged ), NULL, this );
+	m_confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( SearchDialogBase::OnConfirmButtonClick ), NULL, this );
+	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( SearchDialogBase::OnCancelButtonClick ), NULL, this );
+}
+
+SearchDialogBase::~SearchDialogBase()
 {
 }

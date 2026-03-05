@@ -11,6 +11,7 @@
 
 void ui::DatabasePanel::InitializeItemTab()
 {
+    ApplyListSearch(this, {m_itemList, m_itemEtcEffectComboBox});
     ApplyNestedScrolling({
         m_itemContainer,
 

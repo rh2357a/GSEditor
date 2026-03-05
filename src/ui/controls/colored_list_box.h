@@ -39,6 +39,7 @@ namespace ui
 
     public:
         int GetCount() const;
+        wxString GetString(int index);
         void SetString(int index, wxString str);
         void Append(wxString item);
     };

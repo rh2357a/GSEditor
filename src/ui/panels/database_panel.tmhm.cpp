@@ -10,6 +10,8 @@
 
 void ui::DatabasePanel::InitializeTmHmTab()
 {
+    ApplyListSearch(this, {m_tmhmList, m_tmhmMoveComboBox, m_tmhmPokemonList});
+
     BindControlSelection(this, m_tmhmList, m_selectedTMHM);
 
     // 롬을 다시 열었을 때, 선택 초기화...

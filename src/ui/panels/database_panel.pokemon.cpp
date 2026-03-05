@@ -123,6 +123,7 @@ namespace
 
 void ui::DatabasePanel::InitializePokemonTab()
 {
+    ApplyListSearch(this, {m_pokemonList, m_pokemonItem1ComboBox, m_pokemonItem2ComboBox});
     ApplyNestedScrolling({
         m_pokemonGenderRateComboBox,
         m_pokemonGrowthRateComboBox,

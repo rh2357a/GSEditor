@@ -91,6 +91,11 @@ int ui::ColoredListBox::GetCount() const
     return m_items.size();
 }
 
+wxString ui::ColoredListBox::GetString(int index)
+{
+    return m_items[index];
+}
+
 void ui::ColoredListBox::SetString(int index, wxString str)
 {
     m_items[index] = str;

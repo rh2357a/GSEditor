@@ -86,16 +86,20 @@ wxSize ui::ColoredCheckListBox::DoGetBestSize() const
 void ui::ColoredCheckListBox::OnDrawItem(wxDC &dc, const wxRect &rect, size_t n) const
 {
     bool isEnabled = IsEnabled();
+    bool isSelected = IsSelected(n);
 
     wxColour bg = isEnabled
-                      ? (n % 2 ? k_oddItemColor : k_evenItemColor)
+                      ? isSelected ? k_focusItemColor : (n % 2 ? k_oddItemColor : k_evenItemColor)
                       : wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE);
     dc.SetBrush(wxBrush(bg));
 
     dc.SetPen(*wxTRANSPARENT_PEN);
     dc.DrawRectangle(rect);
 
-    dc.SetTextForeground(wxSystemSettings::GetColour(isEnabled ? wxSYS_COLOUR_WINDOWTEXT : wxSYS_COLOUR_GRAYTEXT));
+    if (isSelected)
+        dc.SetTextForeground(*wxWHITE);
+    else
+        dc.SetTextForeground(wxSystemSettings::GetColour(isEnabled ? wxSYS_COLOUR_WINDOWTEXT : wxSYS_COLOUR_GRAYTEXT));
 
     wxRect checkRect(rect.x + FromDIP(4), rect.y + FromDIP(2), FromDIP(16), FromDIP(16));
 
@@ -149,6 +153,11 @@ void ui::ColoredCheckListBox::Append(wxString item)
     m_items.push_back(item);
     m_checked.push_back(false);
     SetItemCount(m_items.size());
+}
+
+wxString ui::ColoredCheckListBox::GetString(int index)
+{
+    return m_items[index];
 }
 
 void ui::ColoredCheckListBox::SetString(int index, wxString str)

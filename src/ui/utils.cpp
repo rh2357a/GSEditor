@@ -1,5 +1,8 @@
 #include "utils.h"
 
+#include "dialogs/search_dialog.h"
+#include "ui/dialogs/search_dialog.h"
+
 #include <commctrl.h>
 #include <windows.h>
 #include <wx/event.h>
@@ -202,4 +205,9 @@ void ui::FixBorderThemeBug(wxWindow *ctrl)
             ev.Skip();
         });
     }
+}
+
+void ui::ApplyListSearch(wxWindow *parent, const std::initializer_list<wxWindow *> &ctrls)
+{
+    internal::ApplyListSearchDialog(parent, ctrls);
 }

@@ -11,6 +11,8 @@
 
 void ui::DatabasePanel::InitializeTrainerGroupTab()
 {
+    ApplyListSearch(this, {m_trainerGroupList});
+
     BindControlSelection(this, m_trainerGroupList, m_selectedTrainerGroup);
 
     // 롬을 다시 열었을 때, 선택 초기화...

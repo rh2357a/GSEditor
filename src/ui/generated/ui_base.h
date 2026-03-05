@@ -504,3 +504,29 @@ class BadDataDialogBase : public wxDialog
 
 };
 
+///////////////////////////////////////////////////////////////////////////////
+/// Class SearchDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class SearchDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxTextCtrl* m_keywordText;
+		ui::ColoredListCtrl* m_list;
+		wxButton* m_confirmButton;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnKeywordTextChanged( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		SearchDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("찾기..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 400,400 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~SearchDialogBase();
+
+};
+
