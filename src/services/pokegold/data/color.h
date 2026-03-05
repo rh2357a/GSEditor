@@ -2,6 +2,9 @@
 
 #include "base/types/types.h"
 
+#include <wx/colour.h>
+#include <wx/wx.h>
+
 #include <span>
 
 namespace pokegold
@@ -21,6 +24,7 @@ namespace pokegold
 
         Color(std::span<const u8> b);
         Color(u8 r, u8 g, u8 b);
+        Color(wxColour color) : Color(color.Red(), color.Green(), color.Blue()) {}
 
 #ifdef DEBUG
     private:
@@ -31,6 +35,12 @@ namespace pokegold
             m_debugB = static_cast<u16>(B());
         }
 #endif
+
+    public:
+        bool operator==(const Color &other) const
+        {
+            return m_hiByte == other.m_hiByte && m_loByte == other.m_loByte;
+        }
 
     public:
         u16 Value() const { return (u16(m_hiByte) << 8) | m_loByte; }
@@ -46,5 +56,20 @@ namespace pokegold
 
         u8 B() const;
         void B(u8 val);
+
+        wxColour ToWxColor();
+    };
+}
+
+namespace std
+{
+    template <>
+    struct hash<pokegold::Color>
+    {
+        size_t operator()(const pokegold::Color &color) const
+        {
+            size_t hashCode = hash<int>()(color.Value()) ^ (hash<int>()(color.Value()) << 1);
+            return hashCode;
+        }
     };
 }

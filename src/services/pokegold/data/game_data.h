@@ -4,6 +4,8 @@
 #include "services/pokegold/data/color.h"
 #include "services/pokegold/data/string.h"
 
+#include <wx/gdicmn.h>
+
 #include <any>
 #include <array>
 #include <vector>
@@ -66,6 +68,16 @@ namespace pokegold
         Size_56x56 = 0x77,
     };
 
+    inline ImageDimensions ToImageDimensions(wxSize size)
+    {
+        if (size.x == 40 && size.y == 40)
+            return ImageDimensions::Size_40x40;
+        else if (size.x == 48 && size.y == 48)
+            return ImageDimensions::Size_48x48;
+        else
+            return ImageDimensions::Size_56x56;
+    }
+
     enum class EggGroup : u8
     {
         Unknown = 0,
@@ -106,6 +118,12 @@ namespace pokegold
 
         Pokedex,
 
+        ItemName,
+        ItemDescription,
+
+        MoveName,
+        MoveDescription,
+
         PokemonName,
         TrainerGroupName,
         TypeName,
@@ -125,6 +143,16 @@ namespace pokegold
         u8 DefenderTypeId;
         TypeEffectiveness TypeEffectiveness;
         bool IsForesight;
+
+    public:
+        bool operator!=(const TypeMatchup &rhs) const { return !(*this == rhs); }
+        bool operator==(const TypeMatchup &rhs) const
+        {
+            return AttackerTypeId == rhs.AttackerTypeId
+                   && DefenderTypeId == rhs.DefenderTypeId
+                   && TypeEffectiveness == rhs.TypeEffectiveness
+                   && IsForesight == rhs.IsForesight;
+        }
     };
 
     class WeatherTypeModifier
@@ -133,6 +161,15 @@ namespace pokegold
         u8 TypeId;
         BattleWeather Weather;
         TypeEffectiveness TypeEffectiveness;
+
+    public:
+        bool operator!=(const WeatherTypeModifier &rhs) const { return !(*this == rhs); }
+        bool operator==(const WeatherTypeModifier &rhs) const
+        {
+            return TypeId == rhs.TypeId
+                   && Weather == rhs.Weather
+                   && TypeEffectiveness == rhs.TypeEffectiveness;
+        }
     };
 
     class WeatherMoveModifier
@@ -198,6 +235,10 @@ namespace pokegold
     public:
         u8 Level;
         u8 MoveId;
+
+    public:
+        bool operator==(const PokemonMove &rhs) const { return Level == rhs.Level && MoveId == rhs.MoveId; }
+        bool operator!=(const PokemonMove &rhs) const { return !(*this == rhs); }
     };
 
     struct Pokemon

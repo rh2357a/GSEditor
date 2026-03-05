@@ -31,6 +31,8 @@ namespace pokegold
         base::Event<int> m_itemNameUpdated;
         base::Event<int> m_moveNameUpdated;
         base::Event<int> m_typeNameUpdated;
+        base::Event<> m_tmhmsUpdated;
+        base::Event<int> m_trainerGroupUpdated;
 
     public:
         Data(std::filesystem::path romFilePath = base::GetNullPath());
@@ -50,6 +52,8 @@ namespace pokegold
         auto &ItemNameUpdated() { return m_itemNameUpdated; }
         auto &MoveNameUpdated() { return m_moveNameUpdated; }
         auto &TypeNameUpdated() { return m_typeNameUpdated; }
+        auto &TMHMsUpdated() { return m_tmhmsUpdated; }
+        auto &TrainerGroupUpdated() { return m_trainerGroupUpdated; }
 
         auto &Items() { return m_items; }
         auto &Moves() { return m_moves; }

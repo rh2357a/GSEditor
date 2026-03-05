@@ -2,7 +2,7 @@
 
 #include "base/types/embed_types.h"
 
-EMBED_WX_BITMAP(AppIcon, wxBITMAP_TYPE_ICO, "app.ico")
+EMBED_WX_BITMAP(AppIcon, wxBITMAP_TYPE_ICO, "GSEditor.exe.ico")
 
 EMBED_BINARY(AppVersionsHtml, "app_versions.html")
 EMBED_BINARY(AppThirdPartyNotices, "third_party_notices.txt")

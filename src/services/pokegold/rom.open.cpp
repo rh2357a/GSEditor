@@ -96,6 +96,7 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
 
     base::Log(TAG, "read items (name)");
     size_t itemNameOffset = Calc(data.GetBytes(0x35cc, 3));
+    bool hasBadItemName = false;
     for (size_t i = 0; i < 256; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -108,7 +109,22 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
         itemNameOffset += bytes.size();
 
         auto &item = data.Items()[i];
-        item.Name = bytes;
+        pokegold::String str = bytes;
+        if (hasBadItemName || str.HasBadData() || str.GetData().size() > 24)
+        {
+            item.Name = "?";
+
+            if (!hasBadItemName)
+            {
+                hasBadItemName = true;
+                data.BadDataList().emplace_back(BadDataReason::ItemName, i);
+                base::Log(TAG, "bad data (item name, idx={})", i);
+            }
+        }
+        else
+        {
+            item.Name = str;
+        }
     }
 
     base::Log(TAG, "read items (description)");
@@ -123,7 +139,17 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
 
         size_t offset = Calc(itemDescriptionBank, data.GetBytes(0x1b8000 + (i * 2), 2));
         auto &item = data.Items()[i];
-        item.Description = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
+        pokegold::String str = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
+        if (str.HasBadData() || str.GetData().size() > 110)
+        {
+            item.Description = "?";
+            data.BadDataList().emplace_back(BadDataReason::ItemDescription, i);
+            base::Log(TAG, "bad data (item description, idx={})", i);
+        }
+        else
+        {
+            item.Description = str;
+        }
     }
 
     return !m_openProgressState.HandlePausedOrCanceled();
@@ -153,6 +179,7 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
 
     base::Log(TAG, "read moves (name)");
     size_t nameOffset = Calc(data.GetBytes(0x35c6, 3));
+    bool hasBadMoveName = false;
     for (size_t i = 0; i < 251; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -163,6 +190,24 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
 
         const auto bytes = data.GetBytesUntil(nameOffset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
         nameOffset += bytes.size();
+
+        pokegold::String str = bytes;
+        if (hasBadMoveName || str.HasBadData() || str.GetData().size() > 24)
+        {
+            data.Moves()[i].Name = "?";
+
+            if (!hasBadMoveName)
+            {
+                hasBadMoveName = true;
+                data.BadDataList().emplace_back(BadDataReason::MoveName, i);
+                base::Log(TAG, "bad data (move name, idx={})", i);
+            }
+        }
+        else
+        {
+            data.Moves()[i].Name = str;
+        }
+
         data.Moves()[i].Name = bytes;
     }
 
@@ -177,8 +222,17 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
         m_openProgressState.Increase();
 
         size_t offset = Calc(descriptionBank, data.GetBytes(0x1b4000 + (i * 2), 2));
-        const auto bytes = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
-        data.Moves()[i].Description = bytes;
+        pokegold::String str = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
+        if (str.HasBadData() || str.GetData().size() > 110)
+        {
+            data.Moves()[i].Description = "?";
+            data.BadDataList().emplace_back(BadDataReason::MoveDescription, i);
+            base::Log(TAG, "bad data (move description, idx={})", i);
+        }
+        else
+        {
+            data.Moves()[i].Description = str;
+        }
     }
 
     base::Log(TAG, "read moves (TM & HM)");
@@ -364,7 +418,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             pokemon.DexCategoryName = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             offset += pokemon.DexCategoryName.GetData().size();
 
-            if (pokemon.DexCategoryName.HasBadData())
+            if (pokemon.DexCategoryName.HasBadData() || pokemon.DexCategoryName.GetData().size() > 16)
             {
                 pokemon.DexCategoryName = "[50]";
                 pokemon.Height = 0;
@@ -383,7 +437,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
                 pokemon.Description = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
 
-                if (pokemon.Description.HasBadData())
+                if (pokemon.Description.HasBadData() || pokemon.Description.GetData().size() > 110)
                 {
                     pokemon.DexCategoryName = "[50]";
                     pokemon.Height = 0;
@@ -397,7 +451,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
         size_t offset = Calc(data.GetBytes(0x35c3, 3)) + (i * 10);
         pokemon.Name = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return idx == 9 || b == 0x50; }, true);
-        if (pokemon.Name.HasBadData())
+        if (pokemon.Name.HasBadData() || pokemon.Name.GetData().size() > 11)
         {
             pokemon.Name = "[50]";
             data.BadDataList().emplace_back(BadDataReason::PokemonName, i);
@@ -544,7 +598,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
         trainerGroup.Name = bytes;
         nameOffset += bytes.size();
 
-        if (trainerGroup.Name.HasBadData())
+        if (trainerGroup.Name.HasBadData() || trainerGroup.Name.GetData().size() > 26)
         {
             trainerGroup.Name = "[50]";
             data.BadDataList().emplace_back(BadDataReason::TrainerGroupName, i);
@@ -606,7 +660,7 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
         size_t offset = Calc(0x14, data.GetBytes(0x50a57 + (i * 2), 2));
         type.Name = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
 
-        if (type.Name.HasBadData())
+        if (type.Name.HasBadData() || type.Name.GetData().size() > 9)
         {
             type.Name = "[50]";
             data.BadDataList().emplace_back(BadDataReason::TypeName, i);

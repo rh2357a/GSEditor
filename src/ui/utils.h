@@ -1,7 +1,11 @@
 #pragma once
 
 #include <wx/listctrl.h>
+#include <wx/spinctrl.h>
+#include <wx/window.h>
 #include <wx/wx.h>
+
+#include <initializer_list>
 
 namespace ui
 {
@@ -18,4 +22,42 @@ namespace ui
      * @param ctrl wxListCtrl
      */
     void AutoListCtrlColumnWidth(wxListCtrl *ctrl);
+
+    /**
+     * @brief 컨트롤을 드롭다운 팝업 형식으로 표시
+     *
+     * @param parent 위치를 맞출 호스트 컨트롤
+     * @param popupCtrl 팝업에 표시될 컨트롤
+     */
+    void ShowDropdownPopup(wxWindow *parent, wxWindow *popupCtrl);
+
+    /**
+     * @brief 중첩 스크롤이 가능하도록 적용
+     *
+     * @param ctrls 적용할 컨트롤 모음
+     */
+    void ApplyNestedScrolling(const std::initializer_list<wxWindow *> &ctrls);
+
+    /**
+     * @brief 이벤트가 발생되는 wxSpinCtrlDouble 값 설정
+     *
+     * @param ctrl 컨트롤
+     * @param value 값
+     */
+    void SetValueSpinCtrlDouble(wxSpinCtrlDouble *ctrl, double value);
+
+    /**
+     * @brief 컨트롤 외선 버그 수정
+     *
+     * @param ctrl 컨트롤
+     */
+    void FixBorderThemeBug(wxWindow *ctrl);
+
+    /**
+     * @brief 검색 기능 적용
+     *
+     * @param parent 부모 윈도우
+     * @param ctrls 적용할 컨트롤 모음
+     */
+    void ApplyListSearch(wxWindow *parent, const std::initializer_list<wxWindow *> &ctrls);
 }

@@ -99,5 +99,7 @@ void pokegold::Data::AssignFrom(const Data &newData)
         m_itemNameUpdated(-1);
         m_moveNameUpdated(-1);
         m_typeNameUpdated(-1);
+        m_tmhmsUpdated();
+        m_trainerGroupUpdated(-1);
     }
 }

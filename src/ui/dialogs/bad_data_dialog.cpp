@@ -2,15 +2,17 @@
 
 #include "ui/utils.h"
 
+#include <wx/wx.h>
+
 #include <format>
 
 ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pokegold::BadData> badDataList) : BadDataDialogBase(parent)
 {
     ApplyListCtrlFixedHeader(m_badDataList);
 
-    m_badDataList->InsertColumn(0, wxT("순번"));
-    m_badDataList->InsertColumn(1, wxT("손상 내용"));
-    m_badDataList->InsertColumn(2, wxT("대응 내용"));
+    m_badDataList->AppendColumn(wxT("순번"));
+    m_badDataList->AppendColumn(wxT("손상 내용"));
+    m_badDataList->AppendColumn(wxT("대응 내용"));
 
     m_badDataList->Freeze();
 
@@ -65,6 +67,44 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("트레이너 이미지 손상 (그룹명: '{}')", name)));
                 m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
+            }
+            break;
+
+        case pokegold::BadDataReason::ItemName:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("아이템명 손상 (번호: {})", idx)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경 (해당 아이템부터 전체 변경)"));
+            }
+            break;
+
+        case pokegold::BadDataReason::ItemDescription:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                const auto name = m_pokegold.Data().Items()[idx].Name.ToEditorString();
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("아이템 설명 손상 (번호: {}, 이름: {})", idx, name)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경"));
+            }
+            break;
+
+        case pokegold::BadDataReason::MoveName:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("기술명 손상 (번호: {})", idx)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경 (해당 아이템부터 전체 변경)"));
+            }
+            break;
+
+        case pokegold::BadDataReason::MoveDescription:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                const auto name = m_pokegold.Data().Moves()[idx].Name.ToEditorString();
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("기술 설명 손상 (번호: {}, 이름: {})", idx, name)));
+                m_badDataList->SetItem(i, 2, wxT("'?'로 변경"));
             }
             break;
 
@@ -143,16 +183,12 @@ void ui::internal::BadDataDialog::OnDialogShow(wxShowEvent &event)
 
 void ui::internal::BadDataDialog::OnConfirmButtonClick(wxCommandEvent &event)
 {
-    Close();
+    EndModal(wxID_OK);
 }
 
-void ui::internal::BadDataDialog::OnYesButtonClick(wxCommandEvent &event)
+void ui::internal::BadDataDialog::OnCancelButtonClick(wxCommandEvent &event)
 {
-    EndModal(wxID_YES);
-}
-void ui::internal::BadDataDialog::OnNoButtonClick(wxCommandEvent &event)
-{
-    EndModal(wxID_NO);
+    EndModal(wxID_CANCEL);
 }
 
 void ui::ShowBadDataDialog(wxWindow *parent, std::span<const pokegold::BadData> badDataList)

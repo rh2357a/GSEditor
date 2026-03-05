@@ -9,44 +9,83 @@
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
+namespace ui{ class ColorPickerPanel; }
 namespace ui{ class ColoredCheckListBox; }
 namespace ui{ class ColoredListBox; }
 namespace ui{ class ColoredListCtrl; }
 namespace ui{ class DatabasePanel; }
+namespace ui{ class ImageEditorPanel; }
 
-#include <wx/string.h>
-#include <wx/bitmap.h>
-#include <wx/image.h>
-#include <wx/icon.h>
-#include <wx/menu.h>
+#include <wx/panel.h>
 #include <wx/gdicmn.h>
 #include <wx/font.h>
 #include <wx/colour.h>
 #include <wx/settings.h>
+#include <wx/string.h>
+#include <wx/sizer.h>
+#include <wx/slider.h>
+#include <wx/statline.h>
+#include <wx/stattext.h>
+#include <wx/spinctrl.h>
+#include <wx/bitmap.h>
+#include <wx/image.h>
+#include <wx/icon.h>
+#include <wx/menu.h>
 #include <wx/toolbar.h>
 #include <wx/statusbr.h>
-#include <wx/panel.h>
-#include <wx/sizer.h>
 #include <wx/frame.h>
-#include <wx/statbmp.h>
-#include <wx/stattext.h>
-#include <wx/html/htmlwin.h>
-#include <wx/textctrl.h>
-#include <wx/notebook.h>
-#include <wx/dialog.h>
-#include <wx/gauge.h>
-#include <wx/button.h>
-#include <wx/listctrl.h>
-#include <wx/combobox.h>
-#include <wx/statline.h>
-#include <wx/radiobut.h>
-#include <wx/spinctrl.h>
-#include <wx/checkbox.h>
 #include <wx/listbox.h>
+#include <wx/textctrl.h>
+#include <wx/combobox.h>
+#include <wx/simplebook.h>
+#include <wx/listctrl.h>
+#include <wx/button.h>
 #include <wx/checklst.h>
 #include <wx/scrolwin.h>
+#include <wx/notebook.h>
+#include <wx/statbmp.h>
+#include <wx/html/htmlwin.h>
+#include <wx/dialog.h>
+#include <wx/radiobut.h>
+#include <wx/checkbox.h>
+#include <wx/gauge.h>
 
 ///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ColorPickerPopupPanelBase
+///////////////////////////////////////////////////////////////////////////////
+class ColorPickerPopupPanelBase : public wxPanel
+{
+	private:
+
+	protected:
+		wxPanel* m_pickerPanel;
+		wxPanel* m_previewPanel;
+		wxSlider* m_brightnessSlider;
+		wxPanel* m_brightnessPreviewPanel;
+		wxSlider* m_redSlider;
+		wxSpinCtrlDouble* m_redSpinCtrl;
+		wxSlider* m_greenSlider;
+		wxSpinCtrlDouble* m_greenSpinCtrl;
+		wxSlider* m_blueSlider;
+		wxSpinCtrlDouble* m_blueSpinCtrl;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnPickerMouseEvent( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnPickerPaint( wxPaintEvent& event ) { event.Skip(); }
+		virtual void OnPreviewPaint( wxPaintEvent& event ) { event.Skip(); }
+		virtual void OnBrightnessSlider( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnBrightnessPreviewPaint( wxPaintEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		ColorPickerPopupPanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 290,328 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~ColorPickerPopupPanelBase();
+
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class MainFrameBase
@@ -58,15 +97,24 @@ class MainFrameBase : public wxFrame
 	protected:
 		enum
 		{
-			wxID_TEST_PLAY = 6000,
-			wxID_IPS,
+			wxID_IPS = 6000,
 			wxID_XDELTA,
+			wxID_TEST_PLAY,
 			wxID_EMULATOR,
+			wxID_DEBUG_LABEL,
+			wxID_TEST_PLAY_SAVE,
+			wxID_BUILD_CLEANUP,
 		};
 
 		wxMenuBar* m_mainMenuBar;
 		wxMenuItem* m_fileSaveMenuItem;
-		wxMenuItem* m_settingsSetEmulatorMenuItem;
+		wxMenuItem* m_fileExportToIpsMenuItem;
+		wxMenuItem* m_fileExportToXdeltaMenuItem;
+		wxMenuItem* m_gameTestPlayMenuItem;
+		wxMenuItem* m_gameSettingsEmulatorMenuItem;
+		wxMenuItem* m_gameSettingsShowDebugLabelMenuItem;
+		wxMenuItem* m_gameSettingsSaveMenuItem;
+		wxMenuItem* m_gameSettingsCleanupMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
@@ -76,6 +124,7 @@ class MainFrameBase : public wxFrame
 		// Virtual event handlers, override them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuItemSelected( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -83,6 +132,164 @@ class MainFrameBase : public wxFrame
 		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~MainFrameBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class DatabasePanelBase
+///////////////////////////////////////////////////////////////////////////////
+class DatabasePanelBase : public wxPanel
+{
+	private:
+
+	protected:
+		enum
+		{
+			wxID_POKEMON_EVOLUTION_ADD = 6000,
+			wxID_POKEMON_EVOLUTION_MODIFY,
+			wxID_POKEMON_EVOLUTION_REMOVE,
+			wxID_POKEMON_EVOLUTION_CLEAR,
+			wxID_POKEMON_MOVES_IMPORT,
+			wxID_POKEMON_MOVES_ADD,
+			wxID_POKEMON_MOVES_MODIFY,
+			wxID_POKEMON_MOVES_REMOVE,
+			wxID_POKEMON_MOVES_CLEAR,
+			wxID_POKEMON_TMHMS_CHECK_ALL,
+			wxID_POKEMON_TMHMS_CLEAR,
+			wxID_CHECK_ALL,
+		};
+
+		ui::ColoredListBox* m_pokemonList;
+		wxSimplebook* m_pokemonContainer;
+		wxTextCtrl* m_pokemonNoText;
+		wxTextCtrl* m_pokemonNameText;
+		wxComboBox* m_pokemonGenderRateComboBox;
+		wxComboBox* m_pokemonGrowthRateComboBox;
+		wxComboBox* m_pokemonType1ComboBox;
+		wxComboBox* m_pokemonType2ComboBox;
+		wxComboBox* m_pokemonItem1ComboBox;
+		wxComboBox* m_pokemonItem2ComboBox;
+		wxComboBox* m_pokemonEggGroup1ComboBox;
+		wxComboBox* m_pokemonEggGroup2ComboBox;
+		wxSpinCtrlDouble* m_pokemonStatsHpValue;
+		wxSpinCtrlDouble* m_pokemonStatsAtkValue;
+		wxSpinCtrlDouble* m_pokemonStatsDefValue;
+		wxSpinCtrlDouble* m_pokemonStatsSpAtkValue;
+		wxSpinCtrlDouble* m_pokemonStatsSpDefValue;
+		wxSpinCtrlDouble* m_pokemonStatsSpdValue;
+		wxSpinCtrlDouble* m_pokemonStatsExpValue;
+		wxSpinCtrlDouble* m_pokemonStatsCatchRateValue;
+		wxStaticText* m_pokemonCatchRatePercentage;
+		wxSimplebook* m_pokemonImageContainer;
+		ui::ImageEditorPanel* m_pokemonFrontImage;
+		ui::ImageEditorPanel* m_pokemonBackImage;
+		ui::ImageEditorPanel* m_pokemonShinyFrontImage;
+		ui::ImageEditorPanel* m_pokemonShinyBackImage;
+		ui::ColorPickerPanel* m_pokemonColor_1;
+		ui::ColorPickerPanel* m_pokemonColor_2;
+		ui::ColorPickerPanel* m_pokemonShinyColor_1;
+		ui::ColorPickerPanel* m_pokemonShinyColor_2;
+		wxTextCtrl* m_pokemonDexSpeciesNameText;
+		wxSpinCtrlDouble* m_pokemonDexHeightValue;
+		wxSpinCtrlDouble* m_pokemonDexWeightValue;
+		wxStaticText* m_pokemonDexDescriptionLabel;
+		wxTextCtrl* m_pokemonDexDescriptionText;
+		ui::ColoredListCtrl* m_pokemonEvolutionsList;
+		wxButton* m_pokemonEvolutionAdd;
+		wxButton* m_pokemonEvolutionModify;
+		wxButton* m_pokemonEvolutionRemove;
+		wxButton* m_pokemonEvolutionClear;
+		ui::ColoredListCtrl* m_pokemonMovesList;
+		wxButton* m_pokemonMovesImport;
+		wxButton* m_pokemonMovesAdd;
+		wxButton* m_pokemonMovesModify;
+		wxButton* m_pokemonMovesRemove;
+		wxButton* m_pokemonMovesClear;
+		wxGridSizer* m_pokemonTMHMsSizer;
+		ui::ColoredCheckListBox* m_pokemonHmTmList1;
+		ui::ColoredCheckListBox* m_pokemonHmTmList2;
+		ui::ColoredCheckListBox* m_pokemonHmTmList3;
+		ui::ColoredCheckListBox* m_pokemonHmTmList4;
+		ui::ColoredCheckListBox* m_pokemonHmTmList5;
+		ui::ColoredCheckListBox* m_pokemonHmTmList6;
+		ui::ColoredCheckListBox* m_pokemonHmTmList7;
+		ui::ColoredCheckListBox* m_pokemonHmTmList8;
+		ui::ColoredListBox* m_unownList;
+		wxPanel* m_unownContainer;
+		ui::ImageEditorPanel* m_unownFrontImage;
+		ui::ImageEditorPanel* m_unownBackImage;
+		ui::ImageEditorPanel* m_unownShinyFrontImage;
+		ui::ImageEditorPanel* m_unownShinyBackImage;
+		ui::ColorPickerPanel* m_unownColor_1;
+		ui::ColorPickerPanel* m_unownColor_2;
+		ui::ColorPickerPanel* m_unownShinyColor_1;
+		ui::ColorPickerPanel* m_unownShinyColor_2;
+		ui::ColoredListBox* m_itemList;
+		wxScrolledWindow* m_itemContainer;
+		wxComboBox* m_itemPrimaryGroupComboBox;
+		wxTextCtrl* m_itemPrimaryNameText;
+		wxSpinCtrlDouble* m_itemPrimaryPriceSpinCtrl;
+		wxStaticText* m_itemPrimaryDescriptionLabel;
+		wxTextCtrl* m_itemPrimaryDescriptionText;
+		wxComboBox* m_itemFieldMenuComboBox;
+		wxComboBox* m_itemBattleMenuComboBox;
+		wxComboBox* m_itemEtcEffectComboBox;
+		wxComboBox* m_itemEtcRegisterComboBox;
+		wxSpinCtrlDouble* m_itemEtcValueSpinCtrl;
+		ui::ColoredListBox* m_moveList;
+		wxScrolledWindow* m_moveContainer;
+		wxTextCtrl* m_movePrimaryNumberText;
+		wxTextCtrl* m_movePrimaryNameText;
+		wxComboBox* m_movePrimaryTypeComboBox;
+		wxSpinCtrlDouble* m_movePrimaryPowerSpinCtrl;
+		wxSpinCtrlDouble* m_movePrimaryAccuracySpinCtrl;
+		wxStaticText* m_movePrimaryAccuracyPercentageLabel;
+		wxSpinCtrlDouble* m_movePrimaryPPSpinCtrl;
+		wxStaticText* m_movePrimaryDescriptionLabel;
+		wxTextCtrl* m_movePrimaryDescriptionText;
+		wxComboBox* m_moveEffectTypeComboBox;
+		wxSpinCtrlDouble* m_moveEffectValueSpinCtrl;
+		ui::ColoredListBox* m_tmhmList;
+		wxPanel* m_tmhmContainer;
+		wxComboBox* m_tmhmMoveComboBox;
+		wxButton* tmhmPokemonClearButton;
+		ui::ColoredCheckListBox* m_tmhmPokemonList;
+		ui::ColoredListBox* m_trainerGroupList;
+		wxScrolledWindow* m_trainerGroupContainer;
+		wxTextCtrl* m_trainerGroupNameText;
+		wxSimplebook* m_trainerGroupImageContainer;
+		ui::ImageEditorPanel* m_trainerGroupImage;
+		ui::ColorPickerPanel* m_trainerGroupColor_1;
+		ui::ColorPickerPanel* m_trainerGroupColor_2;
+		wxStaticText* m_trainerGroupImageWarningLabel;
+		ui::ColoredListBox* m_typeList;
+		wxScrolledWindow* m_typeContainer;
+		wxTextCtrl* m_typeNameText;
+		ui::ColoredListCtrl* m_typeMatchupList;
+		wxButton* m_typeMatchupsAddButton;
+		wxButton* m_typeMatchupsEditButton;
+		wxButton* m_typeMatchupsRemoveButton;
+		wxButton* m_typeMatchupsClearButton;
+		ui::ColoredListCtrl* m_typeWeatherModifierList;
+		wxButton* m_typeWeatherModifiersAddButton;
+		wxButton* m_typeWeatherModifiersEditButton;
+		wxButton* m_typeWeatherModifiersRemoveButton;
+		wxButton* m_typeWeatherModifiersClearButton;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnPokemonEvolutionsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPokemonMovesButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPokemonTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTypeMatchupsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTypeWeatherModifiersButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,1800 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~DatabasePanelBase();
 
 };
 
@@ -99,61 +306,16 @@ class AboutDialogBase : public wxDialog
 		wxHtmlWindow* m_versionHtml;
 		wxTextCtrl* m_thirdPartyNoticesText;
 
-	public:
-
-		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 620,540 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
-
-		~AboutDialogBase();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class ProgressDialogBase
-///////////////////////////////////////////////////////////////////////////////
-class ProgressDialogBase : public wxDialog
-{
-	private:
-
-	protected:
-		wxGauge* m_progressGauge;
-		wxStaticText* m_messageLabel;
-		wxButton* m_cancelButton;
-
 		// Virtual event handlers, override them in your derived class
-		virtual void OnInit( wxInitDialogEvent& event ) { event.Skip(); }
+		virtual void OnOkButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		ProgressDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 300,180 ), long style = wxCAPTION );
+		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 624,540 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
 
-		~ProgressDialogBase();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class BadDataDialogBase
-///////////////////////////////////////////////////////////////////////////////
-class BadDataDialogBase : public wxDialog
-{
-	private:
-
-	protected:
-		ui::ColoredListCtrl* m_badDataList;
-
-		// Virtual event handlers, override them in your derived class
-		virtual void OnDialogShow( wxShowEvent& event ) { event.Skip(); }
-		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnYesButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnNoButtonClick( wxCommandEvent& event ) { event.Skip(); }
-
-
-	public:
-
-		BadDataDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("데이터 손상 알림"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 560,440 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
-
-		~BadDataDialogBase();
+		~AboutDialogBase();
 
 };
 
@@ -195,87 +357,176 @@ class EvolutionEditorDialogBase : public wxDialog
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class DatabasePanelBase
+/// Class MoveEditorDialogBase
 ///////////////////////////////////////////////////////////////////////////////
-class DatabasePanelBase : public wxPanel
+class MoveEditorDialogBase : public wxDialog
 {
 	private:
 
 	protected:
-		enum
-		{
-			wxID_POKEMON_EVOLUTION_ADD = 6000,
-			wxID_POKEMON_EVOLUTION_MODIFY,
-			wxID_POKEMON_EVOLUTION_REMOVE,
-			wxID_POKEMON_EVOLUTION_CLEAR,
-			wxID_POKEMON_LEARN_MOVES_IMPORT,
-			wxID_POKEMON_LEARN_MOVES_ADD,
-			wxID_POKEMON_LEARN_MOVES_MODIFY,
-			wxID_POKEMON_LEARN_MOVES_REMOVE,
-			wxID_POKEMON_LEARN_MOVES_CLEAR,
-			wxID_POKEMON_TMHMS_CHECK_ALL,
-			wxID_POKEMON_TMHMS_CLEAR,
-		};
-
-		ui::ColoredListBox* m_pokemonList;
-		wxScrolledWindow* m_pokemonContainer;
-		wxTextCtrl* m_pokemonNoText;
-		wxTextCtrl* m_pokemonNameText;
-		wxComboBox* m_pokemonGenderRateComboBox;
-		wxComboBox* m_pokemonGrowthRateComboBox;
-		wxComboBox* m_pokemonType1ComboBox;
-		wxComboBox* m_pokemonType2ComboBox;
-		wxComboBox* m_pokemonItem1ComboBox;
-		wxComboBox* m_pokemonItem2ComboBox;
-		wxComboBox* m_pokemonEggGroup1ComboBox;
-		wxComboBox* m_pokemonEggGroup2ComboBox;
-		wxSpinCtrlDouble* m_pokemonStatsHpValue;
-		wxSpinCtrlDouble* m_pokemonStatsAtkValue;
-		wxSpinCtrlDouble* m_pokemonStatsDefValue;
-		wxSpinCtrlDouble* m_pokemonStatsSpAtkValue;
-		wxSpinCtrlDouble* m_pokemonStatsSpDefValue;
-		wxSpinCtrlDouble* m_pokemonStatsSpdValue;
-		wxSpinCtrlDouble* m_pokemonStatsExpValue;
-		wxSpinCtrlDouble* m_pokemonStatsCatchRateValue;
-		wxStaticText* m_pokemonCatchRatePercentage;
-		wxTextCtrl* m_pokemonDexSpeciesNameText;
-		wxSpinCtrlDouble* m_pokemonDexHeightValue;
-		wxSpinCtrlDouble* m_pokemonDexWeightValue;
-		wxStaticText* m_pokemonDexDescriptionLabel;
-		wxTextCtrl* m_pokemonDexDescriptionText;
-		ui::ColoredListCtrl* m_pokemonEvolutionsList;
-		wxButton* m_pokemonEvolutionAdd;
-		wxButton* m_pokemonEvolutionModify;
-		wxButton* m_pokemonEvolutionRemove;
-		wxButton* m_pokemonEvolutionClear;
-		ui::ColoredListCtrl* m_pokemonLearnMovesList;
-		wxButton* m_pokemonLearnMovesImport;
-		wxButton* m_pokemonLearnMovesAdd;
-		wxButton* m_pokemonLearnMovesModify;
-		wxButton* m_pokemonLearnMovesRemove;
-		wxButton* m_pokemonLearnMovesClear;
-		wxGridSizer* m_pokemonTMHMsSizer;
-		ui::ColoredCheckListBox* m_pokemonHmTmList1;
-		ui::ColoredCheckListBox* m_pokemonHmTmList2;
-		ui::ColoredCheckListBox* m_pokemonHmTmList3;
-		ui::ColoredCheckListBox* m_pokemonHmTmList4;
-		ui::ColoredCheckListBox* m_pokemonHmTmList5;
-		ui::ColoredCheckListBox* m_pokemonHmTmList6;
-		ui::ColoredCheckListBox* m_pokemonHmTmList7;
-		ui::ColoredCheckListBox* m_pokemonHmTmList8;
+		wxSpinCtrlDouble* m_levelSpinCtrl;
+		wxComboBox* m_movesComboBox;
 
 		// Virtual event handlers, override them in your derived class
-		virtual void OnPokemonSelected( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnPokemonEvolutionsButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnPokemonLearnMovesButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnPokemonTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,1800 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		MoveEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 240,162 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
 
-		~DatabasePanelBase();
+		~MoveEditorDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class TypeMatchupEditorDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class TypeMatchupEditorDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxComboBox* m_typeComboBox;
+		wxComboBox* m_effectivenessComboBox;
+		wxCheckBox* m_foresightCheckBox;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		TypeMatchupEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 285,186 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
+
+		~TypeMatchupEditorDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class TypeWeatherModifierEditorDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class TypeWeatherModifierEditorDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxComboBox* m_weatherComboBox;
+		wxComboBox* m_effectivenessComboBox;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		TypeWeatherModifierEditorDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 247,158 ), long style = wxCAPTION|wxCLOSE_BOX|wxSYSTEM_MENU );
+
+		~TypeWeatherModifierEditorDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ImportMoveDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class ImportMoveDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		ui::ColoredListBox* m_pokemonListBox;
+		ui::ColoredListCtrl* m_movesListCtrl;
+		wxButton* m_ignoreButton;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnIgnoreButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		ImportMoveDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("가져오기..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,400 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~ImportMoveDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ProgressDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class ProgressDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxGauge* m_progressGauge;
+		wxStaticText* m_messageLabel;
+		wxButton* m_cancelButton;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnInit( wxInitDialogEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		ProgressDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 300,180 ), long style = wxCAPTION );
+
+		~ProgressDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class BadDataDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class BadDataDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		ui::ColoredListCtrl* m_badDataList;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnDialogShow( wxShowEvent& event ) { event.Skip(); }
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		BadDataDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("데이터 손상 알림"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 560,440 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~BadDataDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class SearchDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class SearchDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxTextCtrl* m_keywordText;
+		ui::ColoredListCtrl* m_list;
+		wxButton* m_confirmButton;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnKeywordTextChanged( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCancelButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		SearchDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("찾기..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 400,400 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~SearchDialogBase();
 
 };
 

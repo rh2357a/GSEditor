@@ -10,6 +10,10 @@ namespace ui
         {
         public:
             AboutDialog(wxWindow *parent);
+
+        private:
+            void OnOkButtonClick(wxCommandEvent &event) override;
+            void OnCancelButtonClick(wxCommandEvent &event) override;
         };
     }
 

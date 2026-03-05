@@ -9,7 +9,7 @@ namespace ui
     class MainFrame : public MainFrameBase
     {
     private:
-        inline static const auto TAG = "ui::main_frame";
+        inline static const auto TAG = "ui::MainFrame";
 
     private:
         services::AppConfigs &m_configs = services::AppConfigs::Default();
@@ -21,9 +21,12 @@ namespace ui
     private:
         void RomOpenedControlHandler();
         void StatusBarTextHandler();
-        void EmulatorMenuHelpHandler();
+        void SettingsMenusHandler();
 
         void OnClose(wxCloseEvent &event) override;
         void OnMenuSelected(wxCommandEvent &event) override;
+        void OnMenuItemSelected(wxCommandEvent &event) override;
+
+        void SaveRomFile();
     };
 }

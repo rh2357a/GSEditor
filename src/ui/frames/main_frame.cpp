@@ -1,16 +1,26 @@
 #include "main_frame.h"
 
+#include "base/files/patch.h"
 #include "base/log.h"
 #include "base/resources.h"
 #include "ui/dialogs/about_dialog.h"
 #include "ui/dialogs/bad_data_dialog.h"
+#include "ui/dialogs/file_dialogs.h"
 #include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
+#include "ui/generated/ui_base.h"
 
 #include <wx/persist/toplevel.h>
 
+#include <filesystem>
 #include <format>
 #include <string>
+
+namespace
+{
+    const std::vector<std::string> k_executableFileFilter = {"exe 파일|*.exe"};
+    const std::vector<std::string> k_romFileFilter = {"gbc 파일|*.gbc", "bin 파일|*.bin"};
+}
 
 ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
 {
@@ -27,7 +37,10 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
     m_pokegold.Rom().Opened().Subscribe(this, [this] { RomOpenedControlHandler(); });
     m_pokegold.Rom().FilePath().Subscribe(this, [this] { StatusBarTextHandler(); });
     m_pokegold.Rom().DataChanged().Subscribe(this, [this] { StatusBarTextHandler(); });
-    m_configs.GetEmulatorPathState().Subscribe(this, [this] { EmulatorMenuHelpHandler(); });
+    m_configs.GetEmulatorPathState().Subscribe(this, [this] { SettingsMenusHandler(); });
+    m_configs.GetShowDebugLabelState().Subscribe(this, [this] { SettingsMenusHandler(); });
+    m_configs.GetTestPlaySaveState().Subscribe(this, [this] { SettingsMenusHandler(); });
+    m_configs.GetBuildCleanupState().Subscribe(this, [this] { SettingsMenusHandler(); });
 }
 
 void ui::MainFrame::RomOpenedControlHandler()
@@ -35,7 +48,9 @@ void ui::MainFrame::RomOpenedControlHandler()
     bool isOpened = *m_pokegold.Rom().Opened();
 
     m_fileSaveMenuItem->Enable(isOpened);
-    m_mainMenuBar->EnableTop(/* 게임 메뉴 */ 1, isOpened);
+    m_fileExportToIpsMenuItem->Enable(isOpened);
+    m_fileExportToXdeltaMenuItem->Enable(isOpened);
+    m_gameTestPlayMenuItem->Enable(isOpened);
 
     m_saveToolbarItem->Enable(isOpened);
     m_testPlayToolbarItem->Enable(isOpened);
@@ -61,20 +76,24 @@ void ui::MainFrame::StatusBarTextHandler()
     }
 }
 
-void ui::MainFrame::EmulatorMenuHelpHandler()
+void ui::MainFrame::SettingsMenusHandler()
 {
     auto path = *m_configs.GetEmulatorPathState();
     if (path == base::GetNullPath())
     {
         wxString help = wxT("테스트 플레이 에뮬레이터를 등록합니다.");
-        m_settingsSetEmulatorMenuItem->SetHelp(help);
+        m_gameSettingsEmulatorMenuItem->SetHelp(help);
     }
     else
     {
         std::string realPath = path.string();
         wxString help = wxString::Format(wxT("테스트 플레이 에뮬레이터를 등록합니다. (등록: '%s')"), wxString::FromUTF8(realPath));
-        m_settingsSetEmulatorMenuItem->SetHelp(help);
+        m_gameSettingsEmulatorMenuItem->SetHelp(help);
     }
+
+    m_gameSettingsShowDebugLabelMenuItem->Check(m_configs.GetShowDebugLabel());
+    m_gameSettingsSaveMenuItem->Check(m_configs.GetTestPlaySave());
+    m_gameSettingsCleanupMenuItem->Check(m_configs.GetBuildCleanup());
 }
 
 void ui::MainFrame::OnClose(wxCloseEvent &event)
@@ -85,8 +104,8 @@ void ui::MainFrame::OnClose(wxCloseEvent &event)
         if (selected == MessageBoxResult::Yes)
         {
             base::Log(TAG, "close app (save: yes)");
-            // TODO: 롬 저장 수행 후, `Close()` 직접 호출 ...
-            event.Veto();
+            SaveRomFile();
+            event.Skip();
         }
         else if (selected == MessageBoxResult::No)
         {
@@ -112,19 +131,29 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
 
     if (id == wxID_EXIT)
     {
+        base::Log(TAG, "menu selected (menu: exit app)");
         Close();
         return;
     }
 
     if (id == wxID_OPEN)
     {
-        wxFileDialog fileDialog(this, wxT("열기..."), "", "", wxT("gbc 파일|*.gbc"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-        if (fileDialog.ShowModal() == wxID_CANCEL)
+        base::Log(TAG, "menu selected (menu: open)");
+
+        if (*m_pokegold.Rom().Opened() && *m_pokegold.Rom().DataChanged())
+        {
+            auto questionResult = ShowYesNoDialog(this, "알림", "변경된 내용이 아직 있습니다.\n그래도 다른 파일을 열겠습니까?");
+            if (questionResult == MessageBoxResult::No)
+                return;
+        }
+
+        auto openRomResult = ShowOpenFileDialog(this, "열기...", k_romFileFilter);
+        if (!openRomResult.has_value())
             return;
 
         auto &state = m_pokegold.Rom().OpenProgressState();
-        auto result = ShowProgressDialog(this, "열기...", state, [this, &fileDialog] {
-            std::filesystem::path filePath = fileDialog.GetPath().utf8_string();
+        auto result = ShowProgressDialog(this, "열기...", state, [this, &openRomResult] {
+            std::filesystem::path filePath = *openRomResult;
             return m_pokegold.Rom().Open(filePath);
         });
 
@@ -135,8 +164,16 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         return;
     }
 
+    if (id == wxID_SAVE)
+    {
+        base::Log(TAG, "menu selected (menu: save)");
+        SaveRomFile();
+        return;
+    }
+
     if (id == wxID_ABOUT)
     {
+        base::Log(TAG, "menu selected (menu: about this app)");
         ShowAboutDialog(this);
         return;
     }
@@ -152,31 +189,144 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
             if (result == MessageBoxResult::No)
                 return;
 
-            wxFileDialog fileDialog(this, wxT("에뮬레이터 등록..."), "", "", wxT("exe 파일|*.exe"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-            if (fileDialog.ShowModal() == wxID_CANCEL)
+            auto openResult = ShowOpenFileDialog(this, "에뮬레이터 등록...", k_executableFileFilter);
+            if (!openResult.has_value())
                 return;
 
-            *emulatorPath = fileDialog.GetPath().utf8_string();
-            m_configs.SetEmulatorPath(*emulatorPath);
-        }
+            auto newPath = *openResult;
+            m_configs.SetEmulatorPath(newPath);
 
-        // TODO: save 생성 추가...
+            emulatorPath = m_configs.GetEmulatorPath();
+        }
 
         base::Log(TAG, "  - path: \"{}\"", (*emulatorPath).string());
 
-        // TODO: sidecar 실행 추가...
+        base::Log(TAG, "test_play: build rom");
+        auto &state = m_pokegold.Rom().BuildProgressState();
+        auto result = ShowProgressDialog(this, "저장...", state, [this] {
+            return m_pokegold.Rom().Build();
+        });
+
+        if (!result.has_value())
+        {
+            base::Log(TAG, "test_play: canceled");
+            return;
+        }
+
+        base::Log(TAG, "test_play: run");
+        m_pokegold.Rom().RunTestPlay();
 
         return;
     }
 
     if (id == wxID_EMULATOR)
     {
-        wxFileDialog fileDialog(this, wxT("에뮬레이터 등록..."), "", "", wxT("exe 파일|*.exe"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-        if (fileDialog.ShowModal() == wxID_CANCEL)
-            return;
+        base::Log(TAG, "menu selected (menu: set emulator)");
 
-        auto emulatorPath = fileDialog.GetPath().utf8_string();
-        m_configs.SetEmulatorPath(emulatorPath);
+        auto openResult = ShowOpenFileDialog(this, "에뮬레이터 등록...", k_executableFileFilter);
+        if (openResult.has_value())
+        {
+            base::Log(TAG, "emulator selected (path=\"{}\")", (*openResult).string());
+            m_configs.SetEmulatorPath(*openResult);
+        }
+
         return;
     }
+
+    if (id == wxID_IPS)
+    {
+        base::Log(TAG, "menu selected (menu: create ips)");
+
+        auto openBaseRomResult = ShowOpenFileDialog(this, "원본 롬 열기...", k_romFileFilter);
+        if (!openBaseRomResult.has_value())
+            return;
+
+        auto savePatchResult = ShowSaveFileDialog(this, "패치 파일 저장...", {"ips 패치 파일|*.ips"});
+        if (!savePatchResult.has_value())
+            return;
+
+        auto &state = m_pokegold.Rom().BuildProgressState();
+        auto result = ShowProgressDialog(this, "저장...", state, [this] {
+            return m_pokegold.Rom().Build();
+        });
+
+        if (result.has_value())
+        {
+            base::CreateIpsPatch(*savePatchResult, *openBaseRomResult, *result);
+            ShowAlertDialog(this, "완료", "패치 파일이 생성되었습니다!");
+        }
+
+        return;
+    }
+
+    if (id == wxID_XDELTA)
+    {
+        base::Log(TAG, "menu selected (menu: create xdelta)");
+
+        auto openBaseRomResult = ShowOpenFileDialog(this, "원본 롬 열기...", k_romFileFilter);
+        if (!openBaseRomResult.has_value())
+            return;
+
+        auto savePatchResult = ShowSaveFileDialog(this, "패치 파일 저장...", {"xdelta 패치 파일|*.xdelta"});
+        if (!savePatchResult.has_value())
+            return;
+
+        auto &state = m_pokegold.Rom().BuildProgressState();
+        auto result = ShowProgressDialog(this, "저장...", state, [this] {
+            return m_pokegold.Rom().Build();
+        });
+
+        if (result.has_value())
+        {
+            base::CreateDeltaPatch(*savePatchResult, *openBaseRomResult, *result);
+            ShowAlertDialog(this, "완료", "패치 파일이 생성되었습니다!");
+        }
+
+        return;
+    }
+}
+
+void ui::MainFrame::OnMenuItemSelected(wxCommandEvent &event)
+{
+    const int id = event.GetId();
+
+    if (id == wxID_DEBUG_LABEL)
+    {
+        auto newValue = !(m_configs.GetShowDebugLabel());
+        m_configs.SetShowDebugLabel(newValue);
+        return;
+    }
+
+    if (id == wxID_TEST_PLAY_SAVE)
+    {
+        auto newValue = !(m_configs.GetTestPlaySave());
+        m_configs.SetTestPlaySave(newValue);
+        return;
+    }
+
+    if (id == wxID_BUILD_CLEANUP)
+    {
+        auto newValue = !(m_configs.GetBuildCleanup());
+        m_configs.SetBuildCleanup(newValue);
+        return;
+    }
+}
+
+void ui::MainFrame::SaveRomFile()
+{
+    auto &state = m_pokegold.Rom().BuildProgressState();
+    auto result = ShowProgressDialog(this, "저장...", state, [this] {
+        return m_pokegold.Rom().Build();
+    });
+
+    if (!result.has_value())
+    {
+        base::Log(TAG, "save canceled.");
+        return;
+    }
+
+    auto romPath = *result;
+    auto writeToPath = *m_pokegold.Rom().FilePath();
+    std::filesystem::copy(romPath, writeToPath, std::filesystem::copy_options::overwrite_existing);
+    m_pokegold.Rom().NotifyRomSaved();
 }

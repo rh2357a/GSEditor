@@ -43,23 +43,12 @@ DEFINES   := -DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN
 
 INCLUDES  := -I$(SOURCE_DIR) -I$(RESOURCE_DIR) -I$(SOURCE_DIR)/third_party
 
-LIBS      := -L$(SOURCE_DIR)/third_party/xdelta3 -lxdelta3
+LIBS      := $(SOURCE_DIR)/third_party/xdelta3/mingw-w64-x86_64-libxdelta3.a
 
-CCFLAGS   := -std=c17 -MMD -MP -Wall -Wextra \
-             $(WARNS) $(shell wx-config $(WXCCFLAGS))
-
-CXXFLAGS  := -std=c++20 -fpermissive -MMD -MP -Wall -Wextra \
-             $(WARNS) $(shell wx-config $(WXCXXFLAGS))
-
-LDFLAGS   := -mwindows -static -static-libgcc -static-libstdc++ \
-             $(LIBS) -lmsvcrt -llzma -lz -lxxhash \
-             $(shell wx-config $(WXLDFLAGS))
-
-TOOLFLAGS := -std=c++20 -fpermissive \
-             -O3 -s -Wl,--gc-sections \
-             -static -static-libgcc -static-libstdc++ \
-             -lmsvcrt -ffunction-sections -fdata-sections \
-             $(LIBS) $(INCLUDES)
+CCFLAGS   := -std=c17 -MMD -MP -Wall -Wextra $(WARNS) $(shell wx-config $(WXCCFLAGS))
+CXXFLAGS  := -std=c++23 -fpermissive -MMD -MP -Wall -Wextra $(WARNS) $(shell wx-config $(WXCXXFLAGS))
+LDFLAGS   := -mwindows $(LIBS) -llzma -lz -lxxhash $(shell wx-config $(WXLDFLAGS))
+TOOLFLAGS := -std=c++23 $(LIBS) $(INCLUDES)
 
 ifeq ($(DEBUG),1)
 DEFINES  += -DDEBUG
@@ -69,7 +58,7 @@ else
 DEFINES  += -DRELEASE
 CCFLAGS  += -O3 -ffunction-sections -fdata-sections
 CXXFLAGS += -O3 -ffunction-sections -fdata-sections
-LDFLAGS  += -s -Wl,--gc-sections
+LDFLAGS  += -static -static-libgcc -static-libstdc++ -s -Wl,--gc-sections
 endif
 
 ################################################################################
