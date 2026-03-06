@@ -699,6 +699,9 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             // 손상 데이터 체크 및 기본값 사용
             if (attacker >= data.Types().size() || !(effectiveness % 5 == 0 && effectiveness <= 20))
             {
+                for (auto &e : data.Types())
+                    e.TypeMatchups.clear();
+
                 typeMatchupsOffset = 0x34d01;
                 data.SetBytes(0x34d01, embed::GetPokegoldDefaultTypeMatchupsData());
                 data.BadDataList().emplace_back(BadDataReason::TypeMatchups, nullptr);
@@ -735,6 +738,9 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             // 손상 데이터 체크 및 기본값 사용
             if (typeId >= data.Types().size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
             {
+                for (auto &e : data.Types())
+                    e.WeatherModifiers.clear();
+
                 weatherTypeModifiersOffset = 0xfbe68;
                 data.SetBytes(0xfbe68, embed::GetPokegoldDefaultWeatherTypeModifiersData());
                 data.BadDataList().emplace_back(BadDataReason::WeatherTypeModifiers, nullptr);
@@ -769,6 +775,9 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             // 손상 데이터 체크 및 기본값 사용
             if (moveId >= data.Moves().size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
             {
+                for (auto &e : data.Moves())
+                    e.WeatherModifiers.clear();
+
                 weatherMoveModifiersOffset = 0xfbe75;
                 data.SetBytes(0xfbe75, embed::GetPokegoldDefaultWeatherMoveModifiersData());
                 data.BadDataList().emplace_back(BadDataReason::WeatherMoveModifiers, nullptr);
