@@ -21,20 +21,32 @@ GSEditor_NewGetOverworldSpritePalette::
 .is_pokemon
     pop af
 
-    cp $80
-    jr c, .normal
     cp $e0
     jr z, .breed_1
 
+    cp $e1
+    jr z, .breed_2
+
+.icon
+    push hl
+    sub $80
+    ld e, a
+    ld d, $0
+    ld hl, $4669
+    add hl, de
+    ld a, [hl]
+    pop hl
+    jr .mon
+
 .breed_2
     ld a, [$dd8d]
-    jr .normal
+    jr .mon
 
 .breed_1
     ld a, [$dd54]
-    jr .normal
+    jr .mon
 
-.normal
+.mon
     ld hl, $7ace ; pal_ids
     dec a
     ld e, a
@@ -72,7 +84,7 @@ GSEditor_NewGetOverworldPokemonIcon::
     ld d, [hl]
 
     pop af
-    cp $80
+    cp $81
     jr nc, .second
 
 .first
