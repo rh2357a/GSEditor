@@ -3,6 +3,7 @@
 #include "base/files/paths.h"
 #include "base/log.h"
 #include "base/resources.h"
+#include "base/resources_embed.h"
 #include "base/strings/crypto.h"
 #include "base/types/types.h"
 #include "services/pokegold/data/color.h"
@@ -255,6 +256,20 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 {
     std::vector<u8> imageBuffer(0x400, 0);
 
+    const bool isHackedExtendedSmallPics = data.MatchBytes(0x14348, {0xc3, 0xc2, 0x7a}) || data.MatchBytes(0x14334, {0xc3});
+    if (!isHackedExtendedSmallPics)
+    {
+        // 기본 스프라이트 주입 시키기
+        const auto &picsData = embed::GetPokegoldDefaultSmallPicturesData();
+        data.SetBytes(0x1f0000, picsData);
+
+        const auto &picsPalData = embed::GetPokegoldDefaultSmallPicturesPaletteData();
+        data.SetBytes(0x017ace, picsPalData);
+
+        const auto &picsAttr = embed::GetPokegoldDefaultSmallPicturesAttributes();
+        data.SetBytes(0x08e96d, picsAttr);
+    }
+
     const bool isHackedUnownIds = data.MatchBytes(0x1fc7d6, {0xfd, 0xff});
     if (isHackedUnownIds)
     {
@@ -487,6 +502,19 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             pokemon.Colors[1] = Color(data.GetBytes(offset + 2, 2));
             pokemon.ShinyColors[0] = Color(data.GetBytes(offset + 4, 2));
             pokemon.ShinyColors[1] = Color(data.GetBytes(offset + 6, 2));
+        }
+
+        // small pics
+        {
+            const auto offset = 0x1f0000 + (i * 0x80);
+
+            auto data1 = data.GetBytes(offset + 0, 0x40);
+            pokemon.SmallImages[0] = std::vector<u8>(data1.begin(), data1.end());
+
+            auto data2 = data.GetBytes(offset + 0x40, 0x40);
+            pokemon.SmallImages[1] = std::vector<u8>(data2.begin(), data2.end());
+
+            pokemon.SmallImagePaletteId = data.GetByte(0x17ace + i);
         }
 
         if (pokemon.Type == PokemonType::Egg)

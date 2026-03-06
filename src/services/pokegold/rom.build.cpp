@@ -69,8 +69,11 @@ namespace
         {0x1cc000, 0x1cffff},
         {0x1d0000, 0x1d3fff},
         {0x1d4000, 0x1d7fff},
-        {0x1f0000, 0x1f3fff},
-        {0x1f4000, 0x1f7fff},
+
+        // 확장 스몰 스프라이트 공간
+        // {0x1f0000, 0x1f3fff},
+        // {0x1f4000, 0x1f7fff},
+
         {0x1f8000, 0x1fbfff},
     };
 }
@@ -117,7 +120,11 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
         m_buildProgressState.UpdateMessage("베이스롬 복사");
         m_buildProgressState.Increase();
 
-        std::filesystem::copy_file(*m_romFilePathState, *m_workspacePathState / (s_baseName + ".bin"));
+        // MEMO: 마이그레이션 상태의 롬 파일 복사를 위해 메모리 상의 롬을 쓰도록 함
+        //       - 스몰 스프라이트 확장
+        //       - 타입 상성 복구
+        // std::filesystem::copy_file(*m_romFilePathState, *m_workspacePathState / (s_baseName + ".bin"));
+        base::WriteBytesToFile(*m_workspacePathState / (s_baseName + ".bin"), m_data.GetRomBytes());
     }
 
     base::Log(TAG, "build: copy save file");
@@ -774,6 +781,53 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                     e.ShinyColors[1].GetLoByte(),
                     e.ShinyColors[1].GetHiByte(),
                 });
+            }
+        }
+
+        // small pics
+        {
+            base::WriteBytesToFile(*m_workspacePathState / "GSSEditor.SmallPictures.asm", embed::GetPokegoldSmallPicturesSource());
+            data.GetSourceStream() << GetAsmInclude("GSSEditor.SmallPictures.asm");
+
+            srcStream << GetAsmSection(0x1f0000, "GSEditor_Pokemon_SmallPictures_0");
+            for (size_t i = 0; i < 128; i++)
+            {
+                if (m_buildProgressState.HandlePausedOrCanceled())
+                    return false;
+
+                m_buildProgressState.UpdateMessage(std::format("포켓몬 (스몰 스프라이트 이미지 1: {}/{})", i + 1, 128));
+                m_buildProgressState.Increase();
+
+                const auto &e = m_data.Pokemons()[i];
+                srcStream << GetAsmBytes(e.SmallImages[0])
+                          << GetAsmBytes(e.SmallImages[1]);
+            }
+
+            srcStream << GetAsmSection(0x1f4000, "GSEditor_Pokemon_SmallPictures_1");
+            for (size_t i = 0; i < 128; i++)
+            {
+                if (m_buildProgressState.HandlePausedOrCanceled())
+                    return false;
+
+                m_buildProgressState.UpdateMessage(std::format("포켓몬 (스몰 스프라이트 이미지 2: {}/{})", i + 1, 128));
+                m_buildProgressState.Increase();
+
+                const auto &e = m_data.Pokemons()[i + 128];
+                srcStream << GetAsmBytes(e.SmallImages[0])
+                          << GetAsmBytes(e.SmallImages[1]);
+            }
+
+            srcStream << GetAsmSection(0x17ace, "GSEditor_Pokemon_SmallPicturesPaletteIds");
+            for (size_t i = 0; i < 256; i++)
+            {
+                if (m_buildProgressState.HandlePausedOrCanceled())
+                    return false;
+
+                m_buildProgressState.UpdateMessage(std::format("포켓몬 (스몰 스프라이트 팔레트: {}/{})", i + 1, 256));
+                m_buildProgressState.Increase();
+
+                const auto &e = m_data.Pokemons()[i];
+                srcStream << GetAsmBytes({e.SmallImagePaletteId});
             }
         }
 

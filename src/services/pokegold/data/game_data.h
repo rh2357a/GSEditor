@@ -273,6 +273,10 @@ namespace pokegold
         std::vector<u8> BackImage;
         std::array<Color, 2> Colors;
         std::array<Color, 2> ShinyColors;
+
+        u8 SmallImagePaletteId;
+        std::array<std::vector<u8>, 2> SmallImages;
+        std::vector<u8> FootprintImage;
     };
 
     struct UnownImage

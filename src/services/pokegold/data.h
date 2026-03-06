@@ -44,6 +44,8 @@ namespace pokegold
     public:
         bool MatchBytes(size_t offset, const std::vector<u8> &findBytes);
 
+        std::span<const u8> GetRomBytes() { return m_romBytes; }
+
         u8 GetByte(size_t offset);
         std::span<const u8> GetBytes(size_t offset, size_t length);
         std::span<const u8> GetBytesUntil(size_t offset, std::function<bool(size_t, u8)> predicate, bool includeEnd);
