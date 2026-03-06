@@ -1109,95 +1109,149 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxPanel* unownPanel;
 	unownPanel = new wxPanel( mainTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* unownPanelSizer;
-	unownPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+	unownPanelSizer = new wxBoxSizer( wxVERTICAL );
 
-	wxPanel* unownInnerPanel;
-	unownInnerPanel = new wxPanel( unownPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxPanel* unownPokemonPanel;
+	unownPokemonPanel = new wxPanel( unownPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* unownPokemonPanelSizer;
+	unownPokemonPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxPanel* unownPokemonInnerPanel;
+	unownPokemonInnerPanel = new wxPanel( unownPokemonPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	unownPokemonInnerPanel->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+
+	wxBoxSizer* unownPokemonInnerPanelSizer;
+	unownPokemonInnerPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* unownPokemonLabelSizer;
+	unownPokemonLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* unownPokemonLabel;
+	unownPokemonLabel = new wxStaticText( unownPokemonInnerPanel, wxID_ANY, wxT("포켓몬 설정"), wxDefaultPosition, wxDefaultSize, 0 );
+	unownPokemonLabel->Wrap( -1 );
+	unownPokemonLabelSizer->Add( unownPokemonLabel, 0, wxALL, 5 );
+
+	wxStaticLine* unownPokemonLabelSeparator;
+	unownPokemonLabelSeparator = new wxStaticLine( unownPokemonInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	unownPokemonLabelSizer->Add( unownPokemonLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	unownPokemonInnerPanelSizer->Add( unownPokemonLabelSizer, 0, wxEXPAND, 5 );
+
+
+	unownPokemonInnerPanelSizer->Add( 0, 5, 0, 0, 0 );
+
+	m_unownPokemonComboBox = new wxComboBox( unownPokemonInnerPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 160,-1 ), 0, NULL, wxCB_READONLY );
+	unownPokemonInnerPanelSizer->Add( m_unownPokemonComboBox, 0, wxBOTTOM|wxLEFT|wxRIGHT, 10 );
+
+
+	unownPokemonInnerPanel->SetSizer( unownPokemonInnerPanelSizer );
+	unownPokemonInnerPanel->Layout();
+	unownPokemonInnerPanelSizer->Fit( unownPokemonInnerPanel );
+	unownPokemonPanelSizer->Add( unownPokemonInnerPanel, 1, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 2 );
+
+
+	unownPokemonPanel->SetSizer( unownPokemonPanelSizer );
+	unownPokemonPanel->Layout();
+	unownPokemonPanelSizer->Fit( unownPokemonPanel );
+	unownPanelSizer->Add( unownPokemonPanel, 0, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 2 );
+
+	m_unownInnerPanel = new wxPanel( unownPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* unownInnerPanelSizer;
 	unownInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_unownList = new ui::ColoredListBox( unownInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	m_unownList = new ui::ColoredListBox( m_unownInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 128,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
 	unownInnerPanelSizer->Add( m_unownList, 0, wxALL|wxEXPAND, 2 );
 
-	m_unownContainer = new wxPanel( unownInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_unownContainer = new wxPanel( m_unownInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
 	m_unownContainer->SetBackgroundColour( wxColour( 255, 255, 255 ) );
 
 	wxBoxSizer* unownContainerSizer;
 	unownContainerSizer = new wxBoxSizer( wxVERTICAL );
 
+	m_unownImagePanel = new wxPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* unownImagePanelSizer;
+	unownImagePanelSizer = new wxBoxSizer( wxVERTICAL );
+
 	wxBoxSizer* unownImageLabelSizer;
 	unownImageLabelSizer = new wxBoxSizer( wxHORIZONTAL );
 
 	wxStaticText* unownImageLabel;
-	unownImageLabel = new wxStaticText( m_unownContainer, wxID_ANY, wxT("이미지"), wxDefaultPosition, wxDefaultSize, 0 );
+	unownImageLabel = new wxStaticText( m_unownImagePanel, wxID_ANY, wxT("이미지"), wxDefaultPosition, wxDefaultSize, 0 );
 	unownImageLabel->Wrap( -1 );
 	unownImageLabelSizer->Add( unownImageLabel, 0, wxALL, 5 );
 
 	wxStaticLine* unownImageLabelSeparator;
-	unownImageLabelSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	unownImageLabelSeparator = new wxStaticLine( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	unownImageLabelSizer->Add( unownImageLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	unownContainerSizer->Add( unownImageLabelSizer, 0, wxEXPAND, 5 );
+	unownImagePanelSizer->Add( unownImageLabelSizer, 0, wxEXPAND, 5 );
 
 	wxBoxSizer* unownImageSizer;
 	unownImageSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_unownFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownFrontImage = new ui::ImageEditorPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownFrontImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownBackImage = new ui::ImageEditorPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownBackImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* unownImageSeparator;
-	unownImageSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	unownImageSeparator = new wxStaticLine( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	unownImageSizer->Add( unownImageSeparator, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxTOP, 5 );
 
-	m_unownShinyFrontImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownShinyFrontImage = new ui::ImageEditorPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownShinyFrontImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownShinyBackImage = new ui::ImageEditorPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownShinyBackImage = new ui::ImageEditorPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownImageSizer->Add( m_unownShinyBackImage, 1, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
-	unownContainerSizer->Add( unownImageSizer, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
+	unownImagePanelSizer->Add( unownImageSizer, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
 
 	wxBoxSizer* unownColorsLabelSizer;
 	unownColorsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
 
 	wxStaticText* unownColorsLabel;
-	unownColorsLabel = new wxStaticText( m_unownContainer, wxID_ANY, wxT("색상 (공용)"), wxDefaultPosition, wxDefaultSize, 0 );
+	unownColorsLabel = new wxStaticText( m_unownImagePanel, wxID_ANY, wxT("색상 (공용)"), wxDefaultPosition, wxDefaultSize, 0 );
 	unownColorsLabel->Wrap( -1 );
 	unownColorsLabelSizer->Add( unownColorsLabel, 0, wxALL, 5 );
 
 	wxStaticLine* unownColorsLabelSeparator;
-	unownColorsLabelSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	unownColorsLabelSeparator = new wxStaticLine( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	unownColorsLabelSizer->Add( unownColorsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	unownContainerSizer->Add( unownColorsLabelSizer, 0, wxEXPAND, 5 );
+	unownImagePanelSizer->Add( unownColorsLabelSizer, 0, wxEXPAND, 5 );
 
 	wxBoxSizer* unownColorsSizer;
 	unownColorsSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_unownColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownColor_1 = new ui::ColorPickerPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownColor_2 = new ui::ColorPickerPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	wxStaticLine* unownColorSeparator;
-	unownColorSeparator = new wxStaticLine( m_unownContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	unownColorSeparator = new wxStaticLine( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	unownColorsSizer->Add( unownColorSeparator, 0, wxEXPAND|wxLEFT, 5 );
 
-	m_unownShinyColor_1 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownShinyColor_1 = new ui::ColorPickerPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownShinyColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	m_unownShinyColor_2 = new ui::ColorPickerPanel( m_unownContainer, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_unownShinyColor_2 = new ui::ColorPickerPanel( m_unownImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	unownColorsSizer->Add( m_unownShinyColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 
-	unownContainerSizer->Add( unownColorsSizer, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
+	unownImagePanelSizer->Add( unownColorsSizer, 0, wxBOTTOM|wxLEFT|wxRIGHT, 5 );
+
+
+	m_unownImagePanel->SetSizer( unownImagePanelSizer );
+	m_unownImagePanel->Layout();
+	unownImagePanelSizer->Fit( m_unownImagePanel );
+	unownContainerSizer->Add( m_unownImagePanel, 0, wxEXPAND, 0 );
 
 
 	m_unownContainer->SetSizer( unownContainerSizer );
@@ -1206,10 +1260,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	unownInnerPanelSizer->Add( m_unownContainer, 1, wxEXPAND | wxALL, 2 );
 
 
-	unownInnerPanel->SetSizer( unownInnerPanelSizer );
-	unownInnerPanel->Layout();
-	unownInnerPanelSizer->Fit( unownInnerPanel );
-	unownPanelSizer->Add( unownInnerPanel, 1, wxEXPAND | wxALL, 2 );
+	m_unownInnerPanel->SetSizer( unownInnerPanelSizer );
+	m_unownInnerPanel->Layout();
+	unownInnerPanelSizer->Fit( m_unownInnerPanel );
+	unownPanelSizer->Add( m_unownInnerPanel, 1, wxEXPAND | wxALL, 2 );
 
 
 	unownPanel->SetSizer( unownPanelSizer );

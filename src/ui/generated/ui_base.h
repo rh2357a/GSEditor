@@ -214,8 +214,11 @@ class DatabasePanelBase : public wxPanel
 		ui::ColoredCheckListBox* m_pokemonHmTmList6;
 		ui::ColoredCheckListBox* m_pokemonHmTmList7;
 		ui::ColoredCheckListBox* m_pokemonHmTmList8;
+		wxComboBox* m_unownPokemonComboBox;
+		wxPanel* m_unownInnerPanel;
 		ui::ColoredListBox* m_unownList;
 		wxPanel* m_unownContainer;
+		wxPanel* m_unownImagePanel;
 		ui::ImageEditorPanel* m_unownFrontImage;
 		ui::ImageEditorPanel* m_unownBackImage;
 		ui::ImageEditorPanel* m_unownShinyFrontImage;

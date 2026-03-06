@@ -101,8 +101,12 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
 
             auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
             e.Image = result.Get2bppData();
-            e.Colors[0] = result.GetPalette()[1];
-            e.Colors[1] = result.GetPalette()[2];
+
+            if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+            {
+                e.Colors[0] = result.GetPalette()[1];
+                e.Colors[1] = result.GetPalette()[2];
+            }
 
             m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
             m_pokegold.Rom().NotifyRomChanged();

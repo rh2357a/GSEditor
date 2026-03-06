@@ -577,8 +577,13 @@ void ui::DatabasePanel::InitializePokemonTab()
                 auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
                 pokemon.ImageDimensions = pokegold::ToImageDimensions(size);
                 pokemon.FrontImage = result.Get2bppData();
-                pokemon.Colors[0] = result.GetPalette()[1];
-                pokemon.Colors[1] = result.GetPalette()[2];
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    pokemon.Colors[0] = result.GetPalette()[1];
+                    pokemon.Colors[1] = result.GetPalette()[2];
+                }
+
                 m_pokegold.Rom().NotifyRomChanged();
 
                 UpdatePokemonImages();
@@ -605,8 +610,13 @@ void ui::DatabasePanel::InitializePokemonTab()
 
                 auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
                 pokemon.BackImage = result.Get2bppData();
-                pokemon.Colors[0] = result.GetPalette()[1];
-                pokemon.Colors[1] = result.GetPalette()[2];
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    pokemon.Colors[0] = result.GetPalette()[1];
+                    pokemon.Colors[1] = result.GetPalette()[2];
+                }
+
                 m_pokegold.Rom().NotifyRomChanged();
 
                 UpdatePokemonImages();
@@ -636,8 +646,13 @@ void ui::DatabasePanel::InitializePokemonTab()
                 auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
                 pokemon.ImageDimensions = pokegold::ToImageDimensions(size);
                 pokemon.FrontImage = result.Get2bppData();
-                pokemon.ShinyColors[0] = result.GetPalette()[1];
-                pokemon.ShinyColors[1] = result.GetPalette()[2];
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    pokemon.ShinyColors[0] = result.GetPalette()[1];
+                    pokemon.ShinyColors[1] = result.GetPalette()[2];
+                }
+
                 m_pokegold.Rom().NotifyRomChanged();
 
                 UpdatePokemonImages();
@@ -664,8 +679,13 @@ void ui::DatabasePanel::InitializePokemonTab()
 
                 auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
                 pokemon.BackImage = result.Get2bppData();
-                pokemon.ShinyColors[0] = result.GetPalette()[1];
-                pokemon.ShinyColors[1] = result.GetPalette()[2];
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    pokemon.ShinyColors[0] = result.GetPalette()[1];
+                    pokemon.ShinyColors[1] = result.GetPalette()[2];
+                }
+
                 m_pokegold.Rom().NotifyRomChanged();
 
                 UpdatePokemonImages();
@@ -782,15 +802,18 @@ void ui::DatabasePanel::InitializePokemonTab()
             {
                 auto &e = m_pokegold.Data().Pokemons()[idx];
 
-                if (e.Type == pokegold::PokemonType::Pokemon || e.Type == pokegold::PokemonType::Unown)
+                if (e.Type == pokegold::PokemonType::Pokemon)
                     m_pokemonContainer->SetSelection(size_t(PokemonTabType::Pokemon));
                 else
                     m_pokemonContainer->SetSelection(size_t(PokemonTabType::Dummy));
 
                 if (e.Type == pokegold::PokemonType::Pokemon)
-                    m_pokemonImageContainer->SetSelection(size_t(PokemonImageContainerType::Pokemon));
-                else
-                    m_pokemonImageContainer->SetSelection(size_t(PokemonImageContainerType::Unown));
+                {
+                    if (m_pokegold.Data().UnownPokemonId == e.Id)
+                        m_pokemonImageContainer->SetSelection(size_t(PokemonImageContainerType::Unown));
+                    else
+                        m_pokemonImageContainer->SetSelection(size_t(PokemonImageContainerType::Pokemon));
+                }
 
                 m_pokemonNoText->SetValue(wxString::Format(wxT("%d"), e.Id));
                 m_pokemonNameText->SetValue(e.Name.ToEditorWxString());

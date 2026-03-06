@@ -35,6 +35,10 @@ namespace pokegold
         base::Event<int> m_trainerGroupUpdated;
 
     public:
+        bool UnownImageEnabled = true;
+        u8 UnownPokemonId = 0xc9;
+
+    public:
         Data(std::filesystem::path romFilePath = base::GetNullPath());
 
     public:

@@ -255,6 +255,18 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 {
     std::vector<u8> imageBuffer(0x400, 0);
 
+    const bool isHackedUnownIds = data.MatchBytes(0x1fc7d6, {0xfd, 0xff});
+    if (isHackedUnownIds)
+    {
+        data.UnownImageEnabled = data.GetByte(0x1fc7d8) == 1;
+        data.UnownPokemonId = data.GetByte(0x1fc7d9);
+    }
+    else
+    {
+        data.UnownImageEnabled = true;
+        data.UnownPokemonId = 0xc9;
+    }
+
     base::Log(TAG, "read pokemon (primary)");
     for (size_t i = 0; i < 256; i++)
     {
@@ -266,16 +278,14 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
         auto &pokemon = data.Pokemons()[i];
 
-        if (i == 200)
-            pokemon.Type = PokemonType::Unown;
-        else if (i == 252)
+        if (i == 252)
             pokemon.Type = PokemonType::Egg;
         else if (i < 251)
             pokemon.Type = PokemonType::Pokemon;
         else
             pokemon.Type = PokemonType::Dummy;
 
-        if (pokemon.Type == PokemonType::Pokemon || pokemon.Type == PokemonType::Unown)
+        if (pokemon.Type == PokemonType::Pokemon)
         {
             const auto bytes = data.GetBytes(0x51bdf + (i * 32), 32);
             pokemon.Id = bytes[0];
@@ -320,7 +330,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.Increase();
 
         auto &pokemon = data.Pokemons()[i];
-        if (pokemon.Type == PokemonType::Pokemon || pokemon.Type == PokemonType::Unown)
+        if (pokemon.Type == PokemonType::Pokemon)
         {
             const auto offset = Calc(evolveBank, data.GetBytes(0x423ed + (i * 2), 2));
             const auto bytes = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0; }, true);
@@ -407,7 +417,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.Increase();
 
         auto &pokemon = data.Pokemons()[i];
-        if (pokemon.Type == PokemonType::Pokemon || pokemon.Type == PokemonType::Unown)
+        if (pokemon.Type == PokemonType::Pokemon)
         {
             size_t offset;
             if (i < 128)
@@ -481,7 +491,12 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
         if (pokemon.Type == PokemonType::Egg)
         {
-            size_t offset = Calc(data.GetByte(0x5189a), data.GetBytes(0x51897, 2));
+            size_t offset;
+            if (isHackedUnownIds)
+                offset = Calc(data.GetByte(0x1fc7da), data.GetBytes(0x1fc7db, 2));
+            else
+                offset = Calc(data.GetByte(0x5189a), data.GetBytes(0x51897, 2));
+
             auto bytes = data.GetBytes(offset, 0x400);
             auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
@@ -497,25 +512,22 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         }
         else if (pokemon.Type == PokemonType::Pokemon)
         {
-            size_t offset = CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6), 3));
-            auto bytes = data.GetBytes(offset, 0x400);
-            auto size = lzcomp::Uncompress(imageBuffer, bytes);
-
-            if (size == 0)
+            if (data.MatchBytes(0x48000 + (i * 6), {0xff, 0xff, 0xff}))
             {
+                // 새로운 이미지 속성 복사
+                for (auto &e : data.UnownImages())
+                    e.ImageDimensions = pokemon.ImageDimensions;
+
+                // 안농 이미지 해킹하기 전까지는 기본 이미지가 NULL인 상태이므로 예외처리
                 pokemon.ImageDimensions = ImageDimensions::Size_40x40;
                 pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                 pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
-                data.BadDataList().emplace_back(BadDataReason::PokemonImage, i);
-                base::Log(TAG, "bad data (pokemon image front, idx={})", i);
             }
             else
             {
-                pokemon.FrontImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
-
-                offset = CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6) + 3, 3));
-                bytes = data.GetBytes(offset, 0x400);
-                size = lzcomp::Uncompress(imageBuffer, bytes);
+                size_t offset = CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6), 3));
+                auto bytes = data.GetBytes(offset, 0x400);
+                auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
                 if (size == 0)
                 {
@@ -523,11 +535,28 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                     pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                     pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                     data.BadDataList().emplace_back(BadDataReason::PokemonImage, i);
-                    base::Log(TAG, "bad data (pokemon image back, idx={})", i);
+                    base::Log(TAG, "bad data (pokemon image front, idx={})", i);
                 }
                 else
                 {
-                    pokemon.BackImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
+                    pokemon.FrontImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
+
+                    offset = CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6) + 3, 3));
+                    bytes = data.GetBytes(offset, 0x400);
+                    size = lzcomp::Uncompress(imageBuffer, bytes);
+
+                    if (size == 0)
+                    {
+                        pokemon.ImageDimensions = ImageDimensions::Size_40x40;
+                        pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
+                        pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
+                        data.BadDataList().emplace_back(BadDataReason::PokemonImage, i);
+                        base::Log(TAG, "bad data (pokemon image back, idx={})", i);
+                    }
+                    else
+                    {
+                        pokemon.BackImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
+                    }
                 }
             }
         }
@@ -543,6 +572,16 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.Increase();
 
         auto &unownImage = data.UnownImages()[i];
+
+        if (isHackedUnownIds)
+        {
+            size_t offset = Calc(data.GetByte(0x1fc7dd), data.GetBytes(0x1fc7de, 2)) + i;
+            unownImage.ImageDimensions = ImageDimensions(data.GetByte(offset));
+        }
+        else
+        {
+            // NOTE: 포켓몬 항목에서 이미 처리됨.
+        }
 
         size_t offset = CalcFromEncodedBank(data.GetBytes(0x7c000 + (i * 6), 3));
         auto bytes = data.GetBytes(offset, 0x400);

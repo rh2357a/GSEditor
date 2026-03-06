@@ -16,9 +16,42 @@ GSEditor_DoWeatherModifiers:
     gse@homecall2 GSEditor_NewDoWeatherModifiers
     ret
 
-SECTION "GSEditor_HackingCodes", ROMX[$47d4], BANK[$7f]
-GSEditor_HackingFlags::
-    db $fe, $ff ; TypeMatchups
+; =============================================================
+
+SECTION "GSEditor_GetFrontpic", ROMX[$5868], BANK[$14]
+GetFrontpic::
+    gse@homecall2 GSEditor_NewGetFrontpic
+    ret
+
+SECTION "GSEditor_FixPicBank", ROMX[$5937], BANK[$14]
+FixPicBank::
+    ; No-op
+
+SECTION "GSEditor_FarDecompress", ROMX[$5a1a], BANK[$14]
+FarDecompress::
+    ; No-op
+
+; =============================================================
+
+SECTION "GSEditor_Hacks", ROMX[$47d4], BANK[$7f]
+GSEditor_HackingData::
+.type_matchups_flag ; 0x1fc7d4
+    db $fe, $ff
+
+.unown_configs_flag
+    db $fd, $ff ; 0x1fc7d6
+    db $01      ; 0x1fc7d8 - enabled
+
+.unown_configs_pokemon_id
+    db $c9      ; 0x1fc7d9 - pokemon id
+
+; egg_ptr
+    db BANK(GSEditor_Egg_Image) ; 0x1fc7da
+    dw GSEditor_Egg_Image       ; 0x1fc7db
+; dimensions_ptr
+    db BANK(GSEditor_Unown_Dimensions) ; 0x1fc7dd
+    dw GSEditor_Unown_Dimensions       ; 0x1fc7de
+
 
 GSEditor_NewDoWeatherModifiers::
     ld de, GSEditor_WeatherTypeModifiers
@@ -288,3 +321,81 @@ GSEditor_NewCheckTypeMatchup::
     pop de
     pop hl
     ret
+
+GSEditor_NewGetFrontpic::
+    ld a, [$d0c0]
+    ld [$c1f9], a
+    and a
+    ret z
+    cp $fc
+    ret z
+    cp $fe
+    ret nc
+
+    push de
+    call $3a62
+    ld a, [$d1ee]
+    and $f
+    ld b, a
+    push bc
+    ld a, $0
+    call $317a
+
+    ld hl, $4000
+    ld a, [GSEditor_HackingData.unown_configs_pokemon_id]
+    ld d, a
+    ld a, [$d0c0]
+    cp d
+    jr z, .unown
+    ld d, $12
+    cp $fd ; egg
+    jr nz, .not_egg
+    ld hl, GSEditor_Egg_Image
+    ld a, BANK(GSEditor_Egg_Image)
+    jr .ok
+
+.unown
+    ; 기본 이미지 사이즈 무시
+    pop bc
+
+    ; 새로운 이미지 사이즈 기록
+    ld a, [$d1db] ; wUnownLetter
+    dec a
+    ld de, GSEditor_Unown_Dimensions
+    push hl
+    ld h, 0
+    ld l, a
+    add hl, de
+    ld a, [hl]
+    pop hl
+    and $f
+    ld b, a
+    push bc
+
+    ld a, [$d1db] ; wUnownLetter
+    ld d, $1f ; BANK(UnownPicPointers)
+
+.not_egg
+    dec a
+    ld bc, $6
+    call $3241
+    ld a, d
+    call $31d0
+    gse@homecall2 FixPicBank
+    push af
+    inc hl
+    ld a, d
+    call $31e4
+    pop af
+
+.ok
+    ld de, $a188
+    call $0ae3
+    pop bc
+    ld hl, $a000
+    ld de, $a188
+    gse@homecall2 FarDecompress
+    pop hl
+    ret
+
+; ...

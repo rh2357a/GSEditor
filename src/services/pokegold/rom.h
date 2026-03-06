@@ -74,8 +74,8 @@ namespace pokegold
         base::MutableState<std::filesystem::path> m_romFilePathState = base::GetNullPath();
         base::MutableState<std::filesystem::path> m_workspacePathState = base::GetNullPath();
 
-        base::MutableProgressState m_openProgressState{2792};
-        base::MutableProgressState m_buildProgressState{5038};
+        base::MutableProgressState m_openProgressState{0};
+        base::MutableProgressState m_buildProgressState{0};
 
     public:
         Rom(Data &data) : m_data(data) {}
@@ -138,6 +138,7 @@ namespace pokegold
         bool Build_PokemonSources(internal::RomBuildData &data);
         bool Build_TrainerGroupSources(internal::RomBuildData &data);
         bool Build_TypeSources(internal::RomBuildData &data);
+        bool Build_HackSources(internal::RomBuildData &data);
         bool Build_Assemble(internal::RomBuildData &data);
     };
 }

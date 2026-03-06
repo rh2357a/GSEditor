@@ -4,9 +4,9 @@
 #include "ui/controls/colored_list_ctrl.h"
 #include "ui/utils.h"
 
+#include <wx/combobox.h>
 #include <wx/event.h>
 #include <wx/memory.h>
-#include <wx/msw/combobox.h>
 #include <wx/wx.h>
 
 #include <string>

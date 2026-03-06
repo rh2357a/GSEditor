@@ -87,6 +87,7 @@ std::optional<std::filesystem::path> pokegold::Rom::Build()
         [this](auto &data) { return Build_ItemSources(data); },
         [this](auto &data) { return Build_TrainerGroupSources(data); },
         [this](auto &data) { return Build_TypeSources(data); },
+        [this](auto &data) { return Build_HackSources(data); },
         [this](auto &data) { return Build_Assemble(data); },
     };
 
@@ -781,12 +782,13 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
             // ptr
             {
                 // egg
-                {
-                    srcStream << GetAsmSection(0x51897, "GSEditor_Egg_Image_Pointer")
-                              << GetAsmLine("dw GSEditor_Egg_Image");
-                    srcStream << GetAsmSection(0x5189a, "GSEditor_Egg_Image_Bank")
-                              << GetAsmLine("db BANK(GSEditor_Egg_Image)");
-                }
+                // NOTE: `res/pokegold/hacks.asm`에서 처리
+                // {
+                //     srcStream << GetAsmSection(0x51897, "GSEditor_Egg_Image_Pointer")
+                //               << GetAsmLine("dw GSEditor_Egg_Image");
+                //     srcStream << GetAsmSection(0x5189a, "GSEditor_Egg_Image_Bank")
+                //               << GetAsmLine("db BANK(GSEditor_Egg_Image)");
+                // }
 
                 // pokemon
                 srcStream << GetAsmSection(0x48000, "GSEditor_Pokemon_Image_Pointers");
@@ -799,15 +801,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                     m_buildProgressState.Increase();
 
                     const auto &e = m_data.Pokemons()[i];
-                    if (e.Type == PokemonType::Pokemon)
-                    {
-                        srcStream << GetAsmLine("gse@pics Pokemon, {}", i);
-                    }
-                    else
-                    {
-                        srcStream << GetAsmLine("gse@dbw -1, -1")
-                                  << GetAsmLine("gse@dbw -1, -1");
-                    }
+                    srcStream << GetAsmLine("gse@pics Pokemon, {}", i);
                 }
             }
 
@@ -830,10 +824,6 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 {
                     data.PushImageDataBlock("GSEditor_Egg_Image", e.FrontImage);
                 }
-
-                // MEMO:
-                //   * PokemonType::Unown: 다른 단계에서 처리
-                //   * PokemonType::Dummy: 생략
             }
         }
     }
@@ -896,6 +886,20 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
 
             data.PushImageDataBlock(std::format("GSEditor_Unown_FrontImage_{}", i), m_data.UnownImages()[i].FrontImage);
             data.PushImageDataBlock(std::format("GSEditor_Unown_BackImage_{}", i), m_data.UnownImages()[i].BackImage);
+        }
+
+        // unown ids
+        for (size_t i = 0, max = UnownIdsOffsets.size(); i < max; i++)
+        {
+            if (m_buildProgressState.HandlePausedOrCanceled())
+                return false;
+
+            m_buildProgressState.UpdateMessage(std::format("포켓몬 (안농 번호: {}/{})", i + 1, max));
+            m_buildProgressState.Increase();
+
+            const auto &offset = UnownIdsOffsets[i];
+            srcStream << GetAsmSection(offset, "GSEditor_Unown_Id_{}", offset)
+                      << GetAsmBytes({m_data.UnownImageEnabled ? m_data.UnownPokemonId : u8(0xff)});
         }
     }
 
@@ -1024,6 +1028,28 @@ bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
         }
     }
 
+    return !m_buildProgressState.HandlePausedOrCanceled();
+}
+
+bool pokegold::Rom::Build_HackSources(internal::RomBuildData &data)
+{
+    constexpr auto filename = "GSEditor.Hacks.asm";
+    std::ofstream srcStream(*m_workspacePathState / filename);
+    data.GetSourceStream() << GetAsmInclude(filename);
+
+    base::Log(TAG, "write hacking codes");
+    {
+        if (m_buildProgressState.HandlePausedOrCanceled())
+            return false;
+
+        m_buildProgressState.UpdateMessage("해킹 코드 삽입");
+        m_buildProgressState.Increase();
+
+        const auto &hackAsmFile = embed::GetPokegoldHacksSource();
+        std::string_view hackAsmStr(reinterpret_cast<const char *>(hackAsmFile.data()), hackAsmFile.size());
+        srcStream << hackAsmStr;
+    }
+
     base::Log(TAG, "write type (matchups)");
     {
         if (m_buildProgressState.HandlePausedOrCanceled())
@@ -1031,16 +1057,6 @@ bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
 
         m_buildProgressState.UpdateMessage("타입 (상성 데이터)");
         m_buildProgressState.Increase();
-
-        // hack 코드
-        {
-            // data.GetSourceStream() << GetAsmInclude("GSEditor.Type.Matchups.asm");
-            // base::WriteBytesToFile("GSEditor.Type.Matchups.asm", embed::GetPokegoldTypeMatchupsHackingSource());
-
-            const auto &hackAsmFile = embed::GetPokegoldTypeMatchupsHackingSource();
-            std::string_view hackAsmStr(reinterpret_cast<const char *>(hackAsmFile.data()), hackAsmFile.size());
-            srcStream << hackAsmStr;
-        }
 
         // matchups
         {
@@ -1110,6 +1126,34 @@ bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
             }
             srcStream << GetAsmBytes({0xff});
         }
+    }
+
+    base::Log(TAG, "write unown dimensions");
+    {
+        srcStream << GetAsmLine("GSEditor_Unown_Dimensions:");
+
+        for (const auto &e : m_data.UnownImages())
+        {
+            if (m_buildProgressState.HandlePausedOrCanceled())
+                return false;
+
+            m_buildProgressState.UpdateMessage("안농 (사이즈 데이터)");
+            m_buildProgressState.Increase();
+
+            srcStream << GetAsmBytes({u8(e.ImageDimensions)});
+        }
+    }
+
+    base::Log(TAG, "write unown ids configs");
+    {
+        if (m_buildProgressState.HandlePausedOrCanceled())
+            return false;
+
+        m_buildProgressState.UpdateMessage("안농 (데이터)");
+        m_buildProgressState.Increase();
+
+        srcStream << GetAsmSection(0x1fc7d8, "GSEditor_UnownConfigs")
+                  << GetAsmBytes({u8(m_data.UnownImageEnabled ? 1 : 0), m_data.UnownPokemonId});
     }
 
     return !m_buildProgressState.HandlePausedOrCanceled();

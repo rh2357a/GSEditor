@@ -32,9 +32,11 @@ namespace pokegold
     enum class PokemonType
     {
         Pokemon,
-        Unown,
         Egg,
         Dummy,
+
+        // NOTE: index 값과 설정값으로 처리
+        // Unown,
     };
 
     enum class GrowthRate : u8
@@ -275,11 +277,10 @@ namespace pokegold
 
     struct UnownImage
     {
+        ImageDimensions ImageDimensions;
+
         std::vector<u8> FrontImage;
         std::vector<u8> BackImage;
-
-        // Pokemons()[200].Colors
-        // Pokemons()[200].ShinyColors
     };
 
     struct TrainerGroup
@@ -312,5 +313,26 @@ namespace pokegold
     public:
         const auto &Reason() const { return m_reason; }
         const auto &Data() const { return m_data; }
+    };
+}
+
+namespace pokegold
+{
+    /**
+     * @brief 안농 번호 오프셋 목록
+     */
+    inline static const std::vector<size_t> UnownIdsOffsets = {
+        0x00da2b,
+        0x00daf1,
+        0x00deea,
+        0x02a7f7,
+        0x03d5af,
+        0x03e861,
+        0x03f442,
+        0x0416ce,
+        0x042007,
+        0x05113e,
+        0x05188f,
+        0x0518f1,
     };
 }
