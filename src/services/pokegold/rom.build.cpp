@@ -116,7 +116,8 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
         m_buildProgressState.UpdateMessage("베이스롬 복사");
         m_buildProgressState.Increase();
 
-        std::filesystem::copy_file(*m_romFilePathState, *m_workspacePathState / (s_baseName + ".bin"));
+        // std::filesystem::copy_file(*m_romFilePathState, *m_workspacePathState / (s_baseName + ".bin"));
+        base::WriteBytesToFile(*m_workspacePathState / (s_baseName + ".bin"), m_data.GetRomBytes());
     }
 
     base::Log(TAG, "build: copy save file");
@@ -493,7 +494,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
         srcStream << GetAsmSection(0x51bdf, "GSEditor_Pokemon_Properties")
                   << GetAsmLine("GSEditor_Pokemon_Properties::");
 
-        for (size_t i = 0; i < 256; i++)
+        for (size_t i = 0; i < 251; i++)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;
