@@ -556,6 +556,16 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             pokemon.SmallImagePaletteId = data.GetByte(0x17ace + i);
         }
 
+        // footprint
+        {
+            const auto offset = 0xf92bd + ((i / 8) * 0x100) + ((i % 8) * 0x10);
+
+            auto bytes = data.GetBytes(offset + 0, 0x10);
+            pokemon.FootprintImage = std::vector<u8>(bytes.begin(), bytes.end());
+            bytes = data.GetBytes(offset + 0x80, 0x10);
+            pokemon.FootprintImage.insert(pokemon.FootprintImage.end(), bytes.begin(), bytes.end());
+        }
+
         if (pokemon.Type == PokemonType::Egg)
         {
             size_t offset;

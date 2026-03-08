@@ -85,7 +85,7 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
         const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
         if (path.has_value())
         {
-            auto result = base::ImportIndexedPngFile(*path);
+            auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
             if (result == base::ImportIndexedPngResult::PngError)
             {
                 ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");

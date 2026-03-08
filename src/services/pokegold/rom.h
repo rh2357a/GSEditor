@@ -75,7 +75,7 @@ namespace pokegold
         base::MutableState<std::filesystem::path> m_workspacePathState = base::GetNullPath();
 
         base::MutableProgressState m_openProgressState{2834};
-        base::MutableProgressState m_buildProgressState{5583};
+        base::MutableProgressState m_buildProgressState{5839};
 
     public:
         Rom(Data &data) : m_data(data) {}

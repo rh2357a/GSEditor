@@ -177,9 +177,7 @@ base::ImportIndexedPngResult base::ImportIndexedPngFile(const std::filesystem::p
 
             for (int y = 0; y < 8; y++)
             {
-                u32 idx1bpp = (index * 16) + y;
                 u32 idx2bpp = (index * 16) + (y * 2);
-
                 for (int x = 0; x < 8; x++)
                 {
                     int idx = ((y + (row * 8)) * width * 4) + ((x + (column * 8)) * 4);
@@ -205,10 +203,17 @@ base::ImportIndexedPngResult base::ImportIndexedPngFile(const std::filesystem::p
                             lo |= k_reverseBits[x];
                         }
                     }
+
+                    u32 idx1bpp = (index * 8) + y;
+                    if (idx1bpp < data1bpp.size())
+                    {
+                        auto &b = data1bpp[idx1bpp];
+
+                        if (paletteIdx == 1)
+                            b |= k_reverseBits[x];
+                    }
                 }
             }
-
-            // TODO: 1bpp
         }
     }
 

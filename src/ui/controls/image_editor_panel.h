@@ -16,6 +16,7 @@
 #include <wx/wx.h>
 
 #include <array>
+#include <optional>
 #include <span>
 
 namespace ui
@@ -87,7 +88,7 @@ namespace ui
         auto &ImportRequested() { return m_importRequested; }
 
         void Clear();
-        void Set2bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::span<pokegold::Color> colors);
-        void Set1bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::span<pokegold::Color> colors);
+        void Set2bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::optional<std::span<pokegold::Color>> colors = std::nullopt);
+        void Set1bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::optional<std::span<pokegold::Color>> colors = std::nullopt);
     };
 }

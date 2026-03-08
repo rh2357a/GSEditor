@@ -123,6 +123,11 @@ namespace
 
     // clang-format off
 
+    std::vector<u8> k_tiles_2x2 = {
+        0, 1,
+        2, 3,
+    };
+
     std::vector<u8> k_tiles_4x2 = {
         0, 1, 4, 5,
         2, 3, 6, 7,
@@ -806,6 +811,33 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonSmallPicture->ImportRequested().Subscribe(this, smallPicFunc);
         m_pokemonEggSmallPicture->ImportRequested().Subscribe(this, smallPicFunc);
 
+        m_pokemonFootprintImage->ImportRequested().Subscribe(this, [this] {
+            const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
+            if (path.has_value())
+            {
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Horizontal, k_tiles_2x2);
+                if (result == base::ImportIndexedPngResult::PngError)
+                {
+                    ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
+                    return;
+                }
+
+                const auto size = result.GetBitmap().GetSize();
+                if (!(size.x == 16 && size.y == 16))
+                {
+                    ShowErrorDialog(this, "알림", "이미지는 16x16으로 맞춰주세요.");
+                    return;
+                }
+
+                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                pokemon.FootprintImage = result.Get1bppData();
+
+                m_pokegold.Rom().NotifyRomChanged();
+
+                UpdatePokemonImages();
+            }
+        });
+
         auto color_1 = [this](const wxColour &newColor) {
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
                 return;
@@ -1053,9 +1085,7 @@ void ui::DatabasePanel::UpdatePokemonImages()
                 m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
                 m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
 
-                // TODO: ...
-                m_pokemonFootprintImage->Clear();
-
+                m_pokemonFootprintImage->Set1bppData(pokegold::ImageDimensions::Size_16x16, pokemon.FootprintImage);
                 m_pokemonSmallPicture->Set2bppData(pokegold::ImageDimensions::Size_32x16, pokemon.SmallImages, m_pokegold.Data().NpcColors().Morning[pokemon.SmallImagePaletteId]);
 
                 m_pokemonEggImage->Clear();
