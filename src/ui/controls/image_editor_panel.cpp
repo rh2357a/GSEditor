@@ -21,6 +21,8 @@ namespace
 {
     pokegold::Color k_blackColor = {0, 0, 0};
     pokegold::Color k_whiteColor = {255, 255, 255};
+    pokegold::Color k_lightGrayColor = {33, 33, 33};
+    pokegold::Color k_darkGrayColor = {128, 128, 128};
 
     // clang-format off
 
@@ -176,31 +178,49 @@ void ui::ImageEditorPanel::Clear()
     Refresh();
 }
 
-void ui::ImageEditorPanel::Set2bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::span<pokegold::Color> colors)
+void ui::ImageEditorPanel::Set2bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::optional<std::span<pokegold::Color>> colors)
 {
-    if (colors.size() == 2)
+    if (colors.has_value())
     {
-        std::vector<std::array<pokegold::Color, 4>> palette = {
-            // 0
-            {
-                k_whiteColor,
-                colors[0],
-                colors[1],
-                k_blackColor,
-            },
-        };
+        const auto realColors = *colors;
+        if (realColors.size() == 2)
+        {
+            std::vector<std::array<pokegold::Color, 4>> palette = {
+                // 0
+                {
+                    k_whiteColor,
+                    realColors[0],
+                    realColors[1],
+                    k_blackColor,
+                },
+            };
 
-        m_bitmapBuilder.SetPalette(palette);
+            m_bitmapBuilder.SetPalette(palette);
+        }
+        else
+        {
+            std::vector<std::array<pokegold::Color, 4>> palette = {
+                // 0
+                {
+                    realColors[0],
+                    realColors[1],
+                    realColors[2],
+                    realColors[3],
+                },
+            };
+
+            m_bitmapBuilder.SetPalette(palette);
+        }
     }
     else
     {
         std::vector<std::array<pokegold::Color, 4>> palette = {
             // 0
             {
-                colors[0],
-                colors[1],
-                colors[2],
-                colors[3],
+                k_whiteColor,
+                k_lightGrayColor,
+                k_darkGrayColor,
+                k_blackColor,
             },
         };
 
@@ -223,7 +243,20 @@ void ui::ImageEditorPanel::Set2bppData(pokegold::ImageDimensions size, std::span
     Refresh();
 }
 
-void ui::ImageEditorPanel::Set1bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::span<pokegold::Color> colors)
+void ui::ImageEditorPanel::Set1bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::optional<std::span<pokegold::Color>> colors)
 {
-    // TODO: 1bpp 필요 시, 추가.
+    std::vector<std::array<pokegold::Color, 4>> palette = {
+        // 0
+        {
+            k_whiteColor,
+            k_blackColor,
+        },
+    };
+
+    m_bitmapBuilder.SetPalette(palette);
+    m_bitmapBuilder.SetData(data);
+
+    m_cacheBitmap = m_bitmapBuilder.Build_1bpp(2, 2, k_tiles_2x2);
+
+    Refresh();
 }

@@ -814,6 +814,26 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 const auto &e = m_data.Pokemons()[i];
                 srcStream << GetAsmBytes({e.SmallImagePaletteId});
             }
+
+            for (size_t i = 0; i < 256; i++)
+            {
+                if (m_buildProgressState.HandlePausedOrCanceled())
+                    return false;
+
+                m_buildProgressState.UpdateMessage(std::format("포켓몬 (발자국 이미지: {}/{})", i + 1, 256));
+                m_buildProgressState.Increase();
+
+                const auto &e = m_data.Pokemons()[i];
+                if (e.Type == PokemonType::Pokemon)
+                {
+                    const auto offset = 0xf92bd + ((i / 8) * 0x100) + ((i % 8) * 0x10);
+                    srcStream << GetAsmSection(offset, "GSEditor_Pokemon_Footprint_{}_0", i)
+                              << GetAsmBytes(std::vector<u8>(e.FootprintImage.begin(), e.FootprintImage.begin() + 0x10));
+
+                    srcStream << GetAsmSection(offset + 0x80, "GSEditor_Pokemon_Footprint_{}_1", i)
+                              << GetAsmBytes(std::vector<u8>(e.FootprintImage.begin() + 0x10, e.FootprintImage.begin() + 0x20));
+                }
+            }
         }
 
         // images
