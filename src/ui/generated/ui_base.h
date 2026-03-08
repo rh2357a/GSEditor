@@ -129,7 +129,7 @@ class MainFrameBase : public wxFrame
 
 	public:
 
-		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,560 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,600 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~MainFrameBase();
 
@@ -189,6 +189,8 @@ class DatabasePanelBase : public wxPanel
 		ui::ColorPickerPanel* m_pokemonColor_2;
 		ui::ColorPickerPanel* m_pokemonShinyColor_1;
 		ui::ColorPickerPanel* m_pokemonShinyColor_2;
+		ui::ImageEditorPanel* m_pokemonFootprintPanel;
+		ui::ImageEditorPanel* m_pokemonSmallPicturePanel;
 		wxTextCtrl* m_pokemonDexSpeciesNameText;
 		wxSpinCtrlDouble* m_pokemonDexHeightValue;
 		wxSpinCtrlDouble* m_pokemonDexWeightValue;
@@ -214,6 +216,12 @@ class DatabasePanelBase : public wxPanel
 		ui::ColoredCheckListBox* m_pokemonHmTmList6;
 		ui::ColoredCheckListBox* m_pokemonHmTmList7;
 		ui::ColoredCheckListBox* m_pokemonHmTmList8;
+		wxTextCtrl* m_pokemonEggNameText;
+		ui::ImageEditorPanel* m_pokemonEggImage;
+		ui::ColorPickerPanel* m_pokemonEggColor_1;
+		ui::ColorPickerPanel* m_pokemonEggColor_2;
+		ui::ColorPickerPanel* m_pokemonEggShinyColor_1;
+		ui::ColorPickerPanel* m_pokemonEggShinyColor_2;
 		wxComboBox* m_unownPokemonComboBox;
 		wxPanel* m_unownInnerPanel;
 		ui::ColoredListBox* m_unownList;

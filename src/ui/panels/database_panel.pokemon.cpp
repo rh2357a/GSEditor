@@ -20,6 +20,7 @@
 #include <wx/colour.h>
 #include <wx/event.h>
 #include <wx/gdicmn.h>
+#include <wx/spinctrl.h>
 
 #include <algorithm>
 #include <array>
@@ -354,7 +355,9 @@ void ui::DatabasePanel::InitializePokemonTab()
 
     // 콤보 상자 이벤트 설정
     {
-        const auto &comboBoxBindFunc = [&](const auto &ev) {
+        const auto &comboBoxBindFunc = [&](wxCommandEvent &ev) {
+            ev.Skip();
+
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
                 return;
 
@@ -394,7 +397,9 @@ void ui::DatabasePanel::InitializePokemonTab()
 
     // 스핀 컨트롤 이벤트 설정
     {
-        const auto &spinCtrlBindFunc = [&](const auto &ev) {
+        const auto &spinCtrlBindFunc = [&](wxSpinDoubleEvent &ev) {
+            ev.Skip();
+
             const auto catchRatePercentage = wxString::Format(wxT("(%.2lf%%)"), m_pokemonStatsCatchRateValue->GetValue() / 255.0 * 100.0);
             m_pokemonCatchRatePercentage->SetLabelText(catchRatePercentage);
 
@@ -500,7 +505,9 @@ void ui::DatabasePanel::InitializePokemonTab()
     }
 
     // 이름 변경 설정
-    m_pokemonNameText->Bind(wxEVT_TEXT, [&](const auto &ev) {
+    m_pokemonNameText->Bind(wxEVT_TEXT, [&](wxCommandEvent &ev) {
+        ev.Skip();
+
         if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
             return;
 
@@ -514,9 +521,28 @@ void ui::DatabasePanel::InitializePokemonTab()
         }
     });
 
+    // 알 이름 변경 설정
+    m_pokemonEggNameText->Bind(wxEVT_TEXT, [&](wxCommandEvent &ev) {
+        ev.Skip();
+
+        if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            return;
+
+        auto str = m_pokemonEggNameText->GetValue().utf8_string();
+        if (pokegold::String::IsCharmapString(str))
+        {
+            const auto pokemonIdx = *m_selectedPokemon;
+            m_pokegold.Data().Pokemons()[pokemonIdx].Name = str;
+            m_pokegold.Data().PokemonNameUpdated()(pokemonIdx);
+            m_pokegold.Rom().NotifyRomChanged();
+        }
+    });
+
     // 도감 설명 설정
     {
-        m_pokemonDexSpeciesNameText->Bind(wxEVT_TEXT, [&](const auto ev) {
+        m_pokemonDexSpeciesNameText->Bind(wxEVT_TEXT, [&](wxCommandEvent ev) {
+            ev.Skip();
+
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
                 return;
 
@@ -529,7 +555,9 @@ void ui::DatabasePanel::InitializePokemonTab()
             }
         });
 
-        m_pokemonDexDescriptionText->Bind(wxEVT_TEXT, [&](const auto ev) {
+        m_pokemonDexDescriptionText->Bind(wxEVT_TEXT, [&](wxCommandEvent ev) {
+            ev.Skip();
+
             auto str = m_pokemonDexDescriptionText->GetValue().utf8_string();
             const auto lines = base::Split(str, '\n');
 
@@ -554,6 +582,39 @@ void ui::DatabasePanel::InitializePokemonTab()
 
     // 이미지, 팔레트 설정
     {
+        m_pokemonEggImage->ImportRequested().Subscribe(this, [this] {
+            const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
+            if (path.has_value())
+            {
+                auto result = base::ImportIndexedPngFile(*path);
+                if (result == base::ImportIndexedPngResult::PngError)
+                {
+                    ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
+                    return;
+                }
+
+                const auto size = result.GetBitmap().GetSize();
+                if (!(size.x == 40 && size.y == 40))
+                {
+                    ShowErrorDialog(this, "알림", "앞모습의 이미지는 40x40으로 맞춰주세요.");
+                    return;
+                }
+
+                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                pokemon.FrontImage = result.Get2bppData();
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    pokemon.Colors[0] = result.GetPalette()[1];
+                    pokemon.Colors[1] = result.GetPalette()[2];
+                }
+
+                m_pokegold.Rom().NotifyRomChanged();
+
+                UpdatePokemonImages();
+            }
+        });
+
         m_pokemonFrontImage->ImportRequested().Subscribe(this, [this] {
             const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
             if (path.has_value())
@@ -692,7 +753,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             }
         });
 
-        m_pokemonColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
+        auto color_1 = [this](const wxColour &newColor) {
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
                 return;
 
@@ -703,9 +764,11 @@ void ui::DatabasePanel::InitializePokemonTab()
             m_pokegold.Rom().NotifyRomChanged();
 
             UpdatePokemonImages();
-        });
+        };
+        m_pokemonColor_1->GetColorState().Subscribe(this, color_1);
+        m_pokemonEggColor_1->GetColorState().Subscribe(this, color_1);
 
-        m_pokemonColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
+        auto color_2 = [this](const wxColour &newColor) {
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
                 return;
 
@@ -716,9 +779,11 @@ void ui::DatabasePanel::InitializePokemonTab()
             m_pokegold.Rom().NotifyRomChanged();
 
             UpdatePokemonImages();
-        });
+        };
+        m_pokemonColor_2->GetColorState().Subscribe(this, color_2);
+        m_pokemonEggColor_2->GetColorState().Subscribe(this, color_2);
 
-        m_pokemonShinyColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
+        auto shinyColor_1 = [this](const wxColour &newColor) {
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
                 return;
 
@@ -729,9 +794,11 @@ void ui::DatabasePanel::InitializePokemonTab()
             m_pokegold.Rom().NotifyRomChanged();
 
             UpdatePokemonImages();
-        });
+        };
+        m_pokemonShinyColor_1->GetColorState().Subscribe(this, shinyColor_1);
+        m_pokemonEggShinyColor_1->GetColorState().Subscribe(this, shinyColor_1);
 
-        m_pokemonShinyColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
+        auto shinyColor_2 = [this](const wxColour &newColor) {
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
                 return;
 
@@ -742,7 +809,9 @@ void ui::DatabasePanel::InitializePokemonTab()
             m_pokegold.Rom().NotifyRomChanged();
 
             UpdatePokemonImages();
-        });
+        };
+        m_pokemonShinyColor_2->GetColorState().Subscribe(this, shinyColor_2);
+        m_pokemonEggShinyColor_2->GetColorState().Subscribe(this, shinyColor_2);
     }
 
     // 포켓몬 목록 선택 처리
@@ -752,51 +821,10 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_eventGuard([&] {
             m_pokemonContainer->Enable(idx != -1);
 
-            auto tmhmCtrls = std::vector<ui::ColoredCheckListBox *>{
-                m_pokemonHmTmList1,
-                m_pokemonHmTmList2,
-                m_pokemonHmTmList3,
-                m_pokemonHmTmList4,
-                m_pokemonHmTmList5,
-                m_pokemonHmTmList6,
-                m_pokemonHmTmList7,
-                m_pokemonHmTmList8,
-            };
-
             if (idx == -1)
             {
                 m_pokemonContainer->SetSelection(size_t(PokemonTabType::Pokemon));
-
-                m_pokemonNoText->SetValue(wxT("-"));
-                m_pokemonNameText->SetValue(wxT(""));
-                m_pokemonGenderRateComboBox->Select(-1);
-                m_pokemonGrowthRateComboBox->Select(-1);
-                m_pokemonType1ComboBox->Select(-1);
-                m_pokemonType2ComboBox->Select(-1);
-                m_pokemonItem1ComboBox->Select(-1);
-                m_pokemonItem2ComboBox->Select(-1);
-                m_pokemonEggGroup1ComboBox->Select(-1);
-                m_pokemonEggGroup2ComboBox->Select(-1);
-
-                SetValueSpinCtrlDouble(m_pokemonStatsHpValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonStatsAtkValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonStatsDefValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonStatsSpAtkValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonStatsSpDefValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonStatsSpdValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonStatsExpValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, 0);
-
-                m_pokemonDexSpeciesNameText->SetValue(wxT(""));
-                SetValueSpinCtrlDouble(m_pokemonDexHeightValue, 0);
-                SetValueSpinCtrlDouble(m_pokemonDexWeightValue, 0);
-                m_pokemonDexDescriptionText->SetValue(wxT(""));
-
-                for (auto *ctrl : tmhmCtrls)
-                {
-                    for (unsigned int i = 0; i < ctrl->GetCount(); i++)
-                        ctrl->Check(i, false);
-                }
+                ClearPokemonTab();
             }
             else
             {
@@ -804,6 +832,8 @@ void ui::DatabasePanel::InitializePokemonTab()
 
                 if (e.Type == pokegold::PokemonType::Pokemon)
                     m_pokemonContainer->SetSelection(size_t(PokemonTabType::Pokemon));
+                else if (e.Type == pokegold::PokemonType::Egg)
+                    m_pokemonContainer->SetSelection(size_t(PokemonTabType::Egg));
                 else
                     m_pokemonContainer->SetSelection(size_t(PokemonTabType::Dummy));
 
@@ -815,36 +845,54 @@ void ui::DatabasePanel::InitializePokemonTab()
                         m_pokemonImageContainer->SetSelection(size_t(PokemonImageContainerType::Pokemon));
                 }
 
-                m_pokemonNoText->SetValue(wxString::Format(wxT("%d"), e.Id));
-                m_pokemonNameText->SetValue(e.Name.ToEditorWxString());
-                m_pokemonGenderRateComboBox->Select(k_genderRateIndexes[e.GenderRate]);
-                m_pokemonGrowthRateComboBox->Select(k_growthRateIndexes[e.GrowthRate]);
-                m_pokemonType1ComboBox->Select(e.TypeIds[0]);
-                m_pokemonType2ComboBox->Select(e.TypeIds[1]);
-                m_pokemonItem1ComboBox->Select(e.ItemIds[0]);
-                m_pokemonItem2ComboBox->Select(e.ItemIds[1]);
-                m_pokemonEggGroup1ComboBox->Select(k_eggGroupIndexes[e.EggGroups[0]]);
-                m_pokemonEggGroup2ComboBox->Select(k_eggGroupIndexes[e.EggGroups[1]]);
-
-                SetValueSpinCtrlDouble(m_pokemonStatsHpValue, e.Hp);
-                SetValueSpinCtrlDouble(m_pokemonStatsAtkValue, e.Attack);
-                SetValueSpinCtrlDouble(m_pokemonStatsDefValue, e.Defence);
-                SetValueSpinCtrlDouble(m_pokemonStatsSpAtkValue, e.SpAttack);
-                SetValueSpinCtrlDouble(m_pokemonStatsSpDefValue, e.SpDefence);
-                SetValueSpinCtrlDouble(m_pokemonStatsSpdValue, e.Speed);
-                SetValueSpinCtrlDouble(m_pokemonStatsExpValue, e.BaseExp);
-                SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, e.CatchRate);
-
-                m_pokemonDexSpeciesNameText->SetValue(e.DexCategoryName.ToEditorWxString());
-                SetValueSpinCtrlDouble(m_pokemonDexHeightValue, double(e.Height / 10.0));
-                SetValueSpinCtrlDouble(m_pokemonDexWeightValue, double(e.Weight / 10.0));
-                m_pokemonDexDescriptionText->SetValue(e.Description.ToEditorWxString());
-
-                size_t tmhmIdx = 0;
-                for (auto *ctrl : tmhmCtrls)
+                if (e.Type == pokegold::PokemonType::Pokemon)
                 {
-                    for (unsigned int i = 0; i < ctrl->GetCount(); i++)
-                        ctrl->Check(i, e.TMHMs[tmhmIdx++]);
+                    m_pokemonNoText->SetValue(wxString::Format(wxT("%d"), e.Id));
+                    m_pokemonNameText->SetValue(e.Name.ToEditorWxString());
+                    m_pokemonGenderRateComboBox->Select(k_genderRateIndexes[e.GenderRate]);
+                    m_pokemonGrowthRateComboBox->Select(k_growthRateIndexes[e.GrowthRate]);
+                    m_pokemonType1ComboBox->Select(e.TypeIds[0]);
+                    m_pokemonType2ComboBox->Select(e.TypeIds[1]);
+                    m_pokemonItem1ComboBox->Select(e.ItemIds[0]);
+                    m_pokemonItem2ComboBox->Select(e.ItemIds[1]);
+                    m_pokemonEggGroup1ComboBox->Select(k_eggGroupIndexes[e.EggGroups[0]]);
+                    m_pokemonEggGroup2ComboBox->Select(k_eggGroupIndexes[e.EggGroups[1]]);
+
+                    SetValueSpinCtrlDouble(m_pokemonStatsHpValue, e.Hp);
+                    SetValueSpinCtrlDouble(m_pokemonStatsAtkValue, e.Attack);
+                    SetValueSpinCtrlDouble(m_pokemonStatsDefValue, e.Defence);
+                    SetValueSpinCtrlDouble(m_pokemonStatsSpAtkValue, e.SpAttack);
+                    SetValueSpinCtrlDouble(m_pokemonStatsSpDefValue, e.SpDefence);
+                    SetValueSpinCtrlDouble(m_pokemonStatsSpdValue, e.Speed);
+                    SetValueSpinCtrlDouble(m_pokemonStatsExpValue, e.BaseExp);
+                    SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, e.CatchRate);
+
+                    m_pokemonDexSpeciesNameText->SetValue(e.DexCategoryName.ToEditorWxString());
+                    SetValueSpinCtrlDouble(m_pokemonDexHeightValue, double(e.Height / 10.0));
+                    SetValueSpinCtrlDouble(m_pokemonDexWeightValue, double(e.Weight / 10.0));
+                    m_pokemonDexDescriptionText->SetValue(e.Description.ToEditorWxString());
+
+                    size_t tmhmIdx = 0;
+                    for (auto *ctrl : {
+                             m_pokemonHmTmList1,
+                             m_pokemonHmTmList2,
+                             m_pokemonHmTmList3,
+                             m_pokemonHmTmList4,
+                             m_pokemonHmTmList5,
+                             m_pokemonHmTmList6,
+                             m_pokemonHmTmList7,
+                             m_pokemonHmTmList8,
+                         })
+                    {
+                        for (unsigned int i = 0; i < ctrl->GetCount(); i++)
+                            ctrl->Check(i, e.TMHMs[tmhmIdx++]);
+                    }
+                }
+                else if (e.Type == pokegold::PokemonType::Egg)
+                {
+                    ClearPokemonTab();
+
+                    m_pokemonEggNameText->SetValue(e.Name.ToEditorWxString());
                 }
             }
         });
@@ -856,11 +904,56 @@ void ui::DatabasePanel::InitializePokemonTab()
     });
 }
 
+void ui::DatabasePanel::ClearPokemonTab()
+{
+    m_pokemonEggNameText->SetValue(wxT(""));
+
+    m_pokemonNoText->SetValue(wxT("-"));
+    m_pokemonNameText->SetValue(wxT(""));
+    m_pokemonGenderRateComboBox->Select(-1);
+    m_pokemonGrowthRateComboBox->Select(-1);
+    m_pokemonType1ComboBox->Select(-1);
+    m_pokemonType2ComboBox->Select(-1);
+    m_pokemonItem1ComboBox->Select(-1);
+    m_pokemonItem2ComboBox->Select(-1);
+    m_pokemonEggGroup1ComboBox->Select(-1);
+    m_pokemonEggGroup2ComboBox->Select(-1);
+
+    SetValueSpinCtrlDouble(m_pokemonStatsHpValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonStatsAtkValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonStatsDefValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonStatsSpAtkValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonStatsSpDefValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonStatsSpdValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonStatsExpValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, 0);
+
+    m_pokemonDexSpeciesNameText->SetValue(wxT(""));
+    SetValueSpinCtrlDouble(m_pokemonDexHeightValue, 0);
+    SetValueSpinCtrlDouble(m_pokemonDexWeightValue, 0);
+    m_pokemonDexDescriptionText->SetValue(wxT(""));
+
+    for (auto *ctrl : {
+             m_pokemonHmTmList1,
+             m_pokemonHmTmList2,
+             m_pokemonHmTmList3,
+             m_pokemonHmTmList4,
+             m_pokemonHmTmList5,
+             m_pokemonHmTmList6,
+             m_pokemonHmTmList7,
+             m_pokemonHmTmList8,
+         })
+    {
+        for (unsigned int i = 0; i < ctrl->GetCount(); i++)
+            ctrl->Check(i, false);
+    }
+}
+
 void ui::DatabasePanel::UpdatePokemonImages()
 {
     m_eventGuard([&] {
         int index = *m_selectedPokemon;
-        if (index == -1 || m_pokegold.Data().Pokemons()[index].Type != pokegold::PokemonType::Pokemon)
+        if (index == -1 || m_pokegold.Data().Pokemons()[index].Type == pokegold::PokemonType::Dummy)
         {
             m_pokemonFrontImage->Clear();
             m_pokemonBackImage->Clear();
@@ -871,20 +964,56 @@ void ui::DatabasePanel::UpdatePokemonImages()
             m_pokemonColor_2->SetColor(*wxWHITE);
             m_pokemonShinyColor_1->SetColor(*wxWHITE);
             m_pokemonShinyColor_2->SetColor(*wxWHITE);
+
+            m_pokemonEggImage->Clear();
+
+            m_pokemonEggColor_1->SetColor(*wxWHITE);
+            m_pokemonEggColor_2->SetColor(*wxWHITE);
+            m_pokemonEggShinyColor_1->SetColor(*wxWHITE);
+            m_pokemonEggShinyColor_2->SetColor(*wxWHITE);
         }
         else
         {
             auto &pokemon = m_pokegold.Data().Pokemons()[index];
 
-            m_pokemonFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
-            m_pokemonBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
-            m_pokemonShinyFrontImage->SetData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
-            m_pokemonShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
+            if (pokemon.Type == pokegold::PokemonType::Pokemon)
+            {
+                m_pokemonFrontImage->Set2bppData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.Colors);
+                m_pokemonBackImage->Set2bppData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.Colors);
+                m_pokemonShinyFrontImage->Set2bppData(pokemon.ImageDimensions, pokemon.FrontImage, pokemon.ShinyColors);
+                m_pokemonShinyBackImage->Set2bppData(pokegold::ImageDimensions::Size_48x48, pokemon.BackImage, pokemon.ShinyColors);
 
-            m_pokemonColor_1->SetColor(pokemon.Colors[0].ToWxColor());
-            m_pokemonColor_2->SetColor(pokemon.Colors[1].ToWxColor());
-            m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
-            m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
+                m_pokemonColor_1->SetColor(pokemon.Colors[0].ToWxColor());
+                m_pokemonColor_2->SetColor(pokemon.Colors[1].ToWxColor());
+                m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
+                m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
+
+                m_pokemonEggImage->Clear();
+
+                m_pokemonEggColor_1->SetColor(*wxWHITE);
+                m_pokemonEggColor_2->SetColor(*wxWHITE);
+                m_pokemonEggShinyColor_1->SetColor(*wxWHITE);
+                m_pokemonEggShinyColor_2->SetColor(*wxWHITE);
+            }
+            else if (pokemon.Type == pokegold::PokemonType::Egg)
+            {
+                m_pokemonFrontImage->Clear();
+                m_pokemonBackImage->Clear();
+                m_pokemonShinyFrontImage->Clear();
+                m_pokemonShinyBackImage->Clear();
+
+                m_pokemonColor_1->SetColor(*wxWHITE);
+                m_pokemonColor_2->SetColor(*wxWHITE);
+                m_pokemonShinyColor_1->SetColor(*wxWHITE);
+                m_pokemonShinyColor_2->SetColor(*wxWHITE);
+
+                m_pokemonEggImage->Set2bppData(pokegold::ImageDimensions::Size_40x40, pokemon.FrontImage, pokemon.Colors);
+
+                m_pokemonEggColor_1->SetColor(pokemon.Colors[0].ToWxColor());
+                m_pokemonEggColor_2->SetColor(pokemon.Colors[1].ToWxColor());
+                m_pokemonEggShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
+                m_pokemonEggShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
+            }
         }
     });
 }

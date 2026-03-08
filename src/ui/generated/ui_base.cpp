@@ -146,7 +146,7 @@ ColorPickerPopupPanelBase::~ColorPickerPopupPanelBase()
 
 MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	this->SetSizeHints( wxSize( 740,560 ), wxDefaultSize );
+	this->SetSizeHints( wxSize( 740,600 ), wxDefaultSize );
 
 	m_mainMenuBar = new wxMenuBar( 0 );
 	wxMenu* fileMenu;
@@ -314,8 +314,8 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonPokemonType->SetScrollRate( 5, 16 );
 	pokemonPokemonType->SetBackgroundColour( wxColour( 255, 255, 255 ) );
 
-	wxBoxSizer* pokemonPanelContentSizer;
-	pokemonPanelContentSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* pokemonPokemonTypeSizer;
+	pokemonPokemonTypeSizer = new wxBoxSizer( wxVERTICAL );
 
 	wxBoxSizer* pokemonStatsLabelSizer;
 	pokemonStatsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -330,7 +330,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonStatsLabelSizer->Add( pokemonStatsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	pokemonPanelContentSizer->Add( pokemonStatsLabelSizer, 0, wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( pokemonStatsLabelSizer, 0, wxEXPAND, 5 );
 
 	wxBoxSizer* pokemonStatsSizer;
 	pokemonStatsSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -661,10 +661,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonStatsSizer->Add( pokemonStatsGrid, 0, 0, 5 );
 
 
-	pokemonPanelContentSizer->Add( pokemonStatsSizer, 0, wxALL|wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( pokemonStatsSizer, 0, wxALL|wxEXPAND, 5 );
 
 
-	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
+	pokemonPokemonTypeSizer->Add( 0, 8, 0, 0, 0 );
 
 	wxBoxSizer* pokemonImageLabelSizer;
 	pokemonImageLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -679,7 +679,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonImageLabelSizer->Add( pokemonImageLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	pokemonPanelContentSizer->Add( pokemonImageLabelSizer, 0, wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( pokemonImageLabelSizer, 0, wxEXPAND, 5 );
 
 	m_pokemonImageContainer = new wxSimplebook( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	wxPanel* pokemonImageCommonTypePanel;
@@ -762,10 +762,49 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonImageUnownSizer->Fit( pokemonImageUnownType );
 	m_pokemonImageContainer->AddPage( pokemonImageUnownType, wxEmptyString, false );
 
-	pokemonPanelContentSizer->Add( m_pokemonImageContainer, 0, wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( m_pokemonImageContainer, 0, wxEXPAND, 5 );
 
 
-	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
+	pokemonPokemonTypeSizer->Add( 0, 8, 0, 0, 0 );
+
+	wxBoxSizer* pokemonImage2LabelSizer;
+	pokemonImage2LabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonImage2Label;
+	pokemonImage2Label = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("발자국 && 스몰 스프라이트"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonImage2Label->Wrap( -1 );
+	pokemonImage2LabelSizer->Add( pokemonImage2Label, 0, wxALL, 5 );
+
+	wxStaticLine* pokemonImage2LabelSeparator;
+	pokemonImage2LabelSeparator = new wxStaticLine( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonImage2LabelSizer->Add( pokemonImage2LabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	pokemonPokemonTypeSizer->Add( pokemonImage2LabelSizer, 0, wxEXPAND, 5 );
+
+	wxFlexGridSizer* pokemonImage2Grid;
+	pokemonImage2Grid = new wxFlexGridSizer( 2, 2, 4, 4 );
+	pokemonImage2Grid->SetFlexibleDirection( wxBOTH );
+	pokemonImage2Grid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxStaticText* pokemonFootprintLabel;
+	pokemonFootprintLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("발자국："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonFootprintLabel->Wrap( -1 );
+	pokemonImage2Grid->Add( pokemonFootprintLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_pokemonFootprintPanel = new ui::ImageEditorPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( 32,32 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonImage2Grid->Add( m_pokemonFootprintPanel, 1, wxEXPAND, 5 );
+
+	wxStaticText* pokemonSmallPictureLabel;
+	pokemonSmallPictureLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("스몰 스프라이트："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonSmallPictureLabel->Wrap( -1 );
+	pokemonImage2Grid->Add( pokemonSmallPictureLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_pokemonSmallPicturePanel = new ui::ImageEditorPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( 32,32 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonImage2Grid->Add( m_pokemonSmallPicturePanel, 1, wxEXPAND, 5 );
+
+
+	pokemonPokemonTypeSizer->Add( pokemonImage2Grid, 0, wxALL|wxEXPAND, 5 );
 
 	wxBoxSizer* pokemonDexLabelSizer;
 	pokemonDexLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -780,7 +819,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonDexLabelSizer->Add( pokemonDexLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	pokemonPanelContentSizer->Add( pokemonDexLabelSizer, 0, wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( pokemonDexLabelSizer, 0, wxEXPAND, 5 );
 
 	wxBoxSizer* pokemonDexSizer;
 	pokemonDexSizer = new wxBoxSizer( wxVERTICAL );
@@ -840,10 +879,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonDexSizer->Add( m_pokemonDexDescriptionText, 0, wxALL, 5 );
 
 
-	pokemonPanelContentSizer->Add( pokemonDexSizer, 0, wxALL|wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( pokemonDexSizer, 0, wxALL|wxEXPAND, 5 );
 
 
-	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
+	pokemonPokemonTypeSizer->Add( 0, 8, 0, 0, 0 );
 
 	wxBoxSizer* pokemonEvoLearnsLabelSizer;
 	pokemonEvoLearnsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -858,10 +897,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonEvoLearnsLabelSizer->Add( pokemonEvoLearnsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	pokemonPanelContentSizer->Add( pokemonEvoLearnsLabelSizer, 0, wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( pokemonEvoLearnsLabelSizer, 0, wxEXPAND, 5 );
 
 
-	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
+	pokemonPokemonTypeSizer->Add( 0, 8, 0, 0, 0 );
 
 	wxPanel* pokemonEvolutionsPanel;
 	pokemonEvolutionsPanel = new wxPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxTAB_TRAVERSAL );
@@ -909,7 +948,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonEvolutionsPanel->SetSizer( pokemonEvolutionsSizer );
 	pokemonEvolutionsPanel->Layout();
 	pokemonEvolutionsSizer->Fit( pokemonEvolutionsPanel );
-	pokemonPanelContentSizer->Add( pokemonEvolutionsPanel, 0, wxEXPAND, 0 );
+	pokemonPokemonTypeSizer->Add( pokemonEvolutionsPanel, 0, wxEXPAND, 0 );
 
 	wxPanel* pokemonMovesPanel;
 	pokemonMovesPanel = new wxPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -966,10 +1005,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonMovesPanel->SetSizer( pokemonMovesSizer );
 	pokemonMovesPanel->Layout();
 	pokemonMovesSizer->Fit( pokemonMovesPanel );
-	pokemonPanelContentSizer->Add( pokemonMovesPanel, 0, wxEXPAND, 0 );
+	pokemonPokemonTypeSizer->Add( pokemonMovesPanel, 0, wxEXPAND, 0 );
 
 
-	pokemonPanelContentSizer->Add( 0, 8, 0, 0, 0 );
+	pokemonPokemonTypeSizer->Add( 0, 8, 0, 0, 0 );
 
 	wxBoxSizer* pokemonTMHMsLabelSizer;
 	pokemonTMHMsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -984,7 +1023,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonTMHMsLabelSizer->Add( pokemonTMHMsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
-	pokemonPanelContentSizer->Add( pokemonTMHMsLabelSizer, 0, wxEXPAND, 5 );
+	pokemonPokemonTypeSizer->Add( pokemonTMHMsLabelSizer, 0, wxEXPAND, 5 );
 
 	wxBoxSizer* pokemonTMHMsButtonsSizer;
 	pokemonTMHMsButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -1002,7 +1041,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonTMHMsButtonsSizer->Add( pokemonTMHMsClearButton, 0, wxALL, 2 );
 
 
-	pokemonPanelContentSizer->Add( pokemonTMHMsButtonsSizer, 0, wxALL, 4 );
+	pokemonPokemonTypeSizer->Add( pokemonTMHMsButtonsSizer, 0, wxALL, 4 );
 
 	m_pokemonTMHMsSizer = new wxGridSizer( 3, 3, 0, 0 );
 
@@ -1063,12 +1102,12 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonTMHMsSizer->Add( m_pokemonHmTmList8, 0, wxALL|wxEXPAND, 2 );
 
 
-	pokemonPanelContentSizer->Add( m_pokemonTMHMsSizer, 0, wxALL|wxEXPAND, 4 );
+	pokemonPokemonTypeSizer->Add( m_pokemonTMHMsSizer, 0, wxALL|wxEXPAND, 4 );
 
 
-	pokemonPokemonType->SetSizer( pokemonPanelContentSizer );
+	pokemonPokemonType->SetSizer( pokemonPokemonTypeSizer );
 	pokemonPokemonType->Layout();
-	pokemonPanelContentSizer->Fit( pokemonPokemonType );
+	pokemonPokemonTypeSizer->Fit( pokemonPokemonType );
 	m_pokemonContainer->AddPage( pokemonPokemonType, wxEmptyString, true );
 	wxPanel* pokemonDummyType;
 	pokemonDummyType = new wxPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -1091,6 +1130,127 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonEggType = new wxPanel( m_pokemonContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	pokemonEggType->SetBackgroundColour( wxColour( 255, 255, 255 ) );
 
+	wxBoxSizer* pokemonEggTypeSizer;
+	pokemonEggTypeSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* pokemonEggStatsLabelSizer;
+	pokemonEggStatsLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonEggStatsLabel;
+	pokemonEggStatsLabel = new wxStaticText( pokemonEggType, wxID_ANY, wxT("기본 정보"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEggStatsLabel->Wrap( -1 );
+	pokemonEggStatsLabelSizer->Add( pokemonEggStatsLabel, 0, wxALL, 5 );
+
+	wxStaticLine* pokemonEggStatsLabelSeparator;
+	pokemonEggStatsLabelSeparator = new wxStaticLine( pokemonEggType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonEggStatsLabelSizer->Add( pokemonEggStatsLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	pokemonEggTypeSizer->Add( pokemonEggStatsLabelSizer, 0, wxEXPAND, 5 );
+
+	wxFlexGridSizer* pokemonEggInfoGrid;
+	pokemonEggInfoGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	pokemonEggInfoGrid->AddGrowableCol( 0 );
+	pokemonEggInfoGrid->SetFlexibleDirection( wxBOTH );
+	pokemonEggInfoGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxStaticText* pokemonEggNameLabel;
+	pokemonEggNameLabel = new wxStaticText( pokemonEggType, wxID_ANY, wxT("이름："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEggNameLabel->Wrap( -1 );
+	pokemonEggInfoGrid->Add( pokemonEggNameLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_pokemonEggNameText = new wxTextCtrl( pokemonEggType, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 240,-1 ), 0 );
+	#ifdef __WXGTK__
+	if ( !m_pokemonEggNameText->HasFlag( wxTE_MULTILINE ) )
+	{
+	m_pokemonEggNameText->SetMaxLength( 5 );
+	}
+	#else
+	m_pokemonEggNameText->SetMaxLength( 5 );
+	#endif
+	m_pokemonEggNameText->SetMinSize( wxSize( 240,-1 ) );
+	m_pokemonEggNameText->SetMaxSize( wxSize( 240,-1 ) );
+
+	pokemonEggInfoGrid->Add( m_pokemonEggNameText, 0, wxALIGN_CENTER_VERTICAL|wxALL, 4 );
+
+
+	pokemonEggTypeSizer->Add( pokemonEggInfoGrid, 0, wxALL, 5 );
+
+
+	pokemonEggTypeSizer->Add( 0, 8, 0, 0, 0 );
+
+	wxBoxSizer* pokemonEggImageLabelSizer;
+	pokemonEggImageLabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonEggImageLabel;
+	pokemonEggImageLabel = new wxStaticText( pokemonEggType, wxID_ANY, wxT("이미지 && 색상"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEggImageLabel->Wrap( -1 );
+	pokemonEggImageLabelSizer->Add( pokemonEggImageLabel, 0, wxALL, 5 );
+
+	wxStaticLine* pokemonEggImageLabelSeparator;
+	pokemonEggImageLabelSeparator = new wxStaticLine( pokemonEggType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonEggImageLabelSizer->Add( pokemonEggImageLabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	pokemonEggTypeSizer->Add( pokemonEggImageLabelSizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* pokemonEggImageCommonSizer;
+	pokemonEggImageCommonSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* pokemonEggImageSizer;
+	pokemonEggImageSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonEggImageDataLabel;
+	pokemonEggImageDataLabel = new wxStaticText( pokemonEggType, wxID_ANY, wxT("이미지："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
+	pokemonEggImageDataLabel->Wrap( -1 );
+	pokemonEggImageSizer->Add( pokemonEggImageDataLabel, 0, wxALL, 5 );
+
+	m_pokemonEggImage = new ui::ImageEditorPanel( pokemonEggType, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonEggImageSizer->Add( m_pokemonEggImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	pokemonEggImageCommonSizer->Add( pokemonEggImageSizer, 0, wxLEFT|wxRIGHT|wxTOP, 5 );
+
+	wxBoxSizer* pokemonEggColorSizer;
+	pokemonEggColorSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonEggColorLabel;
+	pokemonEggColorLabel = new wxStaticText( pokemonEggType, wxID_ANY, wxT("색상："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
+	pokemonEggColorLabel->Wrap( -1 );
+	pokemonEggColorSizer->Add( pokemonEggColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_pokemonEggColor_1 = new ui::ColorPickerPanel( pokemonEggType, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonEggColorSizer->Add( m_pokemonEggColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_pokemonEggColor_2 = new ui::ColorPickerPanel( pokemonEggType, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonEggColorSizer->Add( m_pokemonEggColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	wxStaticLine* pokemonEggColorSeparator;
+	pokemonEggColorSeparator = new wxStaticLine( pokemonEggType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	pokemonEggColorSeparator->Hide();
+
+	pokemonEggColorSizer->Add( pokemonEggColorSeparator, 0, wxEXPAND|wxLEFT, 5 );
+
+	m_pokemonEggShinyColor_1 = new ui::ColorPickerPanel( pokemonEggType, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_pokemonEggShinyColor_1->Hide();
+
+	pokemonEggColorSizer->Add( m_pokemonEggShinyColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_pokemonEggShinyColor_2 = new ui::ColorPickerPanel( pokemonEggType, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	m_pokemonEggShinyColor_2->Hide();
+
+	pokemonEggColorSizer->Add( m_pokemonEggShinyColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	pokemonEggImageCommonSizer->Add( pokemonEggColorSizer, 0, wxLEFT|wxRIGHT, 5 );
+
+
+	pokemonEggTypeSizer->Add( pokemonEggImageCommonSizer, 1, wxEXPAND, 5 );
+
+
+	pokemonEggType->SetSizer( pokemonEggTypeSizer );
+	pokemonEggType->Layout();
+	pokemonEggTypeSizer->Fit( pokemonEggType );
 	m_pokemonContainer->AddPage( pokemonEggType, wxEmptyString, false );
 
 	pokemonInnerPanelSizer->Add( m_pokemonContainer, 1, wxALL|wxEXPAND, 2 );

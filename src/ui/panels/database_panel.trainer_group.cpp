@@ -166,7 +166,7 @@ void ui::DatabasePanel::UpdateTrainerGroupImages()
             m_trainerGroupImageContainer->SetSelection(0);
 
             auto &e = m_pokegold.Data().TrainerGroups()[index];
-            m_trainerGroupImage->SetData(pokegold::ImageDimensions::Size_56x56, e.Image, e.Colors);
+            m_trainerGroupImage->Set2bppData(pokegold::ImageDimensions::Size_56x56, e.Image, e.Colors);
             m_trainerGroupColor_1->SetColor(e.Colors[0].ToWxColor());
             m_trainerGroupColor_2->SetColor(e.Colors[1].ToWxColor());
         }

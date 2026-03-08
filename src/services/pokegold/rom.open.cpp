@@ -345,7 +345,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
     base::Log(TAG, "read pokemon (evolves & moves)");
     size_t evolveBank = CalcBank(0x423ed);
-    for (size_t i = 0; i < 251; i++)
+    for (size_t i = 0; i < 256; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
             return false;
@@ -432,7 +432,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
     }
 
     base::Log(TAG, "read pokemon (pokedex & name)");
-    for (size_t i = 0; i < 251; i++)
+    for (size_t i = 0; i < 256; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
             return false;

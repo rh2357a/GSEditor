@@ -99,12 +99,9 @@ void ui::ImageEditorPanel::OnWritePng(wxCommandEvent &ev)
     const auto path = ShowSaveFileDialog(this, "png 저장...", {"png 파일|*.png"});
     if (path.has_value())
     {
-        std::array<wxColour, 4> palette = {
-            m_bitmapBuilder.GetPalette()[0][0].ToWxColor(),
-            m_bitmapBuilder.GetPalette()[0][1].ToWxColor(),
-            m_bitmapBuilder.GetPalette()[0][2].ToWxColor(),
-            m_bitmapBuilder.GetPalette()[0][3].ToWxColor(),
-        };
+        std::vector<wxColour> palette;
+        for (auto &pal : m_bitmapBuilder.GetPalette()[0])
+            palette.push_back(pal.ToWxColor());
 
         base::WriteIndexedPngFile(*path, m_cacheBitmap, palette);
     }
@@ -128,7 +125,7 @@ void ui::ImageEditorPanel::Clear()
     Refresh();
 }
 
-void ui::ImageEditorPanel::SetData(pokegold::ImageDimensions size, std::span<const u8> data, std::array<pokegold::Color, 2> colors)
+void ui::ImageEditorPanel::Set2bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::array<pokegold::Color, 2> colors)
 {
     std::vector<std::array<pokegold::Color, 4>> palette = {
         // 0
@@ -149,6 +146,29 @@ void ui::ImageEditorPanel::SetData(pokegold::ImageDimensions size, std::span<con
         m_cacheBitmap = m_bitmapBuilder.Build_2bpp(6, 6, k_tiles_6x6);
     else
         m_cacheBitmap = m_bitmapBuilder.Build_2bpp(7, 7, k_tiles_7x7);
+
+    Refresh();
+}
+
+void ui::ImageEditorPanel::Set1bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::array<pokegold::Color, 2> colors)
+{
+    std::vector<std::array<pokegold::Color, 4>> palette = {
+        // 0
+        {
+            k_whiteColor,
+            k_blackColor,
+        },
+    };
+
+    m_bitmapBuilder.SetData(data);
+    m_bitmapBuilder.SetPalette(palette);
+
+    if (size == pokegold::ImageDimensions::Size_40x40)
+        m_cacheBitmap = m_bitmapBuilder.Build_1bpp(5, 5, k_tiles_5x5);
+    else if (size == pokegold::ImageDimensions::Size_48x48)
+        m_cacheBitmap = m_bitmapBuilder.Build_1bpp(6, 6, k_tiles_6x6);
+    else
+        m_cacheBitmap = m_bitmapBuilder.Build_1bpp(7, 7, k_tiles_7x7);
 
     Refresh();
 }

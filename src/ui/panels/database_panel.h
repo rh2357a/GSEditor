@@ -50,6 +50,7 @@ namespace ui
 
     private:
         void InitializePokemonTab();
+        void ClearPokemonTab();
         void UpdatePokemonImages();
         void UpdatePokemonEvolutionAndMoveList();
         void OnPokemonEvolutionsButtonClick(wxCommandEvent &event) override;

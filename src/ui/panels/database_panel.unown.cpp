@@ -47,7 +47,7 @@ void ui::DatabasePanel::InitializeUnownTab()
                     m_unownPokemonComboBox->SetString(i + 1, name.ToEditorWxString());
                 }
             }
-            else
+            else if (id < 251)
             {
                 auto &name = m_pokegold.Data().Pokemons()[id].Name;
                 m_unownPokemonComboBox->SetString(id + 1, name.ToEditorWxString());
@@ -316,10 +316,10 @@ void ui::DatabasePanel::UpdateUnownImages()
             auto &unown = m_pokegold.Data().UnownImages()[index];
             auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
 
-            m_unownFrontImage->SetData(unown.ImageDimensions, unown.FrontImage, pokemon.Colors);
-            m_unownBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
-            m_unownShinyFrontImage->SetData(unown.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
-            m_unownShinyBackImage->SetData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
+            m_unownFrontImage->Set2bppData(unown.ImageDimensions, unown.FrontImage, pokemon.Colors);
+            m_unownBackImage->Set2bppData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);
+            m_unownShinyFrontImage->Set2bppData(unown.ImageDimensions, unown.FrontImage, pokemon.ShinyColors);
+            m_unownShinyBackImage->Set2bppData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.ShinyColors);
 
             m_unownColor_1->SetColor(pokemon.Colors[0].ToWxColor());
             m_unownColor_2->SetColor(pokemon.Colors[1].ToWxColor());

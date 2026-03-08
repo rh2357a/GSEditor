@@ -87,6 +87,7 @@ namespace ui
         auto &ImportRequested() { return m_importRequested; }
 
         void Clear();
-        void SetData(pokegold::ImageDimensions size, std::span<const u8> data, std::array<pokegold::Color, 2> colors);
+        void Set2bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::array<pokegold::Color, 2> colors);
+        void Set1bppData(pokegold::ImageDimensions size, std::span<const u8> data, std::array<pokegold::Color, 2> colors);
     };
 }

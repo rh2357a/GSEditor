@@ -64,7 +64,7 @@ void ui::DatabasePanel::InitializeTmHmTab()
                 m_tmhmPokemonList->SetString(i, pokemon.Name.ToEditorWxString());
             }
         }
-        else
+        else if (idx < 251)
         {
             auto &pokemon = m_pokegold.Data().Pokemons()[idx];
             m_tmhmPokemonList->SetString(idx, pokemon.Name.ToEditorWxString());
