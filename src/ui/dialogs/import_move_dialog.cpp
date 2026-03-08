@@ -5,6 +5,8 @@
 
 ui::internal::ImportMoveDialog::ImportMoveDialog(wxWindow *parent) : ImportMoveDialogBase(parent)
 {
+    ApplyListSearch(this, {m_pokemonListBox});
+
     BindControlSelection(this, m_pokemonListBox, m_selectedPokemon);
     BindControlSelection(this, m_movesListCtrl, m_selectedMove);
 

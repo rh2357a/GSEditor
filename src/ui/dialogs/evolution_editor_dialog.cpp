@@ -3,12 +3,15 @@
 #include "services/pokegold/data/game_data.h"
 #include "ui/bindings.h"
 #include "ui/dialogs/evolution_editor_dialog.h"
+#include "ui/utils.h"
 
 #include <wx/string.h>
 
 ui::internal::EvolutionEditorDialog::EvolutionEditorDialog(wxWindow *parent, std::optional<pokegold::EvolutionMethod> defaultValue)
     : EvolutionEditorDialogBase(parent)
 {
+    ApplyListSearch(this, {m_pokemon, m_tradeItems, m_useItems});
+
     // 진화 타입 바인딩
     {
         BindRadioButtonValue(this, m_levelUpRadio, m_evolveType, EvolveType::LevelUp);

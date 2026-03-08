@@ -1,9 +1,13 @@
 #include "move_editor_dialog.h"
 
+#include "ui/utils.h"
+
 #include <wx/colour.h>
 
 ui::internal::MoveEditorDialog::MoveEditorDialog(wxWindow *parent, std::optional<pokegold::PokemonMove> defaultValue) : MoveEditorDialogBase(parent)
 {
+    ApplyListSearch(this, {m_movesComboBox});
+
     // 기술 목록 로딩
     {
         m_movesComboBox->Freeze();
