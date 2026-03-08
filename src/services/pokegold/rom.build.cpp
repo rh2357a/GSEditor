@@ -501,7 +501,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
         srcStream << GetAsmSection(0x51bdf, "GSEditor_Pokemon_Properties")
                   << GetAsmLine("GSEditor_Pokemon_Properties::");
 
-        for (size_t i = 0; i < 256; i++)
+        for (size_t i = 0; i < 251; i++)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;
@@ -835,16 +835,6 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
         {
             // ptr
             {
-                // egg
-                // NOTE: `res/pokegold/hacks.asm`에서 처리
-                // {
-                //     srcStream << GetAsmSection(0x51897, "GSEditor_Egg_Image_Pointer")
-                //               << GetAsmLine("dw GSEditor_Egg_Image");
-                //     srcStream << GetAsmSection(0x5189a, "GSEditor_Egg_Image_Bank")
-                //               << GetAsmLine("db BANK(GSEditor_Egg_Image)");
-                // }
-
-                // pokemon
                 srcStream << GetAsmSection(0x48000, "GSEditor_Pokemon_Image_Pointers");
                 for (size_t i = 0; i < 251; i++)
                 {

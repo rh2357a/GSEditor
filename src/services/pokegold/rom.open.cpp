@@ -256,6 +256,15 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 {
     std::vector<u8> imageBuffer(0x400, 0);
 
+    // v1.2.8.4에서 발생된 버그 내역 패치
+    // TODO: v1.3.0부터 제거
+    if (data.MatchBytes(0x53b4c, {0x00, 0x64, 0x00, 0x05}))
+    {
+        data.SetBytes(0x53b3f, {0x1a, 0x15, 0x33, 0x16, 0x4b, 0x17, 0x62, 0x18,
+                                0x79, 0x19, 0x90, 0x1a, 0xa8, 0x1b, 0xc4, 0x1c,
+                                0xe0, 0x1d, 0xf6, 0x1e, 0xff, 0x1f, 0xff, 0x20});
+    }
+
     const bool isHackedExtendedSmallPics = data.MatchBytes(0x14348, {0xc3, 0xc2, 0x7a}) || data.MatchBytes(0x14334, {0xc3});
     if (!isHackedExtendedSmallPics)
     {
@@ -336,7 +345,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
     base::Log(TAG, "read pokemon (evolves & moves)");
     size_t evolveBank = CalcBank(0x423ed);
-    for (size_t i = 0; i < 256; i++)
+    for (size_t i = 0; i < 251; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
             return false;
@@ -423,7 +432,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
     }
 
     base::Log(TAG, "read pokemon (pokedex & name)");
-    for (size_t i = 0; i < 256; i++)
+    for (size_t i = 0; i < 251; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
             return false;
