@@ -25,6 +25,9 @@ namespace pokegold
         std::array<Type, 28> m_types;
         std::array<TMHM, 57> m_tmhms;
 
+        NpcColors m_npcColors;
+        std::array<std::array<std::vector<u8>, 2>, 38> m_legacyPokemonSmallPictures; // 롬 빌드에 포함하지 않음 (읽기 전용)
+
         std::vector<BadData> m_badDataList;
 
         base::Event<int> m_pokemonNameUpdated;
@@ -40,6 +43,7 @@ namespace pokegold
 
     public:
         Data(std::filesystem::path romFilePath = base::GetNullPath());
+        Data &operator=(const Data &newData);
 
     public:
         bool MatchBytes(size_t offset, const std::vector<u8> &findBytes);
@@ -69,8 +73,9 @@ namespace pokegold
         auto &Types() { return m_types; }
         auto &TMHMs() { return m_tmhms; }
 
-        auto &BadDataList() { return m_badDataList; }
+        auto &NpcColors() { return m_npcColors; }
+        auto &LegacyPokemonSmallPictures() { return m_legacyPokemonSmallPictures; }
 
-        void AssignFrom(const Data &newData);
+        auto &BadDataList() { return m_badDataList; }
     };
 }

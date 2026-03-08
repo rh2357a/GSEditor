@@ -120,6 +120,15 @@ namespace
         pokegold::EggGroup::Dragon,
         pokegold::EggGroup::None,
     };
+
+    // clang-format off
+
+    std::vector<u8> k_tiles_4x2 = {
+        0, 1, 4, 5,
+        2, 3, 6, 7,
+    };
+
+    // clang-format on
 }
 
 void ui::DatabasePanel::InitializePokemonTab()
@@ -143,6 +152,9 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonStatsSpdValue,
         m_pokemonStatsExpValue,
         m_pokemonStatsCatchRateValue,
+
+        m_pokemonSmallPictureColorComboBox,
+        m_pokemonEggSmallPictureColorComboBox,
 
         m_pokemonDexHeightValue,
         m_pokemonDexWeightValue,
@@ -370,19 +382,30 @@ void ui::DatabasePanel::InitializePokemonTab()
                 return false;
             };
 
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokemonList->GetSelection()];
             bool hasChanged = false;
-            hasChanged |= valueChangedFunc(pokemon.GenderRate, k_genderRateReverseIndexes[m_pokemonGenderRateComboBox->GetSelection()]);
-            hasChanged |= valueChangedFunc(pokemon.GrowthRate, k_growthRateReverseIndexes[m_pokemonGrowthRateComboBox->GetSelection()]);
-            hasChanged |= valueChangedFunc(pokemon.TypeIds[0], u8(m_pokemonType1ComboBox->GetSelection()));
-            hasChanged |= valueChangedFunc(pokemon.TypeIds[1], u8(m_pokemonType2ComboBox->GetSelection()));
-            hasChanged |= valueChangedFunc(pokemon.ItemIds[0], u8(m_pokemonItem1ComboBox->GetSelection()));
-            hasChanged |= valueChangedFunc(pokemon.ItemIds[1], u8(m_pokemonItem2ComboBox->GetSelection()));
-            hasChanged |= valueChangedFunc(pokemon.EggGroups[0], k_eggGroupReverseIndexes[m_pokemonEggGroup1ComboBox->GetSelection()]);
-            hasChanged |= valueChangedFunc(pokemon.EggGroups[1], k_eggGroupReverseIndexes[m_pokemonEggGroup2ComboBox->GetSelection()]);
+            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokemonList->GetSelection()];
+            if (pokemon.Type == pokegold::PokemonType::Pokemon)
+            {
+                hasChanged |= valueChangedFunc(pokemon.GenderRate, k_genderRateReverseIndexes[m_pokemonGenderRateComboBox->GetSelection()]);
+                hasChanged |= valueChangedFunc(pokemon.GrowthRate, k_growthRateReverseIndexes[m_pokemonGrowthRateComboBox->GetSelection()]);
+                hasChanged |= valueChangedFunc(pokemon.TypeIds[0], u8(m_pokemonType1ComboBox->GetSelection()));
+                hasChanged |= valueChangedFunc(pokemon.TypeIds[1], u8(m_pokemonType2ComboBox->GetSelection()));
+                hasChanged |= valueChangedFunc(pokemon.ItemIds[0], u8(m_pokemonItem1ComboBox->GetSelection()));
+                hasChanged |= valueChangedFunc(pokemon.ItemIds[1], u8(m_pokemonItem2ComboBox->GetSelection()));
+                hasChanged |= valueChangedFunc(pokemon.EggGroups[0], k_eggGroupReverseIndexes[m_pokemonEggGroup1ComboBox->GetSelection()]);
+                hasChanged |= valueChangedFunc(pokemon.EggGroups[1], k_eggGroupReverseIndexes[m_pokemonEggGroup2ComboBox->GetSelection()]);
+                hasChanged |= valueChangedFunc(pokemon.SmallImagePaletteId, u8(m_pokemonSmallPictureColorComboBox->GetSelection()));
+            }
+            else
+            {
+                hasChanged |= valueChangedFunc(pokemon.SmallImagePaletteId, u8(m_pokemonEggSmallPictureColorComboBox->GetSelection()));
+            }
 
             if (hasChanged)
+            {
+                UpdatePokemonImages();
                 m_pokegold.Rom().NotifyRomChanged();
+            }
         };
 
         m_pokemonGenderRateComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
@@ -393,6 +416,8 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonItem2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
         m_pokemonEggGroup1ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
         m_pokemonEggGroup2ComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonSmallPictureColorComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
+        m_pokemonEggSmallPictureColorComboBox->Bind(wxEVT_COMBOBOX, comboBoxBindFunc);
     }
 
     // 스핀 컨트롤 이벤트 설정
@@ -586,7 +611,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
             if (path.has_value())
             {
-                auto result = base::ImportIndexedPngFile(*path);
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
                 if (result == base::ImportIndexedPngResult::PngError)
                 {
                     ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
@@ -596,7 +621,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                 const auto size = result.GetBitmap().GetSize();
                 if (!(size.x == 40 && size.y == 40))
                 {
-                    ShowErrorDialog(this, "알림", "앞모습의 이미지는 40x40으로 맞춰주세요.");
+                    ShowErrorDialog(this, "알림", "이미지는 40x40으로 맞춰주세요.");
                     return;
                 }
 
@@ -619,7 +644,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
             if (path.has_value())
             {
-                auto result = base::ImportIndexedPngFile(*path);
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
                 if (result == base::ImportIndexedPngResult::PngError)
                 {
                     ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
@@ -655,7 +680,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
             if (path.has_value())
             {
-                auto result = base::ImportIndexedPngFile(*path);
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
                 if (result == base::ImportIndexedPngResult::PngError)
                 {
                     ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
@@ -688,7 +713,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
             if (path.has_value())
             {
-                auto result = base::ImportIndexedPngFile(*path);
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
                 if (result == base::ImportIndexedPngResult::PngError)
                 {
                     ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
@@ -724,7 +749,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
             if (path.has_value())
             {
-                auto result = base::ImportIndexedPngFile(*path);
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
                 if (result == base::ImportIndexedPngResult::PngError)
                 {
                     ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
@@ -752,6 +777,34 @@ void ui::DatabasePanel::InitializePokemonTab()
                 UpdatePokemonImages();
             }
         });
+
+        auto smallPicFunc = [this] {
+            const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
+            if (path.has_value())
+            {
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Horizontal, k_tiles_4x2);
+                if (result == base::ImportIndexedPngResult::PngError)
+                {
+                    ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
+                    return;
+                }
+
+                const auto size = result.GetBitmap().GetSize();
+                if (!(size.x == 32 && size.y == 16))
+                {
+                    ShowErrorDialog(this, "알림", "이미지는 32x16으로 맞춰주세요.");
+                    return;
+                }
+
+                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                pokemon.SmallImages = result.Get2bppData();
+
+                m_pokegold.Rom().NotifyRomChanged();
+
+                UpdatePokemonImages();
+            } };
+        m_pokemonSmallPicture->ImportRequested().Subscribe(this, smallPicFunc);
+        m_pokemonEggSmallPicture->ImportRequested().Subscribe(this, smallPicFunc);
 
         auto color_1 = [this](const wxColour &newColor) {
             if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
@@ -867,6 +920,8 @@ void ui::DatabasePanel::InitializePokemonTab()
                     SetValueSpinCtrlDouble(m_pokemonStatsExpValue, e.BaseExp);
                     SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, e.CatchRate);
 
+                    m_pokemonSmallPictureColorComboBox->Select(e.SmallImagePaletteId);
+
                     m_pokemonDexSpeciesNameText->SetValue(e.DexCategoryName.ToEditorWxString());
                     SetValueSpinCtrlDouble(m_pokemonDexHeightValue, double(e.Height / 10.0));
                     SetValueSpinCtrlDouble(m_pokemonDexWeightValue, double(e.Weight / 10.0));
@@ -893,6 +948,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     ClearPokemonTab();
 
                     m_pokemonEggNameText->SetValue(e.Name.ToEditorWxString());
+                    m_pokemonEggSmallPictureColorComboBox->Select(e.SmallImagePaletteId);
                 }
             }
         });
@@ -927,6 +983,9 @@ void ui::DatabasePanel::ClearPokemonTab()
     SetValueSpinCtrlDouble(m_pokemonStatsSpdValue, 0);
     SetValueSpinCtrlDouble(m_pokemonStatsExpValue, 0);
     SetValueSpinCtrlDouble(m_pokemonStatsCatchRateValue, 0);
+
+    m_pokemonSmallPictureColorComboBox->Select(-1);
+    m_pokemonEggSmallPictureColorComboBox->Select(-1);
 
     m_pokemonDexSpeciesNameText->SetValue(wxT(""));
     SetValueSpinCtrlDouble(m_pokemonDexHeightValue, 0);
@@ -965,12 +1024,18 @@ void ui::DatabasePanel::UpdatePokemonImages()
             m_pokemonShinyColor_1->SetColor(*wxWHITE);
             m_pokemonShinyColor_2->SetColor(*wxWHITE);
 
+            m_pokemonFootprintImage->Clear();
+
+            m_pokemonSmallPicture->Clear();
+
             m_pokemonEggImage->Clear();
 
             m_pokemonEggColor_1->SetColor(*wxWHITE);
             m_pokemonEggColor_2->SetColor(*wxWHITE);
             m_pokemonEggShinyColor_1->SetColor(*wxWHITE);
             m_pokemonEggShinyColor_2->SetColor(*wxWHITE);
+
+            m_pokemonEggSmallPicture->Clear();
         }
         else
         {
@@ -988,12 +1053,19 @@ void ui::DatabasePanel::UpdatePokemonImages()
                 m_pokemonShinyColor_1->SetColor(pokemon.ShinyColors[0].ToWxColor());
                 m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
 
+                // TODO: ...
+                m_pokemonFootprintImage->Clear();
+
+                m_pokemonSmallPicture->Set2bppData(pokegold::ImageDimensions::Size_32x16, pokemon.SmallImages, m_pokegold.Data().NpcColors().Morning[pokemon.SmallImagePaletteId]);
+
                 m_pokemonEggImage->Clear();
 
                 m_pokemonEggColor_1->SetColor(*wxWHITE);
                 m_pokemonEggColor_2->SetColor(*wxWHITE);
                 m_pokemonEggShinyColor_1->SetColor(*wxWHITE);
                 m_pokemonEggShinyColor_2->SetColor(*wxWHITE);
+
+                m_pokemonEggSmallPicture->Clear();
             }
             else if (pokemon.Type == pokegold::PokemonType::Egg)
             {
@@ -1007,7 +1079,12 @@ void ui::DatabasePanel::UpdatePokemonImages()
                 m_pokemonShinyColor_1->SetColor(*wxWHITE);
                 m_pokemonShinyColor_2->SetColor(*wxWHITE);
 
+                m_pokemonFootprintImage->Clear();
+
+                m_pokemonSmallPicture->Clear();
+
                 m_pokemonEggImage->Set2bppData(pokegold::ImageDimensions::Size_40x40, pokemon.FrontImage, pokemon.Colors);
+                m_pokemonEggSmallPicture->Set2bppData(pokegold::ImageDimensions::Size_32x16, pokemon.SmallImages, m_pokegold.Data().NpcColors().Morning[pokemon.SmallImagePaletteId]);
 
                 m_pokemonEggColor_1->SetColor(pokemon.Colors[0].ToWxColor());
                 m_pokemonEggColor_2->SetColor(pokemon.Colors[1].ToWxColor());

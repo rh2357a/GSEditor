@@ -6,6 +6,7 @@
 #include <wx/colour.h>
 
 #include <filesystem>
+#include <optional>
 #include <span>
 #include <vector>
 
@@ -16,6 +17,12 @@ namespace base
         EncodeError,
         WriteFailure,
         Successful,
+    };
+
+    enum class ImportIndexedPngTileOrientation
+    {
+        Horizontal,
+        Vertical,
     };
 
     class ImportIndexedPngResult
@@ -58,13 +65,21 @@ namespace base
      * @param palette 팔레트 (색상 정보)
      * @return 결과
      */
-    WriteIndexedPngResult WriteIndexedPngFile(const std::filesystem::path &path, const wxBitmap &bitmap, std::span<const wxColour> palette);
+    WriteIndexedPngResult WriteIndexedPngFile(
+        const std::filesystem::path &path,
+        const wxBitmap &bitmap,
+        std::span<const wxColour> palette);
 
     /**
      * @brief 팔레트 형식의 png를 로딩
      *
      * @param path png 파일 경로
+     * @param tileOrientation 타일 배치 방향
+     * @param tiles 타일 배치 (옵션)
      * @return 결과
      */
-    ImportIndexedPngResult ImportIndexedPngFile(const std::filesystem::path &path);
+    ImportIndexedPngResult ImportIndexedPngFile(
+        const std::filesystem::path &path,
+        const ImportIndexedPngTileOrientation &tileOrientation = ImportIndexedPngTileOrientation::Horizontal,
+        std::optional<std::span<const u8>> tiles = std::nullopt);
 }

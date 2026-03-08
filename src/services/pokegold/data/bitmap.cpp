@@ -87,7 +87,7 @@ wxBitmap pokegold::BitmapBuilder::Build_2bpp(int rows, int columns, std::span<co
     {
         for (int column = 0; column < columns; column++)
         {
-            const auto &tile = tiles[(rows * column) + row];
+            const auto &tile = tiles[(columns * row) + column];
 
             int dataIndex = tile.TileId * 16;
             for (int y = 0; y < 8; y++)

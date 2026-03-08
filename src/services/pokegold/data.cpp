@@ -8,6 +8,39 @@ pokegold::Data::Data(std::filesystem::path romFilePath)
         m_romBytes = base::ReadBytesFromFile(romFilePath);
 }
 
+pokegold::Data &pokegold::Data::operator=(const Data &newData)
+{
+    m_romBytes = newData.m_romBytes;
+
+    m_items = newData.m_items;
+    m_moves = newData.m_moves;
+    m_pokemons = newData.m_pokemons;
+    m_unownImages = newData.m_unownImages;
+    m_trainerGroups = newData.m_trainerGroups;
+    m_types = newData.m_types;
+    m_tmhms = newData.m_tmhms;
+
+    m_npcColors = newData.m_npcColors;
+    m_legacyPokemonSmallPictures = newData.m_legacyPokemonSmallPictures;
+
+    m_badDataList = newData.m_badDataList;
+
+    UnownImageEnabled = newData.UnownImageEnabled;
+    UnownPokemonId = newData.UnownPokemonId;
+
+    // 변동 사항 전체 통지
+    {
+        m_pokemonNameUpdated(-1);
+        m_itemNameUpdated(-1);
+        m_moveNameUpdated(-1);
+        m_typeNameUpdated(-1);
+        m_tmhmsUpdated();
+        m_trainerGroupUpdated(-1);
+    }
+
+    return *this;
+};
+
 bool pokegold::Data::MatchBytes(size_t offset, const std::vector<u8> &findBytes)
 {
     if (offset + findBytes.size() > m_romBytes.size())
@@ -77,29 +110,4 @@ void pokegold::Data::FillBytes(u8 byte, size_t offset, size_t length)
 
     for (size_t i = 0; i < length; i++)
         m_romBytes[offset + i] = byte;
-}
-
-void pokegold::Data::AssignFrom(const Data &newData)
-{
-    this->m_romBytes = newData.m_romBytes;
-
-    this->m_items = newData.m_items;
-    this->m_moves = newData.m_moves;
-    this->m_pokemons = newData.m_pokemons;
-    this->m_unownImages = newData.m_unownImages;
-    this->m_trainerGroups = newData.m_trainerGroups;
-    this->m_types = newData.m_types;
-    this->m_tmhms = newData.m_tmhms;
-
-    this->m_badDataList = newData.m_badDataList;
-
-    // 변동 사항 전체 통지
-    {
-        m_pokemonNameUpdated(-1);
-        m_itemNameUpdated(-1);
-        m_moveNameUpdated(-1);
-        m_typeNameUpdated(-1);
-        m_tmhmsUpdated();
-        m_trainerGroupUpdated(-1);
-    }
 }

@@ -47,6 +47,7 @@ bool pokegold::Rom::Open(const std::filesystem::path &romFilePath)
         [this](Data &data) { return Open_ReadPokemons(data); },
         [this](Data &data) { return Open_ReadTrainerGroups(data); },
         [this](Data &data) { return Open_ReadTypes(data); },
+        [this](Data &data) { return Open_ReadMaps(data); },
     };
 
     Data data(romFilePath);
@@ -57,7 +58,7 @@ bool pokegold::Rom::Open(const std::filesystem::path &romFilePath)
             return false;
     }
 
-    m_data.AssignFrom(data);
+    m_data = data;
 
     base::Log(TAG, "finish open.");
     m_romFilePathState.Update(romFilePath);
@@ -263,20 +264,6 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         data.SetBytes(0x53b3f, {0x1a, 0x15, 0x33, 0x16, 0x4b, 0x17, 0x62, 0x18,
                                 0x79, 0x19, 0x90, 0x1a, 0xa8, 0x1b, 0xc4, 0x1c,
                                 0xe0, 0x1d, 0xf6, 0x1e, 0xff, 0x1f, 0xff, 0x20});
-    }
-
-    const bool isHackedExtendedSmallPics = data.MatchBytes(0x14348, {0xc3, 0xc2, 0x7a}) || data.MatchBytes(0x14334, {0xc3});
-    if (!isHackedExtendedSmallPics)
-    {
-        // 기본 스프라이트 주입 시키기
-        const auto &picsData = embed::GetPokegoldDefaultSmallPicturesData();
-        data.SetBytes(0x1f0000, picsData);
-
-        const auto &picsPalData = embed::GetPokegoldDefaultSmallPicturesPaletteData();
-        data.SetBytes(0x017ace, picsPalData);
-
-        const auto &picsAttr = embed::GetPokegoldDefaultSmallPicturesAttributes();
-        data.SetBytes(0x08e96d, picsAttr);
     }
 
     const bool isHackedUnownIds = data.MatchBytes(0x1fc7d6, {0xfd, 0xff});
@@ -493,6 +480,52 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         }
     }
 
+    for (size_t i = 0, max = 38; i < max; i++)
+    {
+        if (m_openProgressState.HandlePausedOrCanceled())
+            return false;
+
+        m_openProgressState.UpdateMessage(std::format("포켓몬 (구버전 오버월드 이미지: {}/{})", i + 1, max));
+        m_openProgressState.Increase();
+
+        auto newData = data.GetBytes(0x8eab6 + (i * 0x80), 0x40);
+        data.LegacyPokemonSmallPictures()[i][0] = std::vector<u8>(newData.begin(), newData.end());
+
+        newData = data.GetBytes(0x8eab6 + (i * 0x80) + 0x40, 0x40);
+        data.LegacyPokemonSmallPictures()[i][1] = std::vector<u8>(newData.begin(), newData.end());
+    }
+
+    const bool isHackedExtendedSmallPics = data.MatchBytes(0x14348, {0xc3, 0xc2, 0x7a}) || data.MatchBytes(0x14334, {0xc3});
+    if (!isHackedExtendedSmallPics)
+    {
+        // 기본 스프라이트 주입 시키기
+        // const auto &picsData = embed::GetPokegoldDefaultSmallPicturesData();
+        // data.SetBytes(0x1f0000, picsData);
+        for (size_t i = 0; i < 256; i++)
+        {
+            auto &pokemon = data.Pokemons()[i];
+
+            if (pokemon.Type == PokemonType::Pokemon)
+            {
+                u8 picId = data.GetByte(0x8e96d + i) - 1;
+                data.SetBytes(0x1f0000 + (i * 0x80), data.LegacyPokemonSmallPictures()[picId][0]);
+                data.SetBytes(0x1f0000 + (i * 0x80) + 0x40, data.LegacyPokemonSmallPictures()[picId][1]);
+            }
+            else if (pokemon.Type == PokemonType::Egg)
+            {
+                u8 picId = data.GetByte(0x8e96b) - 1;
+                data.SetBytes(0x1f0000 + (i * 0x80), data.LegacyPokemonSmallPictures()[picId][0]);
+                data.SetBytes(0x1f0000 + (i * 0x80) + 0x40, data.LegacyPokemonSmallPictures()[picId][1]);
+            }
+        }
+
+        const auto &picsPalData = embed::GetPokegoldDefaultSmallPicturesPaletteData();
+        data.SetBytes(0x017ace, picsPalData);
+
+        const auto &picsAttr = embed::GetPokegoldDefaultSmallPicturesAttributes();
+        data.SetBytes(0x08e96d, picsAttr);
+    }
+
     base::Log(TAG, "read pokemon (image & color)");
     for (size_t i = 0; i < 256; i++)
     {
@@ -517,11 +550,8 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         {
             const auto offset = 0x1f0000 + (i * 0x80);
 
-            auto data1 = data.GetBytes(offset + 0, 0x40);
-            pokemon.SmallImages[0] = std::vector<u8>(data1.begin(), data1.end());
-
-            auto data2 = data.GetBytes(offset + 0x40, 0x40);
-            pokemon.SmallImages[1] = std::vector<u8>(data2.begin(), data2.end());
+            auto bytes = data.GetBytes(offset + 0, 0x80);
+            pokemon.SmallImages = std::vector<u8>(bytes.begin(), bytes.end());
 
             pokemon.SmallImagePaletteId = data.GetByte(0x17ace + i);
         }
@@ -865,6 +895,31 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             newModifier.MoveId = moveId;
             newModifier.TypeEffectiveness = TypeEffectiveness(effectiveness);
             data.Moves()[moveId].WeatherModifiers.push_back(newModifier);
+        }
+    }
+
+    return !m_openProgressState.HandlePausedOrCanceled();
+}
+
+bool pokegold::Rom::Open_ReadMaps(Data &data)
+{
+    base::Log(TAG, "read npc colors");
+    for (size_t i = 0, max = 4; i < max; i++)
+    {
+        if (m_openProgressState.HandlePausedOrCanceled())
+            return false;
+
+        m_openProgressState.UpdateMessage(std::format("맵 (오브젝트 색상: {}/{})", i + 1, max));
+        m_openProgressState.Increase();
+
+        size_t offset = 0xb87e + (i * 64);
+        for (auto &npcColor : data.NpcColors()[i])
+        {
+            for (size_t j = 0; j < 4; j++)
+            {
+                npcColor[j] = data.GetBytes(offset, 2);
+                offset += 2;
+            }
         }
     }
 

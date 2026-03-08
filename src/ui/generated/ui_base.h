@@ -189,8 +189,9 @@ class DatabasePanelBase : public wxPanel
 		ui::ColorPickerPanel* m_pokemonColor_2;
 		ui::ColorPickerPanel* m_pokemonShinyColor_1;
 		ui::ColorPickerPanel* m_pokemonShinyColor_2;
-		ui::ImageEditorPanel* m_pokemonFootprintPanel;
-		ui::ImageEditorPanel* m_pokemonSmallPicturePanel;
+		ui::ImageEditorPanel* m_pokemonFootprintImage;
+		ui::ImageEditorPanel* m_pokemonSmallPicture;
+		wxComboBox* m_pokemonSmallPictureColorComboBox;
 		wxTextCtrl* m_pokemonDexSpeciesNameText;
 		wxSpinCtrlDouble* m_pokemonDexHeightValue;
 		wxSpinCtrlDouble* m_pokemonDexWeightValue;
@@ -222,6 +223,8 @@ class DatabasePanelBase : public wxPanel
 		ui::ColorPickerPanel* m_pokemonEggColor_2;
 		ui::ColorPickerPanel* m_pokemonEggShinyColor_1;
 		ui::ColorPickerPanel* m_pokemonEggShinyColor_2;
+		ui::ImageEditorPanel* m_pokemonEggSmallPicture;
+		wxComboBox* m_pokemonEggSmallPictureColorComboBox;
 		wxComboBox* m_unownPokemonComboBox;
 		wxPanel* m_unownInnerPanel;
 		ui::ColoredListBox* m_unownList;

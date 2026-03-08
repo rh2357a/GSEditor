@@ -65,6 +65,8 @@ namespace pokegold
 
     enum class ImageDimensions : u8
     {
+        Size_16x16 = 0x22,
+        Size_32x16 = 0x42,
         Size_40x40 = 0x55,
         Size_48x48 = 0x66,
         Size_56x56 = 0x77,
@@ -76,8 +78,11 @@ namespace pokegold
             return ImageDimensions::Size_40x40;
         else if (size.x == 48 && size.y == 48)
             return ImageDimensions::Size_48x48;
-        else
-            return ImageDimensions::Size_56x56;
+        else if (size.x == 16 && size.y == 16)
+            return ImageDimensions::Size_16x16;
+        else if (size.x == 32 && size.y == 16)
+            return ImageDimensions::Size_32x16;
+        return ImageDimensions::Size_56x56;
     }
 
     enum class EggGroup : u8
@@ -107,6 +112,18 @@ namespace pokegold
         Trade = 3,
         LevelUpWithHappiness = 4,
         LevelUpWithStats = 5,
+    };
+
+    enum class NpcColorIndex : u8
+    {
+        Red = 0,
+        Blue,
+        Green,
+        Brown,
+        Pink,
+        Gray,
+        Tree,
+        Rock,
     };
 
     enum class BadDataReason
@@ -275,7 +292,7 @@ namespace pokegold
         std::array<Color, 2> ShinyColors;
 
         u8 SmallImagePaletteId;
-        std::array<std::vector<u8>, 2> SmallImages;
+        std::vector<u8> SmallImages;
         std::vector<u8> FootprintImage;
     };
 
@@ -303,6 +320,51 @@ namespace pokegold
     public:
         std::vector<TypeMatchup> TypeMatchups;
         std::vector<WeatherTypeModifier> WeatherModifiers;
+    };
+
+    class NpcColor
+    {
+    private:
+        std::array<std::array<Color, 4>, 8> m_colors;
+
+    public:
+        std::array<Color, 4> &operator[](size_t idx)
+        {
+            return m_colors[idx];
+        }
+
+        std::array<Color, 4> &operator[](const NpcColorIndex &idx)
+        {
+            u8 index = u8(idx);
+            return m_colors[index];
+        }
+
+        auto begin() { return m_colors.begin(); }
+        auto end() { return m_colors.end(); }
+    };
+
+    class NpcColors
+    {
+    private:
+        std::array<NpcColor, 4> m_colors;
+
+    public:
+        NpcColor &Morning = m_colors[0];
+        NpcColor &Day = m_colors[1];
+        NpcColor &Night = m_colors[2];
+        NpcColor &Dark = m_colors[3];
+
+    public:
+        NpcColors &operator=(const NpcColors &npcColor)
+        {
+            m_colors = npcColor.m_colors;
+            return *this;
+        }
+
+    public:
+        NpcColor &operator[](size_t idx) { return m_colors[idx]; }
+        auto begin() { return m_colors.begin(); }
+        auto end() { return m_colors.end(); }
     };
 
     class BadData

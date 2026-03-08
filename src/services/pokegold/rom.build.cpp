@@ -90,6 +90,7 @@ std::optional<std::filesystem::path> pokegold::Rom::Build()
         [this](auto &data) { return Build_ItemSources(data); },
         [this](auto &data) { return Build_TrainerGroupSources(data); },
         [this](auto &data) { return Build_TypeSources(data); },
+        [this](auto &data) { return Build_MapsSources(data); },
         [this](auto &data) { return Build_HackSources(data); },
         [this](auto &data) { return Build_Assemble(data); },
     };
@@ -189,13 +190,6 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
             for (size_t current = 0, max = k_typeNameFreeSpaces.size(); current < max; current++)
             {
                 const auto &freeSpace = k_typeNameFreeSpaces[current];
-
-                if (m_buildProgressState.HandlePausedOrCanceled())
-                    return false;
-
-                m_buildProgressState.UpdateMessage(std::format("롬 정리 소스 작성 (타입 이름: {}/{})", current + 1, max));
-                m_buildProgressState.Increase();
-
                 srcStream << GetAsmSection(freeSpace.From, "GSEditor_Cleanup_TypeNameFreeSpace_0x{:x}", freeSpace.From)
                           << GetAsmLine("ds {}", freeSpace.To - freeSpace.From + 1);
             }
@@ -203,13 +197,6 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
             for (size_t current = 0, max = k_imageFreeSpaces.size(); current < max; current++)
             {
                 const auto &freeSpace = k_imageFreeSpaces[current];
-
-                if (m_buildProgressState.HandlePausedOrCanceled())
-                    return false;
-
-                m_buildProgressState.UpdateMessage(std::format("롬 정리 소스 작성 (이미지: {}/{})", current + 1, max));
-                m_buildProgressState.Increase();
-
                 srcStream << GetAsmSection(freeSpace.From, "GSEditor_Cleanup_ImageFreeSpace_0x{:x}", freeSpace.From)
                           << GetAsmLine("ds {}", freeSpace.To - freeSpace.From + 1);
             }
@@ -799,8 +786,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.Increase();
 
                 const auto &e = m_data.Pokemons()[i];
-                srcStream << GetAsmBytes(e.SmallImages[0])
-                          << GetAsmBytes(e.SmallImages[1]);
+                srcStream << GetAsmBytes(e.SmallImages);
             }
 
             srcStream << GetAsmSection(0x1f4000, "GSEditor_Pokemon_SmallPictures_1");
@@ -813,8 +799,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.Increase();
 
                 const auto &e = m_data.Pokemons()[i + 128];
-                srcStream << GetAsmBytes(e.SmallImages[0])
-                          << GetAsmBytes(e.SmallImages[1]);
+                srcStream << GetAsmBytes(e.SmallImages);
             }
 
             srcStream << GetAsmSection(0x17ace, "GSEditor_Pokemon_SmallPicturesPaletteIds");
@@ -1068,6 +1053,29 @@ bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
                 m_buildProgressState.Increase();
 
                 srcStream << GetAsmLine("dw GSEditor_Type_Name_{}", i);
+            }
+        }
+    }
+
+    return !m_buildProgressState.HandlePausedOrCanceled();
+}
+
+bool pokegold::Rom::Build_MapsSources(internal::RomBuildData &data)
+{
+    constexpr auto filename = "GSEditor.Maps.asm";
+    std::ofstream srcStream(*m_workspacePathState / filename);
+    data.GetSourceStream() << GetAsmInclude(filename);
+
+    base::Log(TAG, "write map (npc colors)");
+    {
+        srcStream << GetAsmSection(0xb87e, "GSEditor_Maps_NpcColors");
+
+        for (auto &npcColor : m_data.NpcColors())
+        {
+            for (auto &colors : npcColor)
+            {
+                for (auto &color : colors)
+                    srcStream << GetAsmBytes({color.GetLoByte(), color.GetHiByte()});
             }
         }
     }

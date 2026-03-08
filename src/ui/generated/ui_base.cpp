@@ -782,29 +782,61 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 	pokemonPokemonTypeSizer->Add( pokemonImage2LabelSizer, 0, wxEXPAND, 5 );
 
-	wxFlexGridSizer* pokemonImage2Grid;
-	pokemonImage2Grid = new wxFlexGridSizer( 2, 2, 4, 4 );
-	pokemonImage2Grid->SetFlexibleDirection( wxBOTH );
-	pokemonImage2Grid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	wxBoxSizer* pokemonImage2Sizer;
+	pokemonImage2Sizer = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticText* pokemonFootprintLabel;
-	pokemonFootprintLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("발자국："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonFootprintLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("발자국"), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonFootprintLabel->Wrap( -1 );
-	pokemonImage2Grid->Add( pokemonFootprintLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	pokemonImage2Sizer->Add( pokemonFootprintLabel, 0, wxALL, 8 );
 
-	m_pokemonFootprintPanel = new ui::ImageEditorPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( 32,32 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
-	pokemonImage2Grid->Add( m_pokemonFootprintPanel, 1, wxEXPAND, 5 );
+	m_pokemonFootprintImage = new ui::ImageEditorPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( 32,32 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonImage2Sizer->Add( m_pokemonFootprintImage, 0, wxBOTTOM|wxLEFT, 8 );
+
+
+	pokemonImage2Sizer->Add( 0, 8, 0, 0, 5 );
 
 	wxStaticText* pokemonSmallPictureLabel;
-	pokemonSmallPictureLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("스몰 스프라이트："), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonSmallPictureLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("스몰 스프라이트 (색상은 맵에서만 적용됩니다)"), wxDefaultPosition, wxDefaultSize, 0 );
 	pokemonSmallPictureLabel->Wrap( -1 );
-	pokemonImage2Grid->Add( pokemonSmallPictureLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	pokemonImage2Sizer->Add( pokemonSmallPictureLabel, 0, wxALL, 8 );
 
-	m_pokemonSmallPicturePanel = new ui::ImageEditorPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( 32,32 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
-	pokemonImage2Grid->Add( m_pokemonSmallPicturePanel, 1, wxEXPAND, 5 );
+	wxFlexGridSizer* pokemonSmallPictureGrid;
+	pokemonSmallPictureGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	pokemonSmallPictureGrid->SetFlexibleDirection( wxBOTH );
+	pokemonSmallPictureGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxStaticText* pokemonSmallPictureLabel2;
+	pokemonSmallPictureLabel2 = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("이미지： "), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonSmallPictureLabel2->Wrap( -1 );
+	pokemonSmallPictureGrid->Add( pokemonSmallPictureLabel2, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxLEFT, 8 );
+
+	m_pokemonSmallPicture = new ui::ImageEditorPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxSize( 56,32 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonSmallPictureGrid->Add( m_pokemonSmallPicture, 0, wxLEFT, 8 );
+
+	wxStaticText* pokemonSmallPictureColorLabel;
+	pokemonSmallPictureColorLabel = new wxStaticText( pokemonPokemonType, wxID_ANY, wxT("색상： "), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonSmallPictureColorLabel->Wrap( -1 );
+	pokemonSmallPictureGrid->Add( pokemonSmallPictureColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 8 );
+
+	m_pokemonSmallPictureColorComboBox = new wxComboBox( pokemonPokemonType, wxID_ANY, wxT("파란색"), wxDefaultPosition, wxSize( 120,-1 ), 0, NULL, wxCB_READONLY );
+	m_pokemonSmallPictureColorComboBox->Append( wxT("빨간색") );
+	m_pokemonSmallPictureColorComboBox->Append( wxT("파란색") );
+	m_pokemonSmallPictureColorComboBox->Append( wxT("초록색") );
+	m_pokemonSmallPictureColorComboBox->Append( wxT("갈색") );
+	m_pokemonSmallPictureColorComboBox->Append( wxT("자홍색") );
+	m_pokemonSmallPictureColorComboBox->Append( wxT("회색") );
+	m_pokemonSmallPictureColorComboBox->SetSelection( 1 );
+	pokemonSmallPictureGrid->Add( m_pokemonSmallPictureColorComboBox, 0, wxALL, 8 );
 
 
-	pokemonPokemonTypeSizer->Add( pokemonImage2Grid, 0, wxALL|wxEXPAND, 5 );
+	pokemonImage2Sizer->Add( pokemonSmallPictureGrid, 0, 0, 5 );
+
+
+	pokemonImage2Sizer->Add( 0, 8, 0, 0, 0 );
+
+
+	pokemonPokemonTypeSizer->Add( pokemonImage2Sizer, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* pokemonDexLabelSizer;
 	pokemonDexLabelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -1245,7 +1277,56 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonEggImageCommonSizer->Add( pokemonEggColorSizer, 0, wxLEFT|wxRIGHT, 5 );
 
 
-	pokemonEggTypeSizer->Add( pokemonEggImageCommonSizer, 1, wxEXPAND, 5 );
+	pokemonEggTypeSizer->Add( pokemonEggImageCommonSizer, 0, wxEXPAND, 5 );
+
+
+	pokemonEggTypeSizer->Add( 0, 8, 0, 0, 0 );
+
+	wxBoxSizer* pokemonEggImage2LabelSizer;
+	pokemonEggImage2LabelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* pokemonEggImage2Label;
+	pokemonEggImage2Label = new wxStaticText( pokemonEggType, wxID_ANY, wxT("스몰 스프라이트 (색상은 맵에서만 적용됩니다)"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEggImage2Label->Wrap( -1 );
+	pokemonEggImage2LabelSizer->Add( pokemonEggImage2Label, 0, wxALL, 5 );
+
+	wxStaticLine* pokemonEggImage2LabelSeparator;
+	pokemonEggImage2LabelSeparator = new wxStaticLine( pokemonEggType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	pokemonEggImage2LabelSizer->Add( pokemonEggImage2LabelSeparator, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	pokemonEggTypeSizer->Add( pokemonEggImage2LabelSizer, 0, wxEXPAND, 5 );
+
+	wxFlexGridSizer* pokemonEggSmallPictureGrid;
+	pokemonEggSmallPictureGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	pokemonEggSmallPictureGrid->SetFlexibleDirection( wxBOTH );
+	pokemonEggSmallPictureGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxStaticText* pokemonEggSmallPictureLabel2;
+	pokemonEggSmallPictureLabel2 = new wxStaticText( pokemonEggType, wxID_ANY, wxT("이미지： "), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEggSmallPictureLabel2->Wrap( -1 );
+	pokemonEggSmallPictureGrid->Add( pokemonEggSmallPictureLabel2, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxLEFT, 8 );
+
+	m_pokemonEggSmallPicture = new ui::ImageEditorPanel( pokemonEggType, wxID_ANY, wxDefaultPosition, wxSize( 56,32 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	pokemonEggSmallPictureGrid->Add( m_pokemonEggSmallPicture, 0, wxLEFT, 8 );
+
+	wxStaticText* pokemonEggSmallPictureColorLabel;
+	pokemonEggSmallPictureColorLabel = new wxStaticText( pokemonEggType, wxID_ANY, wxT("색상： "), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEggSmallPictureColorLabel->Wrap( -1 );
+	pokemonEggSmallPictureGrid->Add( pokemonEggSmallPictureColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 8 );
+
+	m_pokemonEggSmallPictureColorComboBox = new wxComboBox( pokemonEggType, wxID_ANY, wxT("파란색"), wxDefaultPosition, wxSize( 120,-1 ), 0, NULL, wxCB_READONLY );
+	m_pokemonEggSmallPictureColorComboBox->Append( wxT("빨간색") );
+	m_pokemonEggSmallPictureColorComboBox->Append( wxT("파란색") );
+	m_pokemonEggSmallPictureColorComboBox->Append( wxT("초록색") );
+	m_pokemonEggSmallPictureColorComboBox->Append( wxT("갈색") );
+	m_pokemonEggSmallPictureColorComboBox->Append( wxT("자홍색") );
+	m_pokemonEggSmallPictureColorComboBox->Append( wxT("회색") );
+	m_pokemonEggSmallPictureColorComboBox->SetSelection( 1 );
+	pokemonEggSmallPictureGrid->Add( m_pokemonEggSmallPictureColorComboBox, 0, wxALL, 8 );
+
+
+	pokemonEggTypeSizer->Add( pokemonEggSmallPictureGrid, 0, 0, 5 );
 
 
 	pokemonEggType->SetSizer( pokemonEggTypeSizer );

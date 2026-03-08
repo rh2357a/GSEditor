@@ -104,7 +104,7 @@ base::WriteIndexedPngResult base::WriteIndexedPngFile(const std::filesystem::pat
     return WriteIndexedPngResult::Successful;
 }
 
-base::ImportIndexedPngResult base::ImportIndexedPngFile(const std::filesystem::path &path)
+base::ImportIndexedPngResult base::ImportIndexedPngFile(const std::filesystem::path &path, const ImportIndexedPngTileOrientation &tileOrientation, std::optional<std::span<const u8>> tiles)
 {
     const auto pngBytes = base::ReadBytesFromFile(path);
 
@@ -161,12 +161,24 @@ base::ImportIndexedPngResult base::ImportIndexedPngFile(const std::filesystem::p
     {
         for (int column = 0; column < columns; column++)
         {
-            int index = row + (column * rows);
+            u8 index;
+            if (tileOrientation == ImportIndexedPngTileOrientation::Horizontal)
+            {
+                index = column + (row * columns);
+                if (tiles.has_value() && index < (*tiles).size())
+                    index = (*tiles)[index];
+            }
+            else
+            {
+                index = row + (column * rows);
+                if (tiles.has_value() && index < (*tiles).size())
+                    index = (*tiles)[index];
+            }
 
             for (int y = 0; y < 8; y++)
             {
-                int idx1bpp = (index * 16) + y;
-                int idx2bpp = (index * 16) + (y * 2);
+                u32 idx1bpp = (index * 16) + y;
+                u32 idx2bpp = (index * 16) + (y * 2);
 
                 for (int x = 0; x < 8; x++)
                 {
@@ -174,21 +186,24 @@ base::ImportIndexedPngResult base::ImportIndexedPngFile(const std::filesystem::p
                     wxColour color(indexData[idx], indexData[idx + 1], indexData[idx + 2]);
                     u8 paletteIdx = paletteMap[color];
 
-                    auto &hi = data2bpp[idx2bpp];
-                    auto &lo = data2bpp[idx2bpp + 1];
+                    if (idx2bpp + 1 < data2bpp.size())
+                    {
+                        auto &hi = data2bpp[idx2bpp];
+                        auto &lo = data2bpp[idx2bpp + 1];
 
-                    if (paletteIdx == 1)
-                    {
-                        hi |= k_reverseBits[x];
-                    }
-                    else if (paletteIdx == 2)
-                    {
-                        lo |= k_reverseBits[x];
-                    }
-                    else if (paletteIdx == 3)
-                    {
-                        hi |= k_reverseBits[x];
-                        lo |= k_reverseBits[x];
+                        if (paletteIdx == 1)
+                        {
+                            hi |= k_reverseBits[x];
+                        }
+                        else if (paletteIdx == 2)
+                        {
+                            lo |= k_reverseBits[x];
+                        }
+                        else if (paletteIdx == 3)
+                        {
+                            hi |= k_reverseBits[x];
+                            lo |= k_reverseBits[x];
+                        }
                     }
                 }
             }
