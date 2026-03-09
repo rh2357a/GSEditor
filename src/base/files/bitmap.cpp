@@ -1,6 +1,8 @@
 #include "bitmap.h"
 
 #include "base/files/file_util.h"
+#include "base/files/paths.h"
+#include "base/strings/crypto.h"
 #include "base/types/types.h"
 
 #include <lodepng/lodepng.h>
@@ -8,6 +10,7 @@
 #include <wx/gdicmn.h>
 
 #include <array>
+#include <filesystem>
 #include <unordered_map>
 #include <vector>
 
@@ -38,7 +41,10 @@ namespace
 
 base::ImportIndexedPngResult base::ImportIndexedPngResult::PngError = {-1, {}, {}, {}, wxNullBitmap};
 
-base::WriteIndexedPngResult base::WriteIndexedPngFile(const std::filesystem::path &path, const wxBitmap &bitmap, std::span<const wxColour> palette)
+base::WriteIndexedPngResult base::WriteIndexedPngFile(
+    const std::filesystem::path &path,
+    const wxBitmap &bitmap,
+    std::span<const wxColour> palette)
 {
     std::unordered_map<wxColour, u8, wxColourHash> paletteMap;
     for (size_t i = 0; i < palette.size(); i++)
@@ -98,13 +104,20 @@ base::WriteIndexedPngResult base::WriteIndexedPngFile(const std::filesystem::pat
     if (lodepng::encode(png, indexData, width, height, state) != 0)
         return WriteIndexedPngResult::EncodeError;
 
-    if (lodepng::save_file(png, path.string()) != 0)
+    auto tempPath = base::CreateTempFilePath(path.string());
+    if (lodepng::save_file(png, tempPath.string()) != 0)
         return WriteIndexedPngResult::WriteFailure;
+
+    std::filesystem::copy_file(tempPath, path, std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::remove(tempPath);
 
     return WriteIndexedPngResult::Successful;
 }
 
-base::ImportIndexedPngResult base::ImportIndexedPngFile(const std::filesystem::path &path, const ImportIndexedPngTileOrientation &tileOrientation, std::optional<std::span<const u8>> tiles)
+base::ImportIndexedPngResult base::ImportIndexedPngFile(
+    const std::filesystem::path &path,
+    const ImportIndexedPngTileOrientation &tileOrientation,
+    std::optional<std::span<const u8>> tiles)
 {
     const auto pngBytes = base::ReadBytesFromFile(path);
 
