@@ -26,11 +26,11 @@ BUILD_TOOLS_DIR  := $(BUILD_TARGET_DIR)/tools
 ifeq ($(DEBUG),1)
 WXCCFLAGS  := --cflags --unicode --static --debug
 WXCXXFLAGS := --cxxflags --unicode --static --debug
-WXLDFLAGS  := --libs --unicode --static
+WXLDFLAGS  := --libs std,stc --unicode --static
 else
 WXCCFLAGS  := --cflags --unicode --static
 WXCXXFLAGS := --cxxflags --unicode --static
-WXLDFLAGS  := --libs --unicode --static
+WXLDFLAGS  := --libs std,stc --unicode --static
 endif
 
 WARNS     := -Wno-comment \
