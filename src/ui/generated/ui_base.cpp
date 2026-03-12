@@ -2921,10 +2921,9 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 
 	dialogSizer->Add( appInfoSizer, 0, wxALL|wxEXPAND, 5 );
 
-	wxNotebook* aboutContentTabs;
-	aboutContentTabs = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	m_aboutContentTabs = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	wxPanel* versionPanel;
-	versionPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	versionPanel = new wxPanel( m_aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* versionSizer;
 	versionSizer = new wxBoxSizer( wxVERTICAL );
 
@@ -2935,9 +2934,9 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 	versionPanel->SetSizer( versionSizer );
 	versionPanel->Layout();
 	versionSizer->Fit( versionPanel );
-	aboutContentTabs->AddPage( versionPanel, wxT("버전 기록"), true );
+	m_aboutContentTabs->AddPage( versionPanel, wxT("버전 기록"), true );
 	wxPanel* thirdPartyNoticesPanel;
-	thirdPartyNoticesPanel = new wxPanel( aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	thirdPartyNoticesPanel = new wxPanel( m_aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* thirdPartyNoticesSizer;
 	thirdPartyNoticesSizer = new wxBoxSizer( wxVERTICAL );
 
@@ -2961,9 +2960,59 @@ AboutDialogBase::AboutDialogBase( wxWindow* parent, wxWindowID id, const wxStrin
 	thirdPartyNoticesPanel->SetSizer( thirdPartyNoticesSizer );
 	thirdPartyNoticesPanel->Layout();
 	thirdPartyNoticesSizer->Fit( thirdPartyNoticesPanel );
-	aboutContentTabs->AddPage( thirdPartyNoticesPanel, wxT("3자 라이선스 고지"), false );
+	m_aboutContentTabs->AddPage( thirdPartyNoticesPanel, wxT("3자 라이선스 고지"), false );
+	wxPanel* testPanel;
+	testPanel = new wxPanel( m_aboutContentTabs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* testPanelSizer;
+	testPanelSizer = new wxBoxSizer( wxVERTICAL );
 
-	dialogSizer->Add( aboutContentTabs, 1, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 5 );
+	ui::ScriptTextCtrl* testScriptTextCtrl;
+	testScriptTextCtrl = new ui::ScriptTextCtrl( testPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxALWAYS_SHOW_SB, wxEmptyString );
+	testScriptTextCtrl->SetUseTabs( true );
+	testScriptTextCtrl->SetTabWidth( 4 );
+	testScriptTextCtrl->SetIndent( 4 );
+	testScriptTextCtrl->SetTabIndents( true );
+	testScriptTextCtrl->SetBackSpaceUnIndents( true );
+	testScriptTextCtrl->SetViewEOL( false );
+	testScriptTextCtrl->SetViewWhiteSpace( false );
+	testScriptTextCtrl->SetMarginWidth( 2, 0 );
+	testScriptTextCtrl->SetIndentationGuides( false );
+	testScriptTextCtrl->SetReadOnly( false );
+	testScriptTextCtrl->SetMarginWidth( 1, 0 );
+	testScriptTextCtrl->SetMarginType( 0, wxSTC_MARGIN_NUMBER );
+	testScriptTextCtrl->SetMarginWidth( 0, testScriptTextCtrl->TextWidth( wxSTC_STYLE_LINENUMBER, wxT("_99999") ) );
+	{
+		wxFont font = wxFont( 11, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") );
+		testScriptTextCtrl->StyleSetFont( wxSTC_STYLE_DEFAULT, font );
+	}
+	testScriptTextCtrl->MarkerDefine( wxSTC_MARKNUM_FOLDER, wxSTC_MARK_BOXPLUS );
+	testScriptTextCtrl->MarkerSetBackground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("BLACK") ) );
+	testScriptTextCtrl->MarkerSetForeground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("WHITE") ) );
+	testScriptTextCtrl->MarkerDefine( wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_BOXMINUS );
+	testScriptTextCtrl->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("BLACK") ) );
+	testScriptTextCtrl->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("WHITE") ) );
+	testScriptTextCtrl->MarkerDefine( wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY );
+	testScriptTextCtrl->MarkerDefine( wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_BOXPLUS );
+	testScriptTextCtrl->MarkerSetBackground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("BLACK") ) );
+	testScriptTextCtrl->MarkerSetForeground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("WHITE") ) );
+	testScriptTextCtrl->MarkerDefine( wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUS );
+	testScriptTextCtrl->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("BLACK") ) );
+	testScriptTextCtrl->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("WHITE") ) );
+	testScriptTextCtrl->MarkerDefine( wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY );
+	testScriptTextCtrl->MarkerDefine( wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY );
+	testScriptTextCtrl->SetSelBackground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHT ) );
+	testScriptTextCtrl->SetSelForeground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHTTEXT ) );
+	testScriptTextCtrl->SetFont( wxFont( 11, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas") ) );
+
+	testPanelSizer->Add( testScriptTextCtrl, 1, wxEXPAND | wxALL, 5 );
+
+
+	testPanel->SetSizer( testPanelSizer );
+	testPanel->Layout();
+	testPanelSizer->Fit( testPanel );
+	m_aboutContentTabs->AddPage( testPanel, wxT("테스트"), false );
+
+	dialogSizer->Add( m_aboutContentTabs, 1, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 5 );
 
 	wxPanel* bottomPanel;
 	bottomPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );

@@ -15,6 +15,7 @@ namespace ui{ class ColoredListBox; }
 namespace ui{ class ColoredListCtrl; }
 namespace ui{ class DatabasePanel; }
 namespace ui{ class ImageEditorPanel; }
+namespace ui{ class ScriptTextCtrl; }
 
 #include <wx/panel.h>
 #include <wx/gdicmn.h>
@@ -45,6 +46,7 @@ namespace ui{ class ImageEditorPanel; }
 #include <wx/notebook.h>
 #include <wx/statbmp.h>
 #include <wx/html/htmlwin.h>
+#include <wx/stc/stc.h>
 #include <wx/dialog.h>
 #include <wx/radiobut.h>
 #include <wx/checkbox.h>
@@ -317,6 +319,7 @@ class AboutDialogBase : public wxDialog
 	protected:
 		wxStaticText* m_authorText;
 		wxStaticText* m_versionText;
+		wxNotebook* m_aboutContentTabs;
 		wxHtmlWindow* m_versionHtml;
 		wxTextCtrl* m_thirdPartyNoticesText;
 
