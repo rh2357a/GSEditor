@@ -19,6 +19,7 @@ namespace pokegold
 
         std::array<Item, 256> m_items;
         std::array<Move, 251> m_moves;
+        std::array<MoveEffect, 256> m_moveEffects;
         std::array<Pokemon, 256> m_pokemons;
         std::array<UnownImage, 26> m_unownImages;
         std::array<TrainerGroup, 67> m_trainerGroups;
@@ -67,6 +68,7 @@ namespace pokegold
 
         auto &Items() { return m_items; }
         auto &Moves() { return m_moves; }
+        auto &MoveEffects() { return m_moveEffects; }
         auto &Pokemons() { return m_pokemons; }
         auto &UnownImages() { return m_unownImages; }
         auto &TrainerGroups() { return m_trainerGroups; }

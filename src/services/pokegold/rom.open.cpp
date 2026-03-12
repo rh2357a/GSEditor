@@ -833,7 +833,7 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
         }
     }
 
-    base::Log(TAG, "read type (weather type modifiers)");
+    base::Log(TAG, "read type (type weather modifiers)");
     {
 
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -858,25 +858,24 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
                     e.WeatherModifiers.clear();
 
                 weatherTypeModifiersOffset = 0xfbe68;
-                data.SetBytes(0xfbe68, embed::GetPokegoldDefaultWeatherTypeModifiersData());
-                data.BadDataList().emplace_back(BadDataReason::WeatherTypeModifiers, nullptr);
+                data.SetBytes(0xfbe68, embed::GetPokegoldDefaultTypeWeatherModifiersData());
+                data.BadDataList().emplace_back(BadDataReason::TypeWeatherModifiers, nullptr);
                 continue;
             }
 
-            WeatherTypeModifier newModifier;
+            WeatherModifier newModifier;
             newModifier.Weather = BattleWeather(weather);
-            newModifier.TypeId = typeId;
             newModifier.TypeEffectiveness = TypeEffectiveness(effectiveness);
             data.Types()[typeId].WeatherModifiers.push_back(newModifier);
         }
     }
 
-    base::Log(TAG, "read type (weather move modifiers)");
+    base::Log(TAG, "read type (move effect weather modifiers)");
     {
         if (m_openProgressState.HandlePausedOrCanceled())
             return false;
 
-        m_openProgressState.UpdateMessage("타입 (날씨 보정 데이터 - 기술)");
+        m_openProgressState.UpdateMessage("타입 (날씨 보정 데이터 - 기술 효과)");
         m_openProgressState.Increase();
 
         while (true)
@@ -885,26 +884,25 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             if (weather == 0xff)
                 break;
 
-            const u8 moveId = data.GetByte(weatherMoveModifiersOffset++);
+            const u8 moveEffectId = data.GetByte(weatherMoveModifiersOffset++);
             const u8 effectiveness = data.GetByte(weatherMoveModifiersOffset++);
 
             // 손상 데이터 체크 및 기본값 사용
-            if (moveId >= data.Moves().size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
+            if (moveEffectId >= data.MoveEffects().size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
             {
-                for (auto &e : data.Moves())
+                for (auto &e : data.MoveEffects())
                     e.WeatherModifiers.clear();
 
                 weatherMoveModifiersOffset = 0xfbe75;
-                data.SetBytes(0xfbe75, embed::GetPokegoldDefaultWeatherMoveModifiersData());
-                data.BadDataList().emplace_back(BadDataReason::WeatherMoveModifiers, nullptr);
+                data.SetBytes(0xfbe75, embed::GetPokegoldDefaultMoveEffectWeatherModifiersData());
+                data.BadDataList().emplace_back(BadDataReason::MoveEffectWeatherModifiers, nullptr);
                 continue;
             }
 
-            WeatherMoveModifier newModifier;
+            WeatherModifier newModifier;
             newModifier.Weather = BattleWeather(weather);
-            newModifier.MoveId = moveId;
             newModifier.TypeEffectiveness = TypeEffectiveness(effectiveness);
-            data.Moves()[moveId].WeatherModifiers.push_back(newModifier);
+            data.MoveEffects()[moveEffectId].WeatherModifiers.push_back(newModifier);
         }
     }
 

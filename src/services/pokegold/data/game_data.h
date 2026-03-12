@@ -148,8 +148,8 @@ namespace pokegold
         TypeName,
 
         TypeMatchups,
-        WeatherTypeModifiers,
-        WeatherMoveModifiers,
+        TypeWeatherModifiers,
+        MoveEffectWeatherModifiers,
     };
 }
 
@@ -174,29 +174,22 @@ namespace pokegold
         }
     };
 
-    class WeatherTypeModifier
+    class WeatherModifier
     {
     public:
-        u8 TypeId;
         BattleWeather Weather;
         TypeEffectiveness TypeEffectiveness;
 
     public:
-        bool operator!=(const WeatherTypeModifier &rhs) const { return !(*this == rhs); }
-        bool operator==(const WeatherTypeModifier &rhs) const
+        bool operator!=(const WeatherModifier &rhs) const
         {
-            return TypeId == rhs.TypeId
-                   && Weather == rhs.Weather
-                   && TypeEffectiveness == rhs.TypeEffectiveness;
+            return !(*this == rhs);
         }
-    };
 
-    class WeatherMoveModifier
-    {
-    public:
-        u8 MoveId;
-        BattleWeather Weather;
-        TypeEffectiveness TypeEffectiveness;
+        bool operator==(const WeatherModifier &rhs) const
+        {
+            return Weather == rhs.Weather && TypeEffectiveness == rhs.TypeEffectiveness;
+        }
     };
 
     struct Item
@@ -223,10 +216,13 @@ namespace pokegold
         u8 PP;
         u8 EffectChance;
 
-        std::vector<WeatherMoveModifier> WeatherModifiers;
-
         String Name;
         String Description;
+    };
+
+    struct MoveEffect
+    {
+        std::vector<WeatherModifier> WeatherModifiers;
     };
 
     struct TMHM
@@ -312,14 +308,12 @@ namespace pokegold
         std::array<Color, 2> Colors;
     };
 
-    class Type
+    struct Type
     {
-    public:
         String Name;
 
-    public:
         std::vector<TypeMatchup> TypeMatchups;
-        std::vector<WeatherTypeModifier> WeatherModifiers;
+        std::vector<WeatherModifier> WeatherModifiers;
     };
 
     class NpcColor

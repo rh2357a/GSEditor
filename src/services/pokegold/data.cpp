@@ -14,6 +14,7 @@ pokegold::Data &pokegold::Data::operator=(const Data &newData)
 
     m_items = newData.m_items;
     m_moves = newData.m_moves;
+    m_moveEffects = newData.m_moveEffects;
     m_pokemons = newData.m_pokemons;
     m_unownImages = newData.m_unownImages;
     m_trainerGroups = newData.m_trainerGroups;

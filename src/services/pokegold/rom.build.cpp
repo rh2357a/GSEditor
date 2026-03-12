@@ -1170,28 +1170,31 @@ bool pokegold::Rom::Build_HackSources(internal::RomBuildData &data)
 
         // weather
         {
-            srcStream << GetAsmLine("GSEditor_WeatherTypeModifiers:");
-            for (const auto &e : m_data.Types())
+            srcStream << GetAsmLine("GSEditor_TypeWeatherModifiers:");
+            for (size_t i = 0; i < m_data.Types().size(); i++)
             {
+                const auto &e = m_data.Types()[i];
+
                 for (const auto &modifier : e.WeatherModifiers)
                 {
                     srcStream << GetAsmBytes({
                         u8(modifier.Weather),
-                        modifier.TypeId,
+                        u8(i),
                         u8(modifier.TypeEffectiveness),
                     });
                 }
             }
             srcStream << GetAsmBytes({0xff});
 
-            srcStream << GetAsmLine("GSEditor_WeatherMoveModifiers:");
-            for (const auto &e : m_data.Moves())
+            srcStream << GetAsmLine("GSEditor_MoveEffectWeatherModifiers:");
+            for (size_t i = 0; i < m_data.MoveEffects().size(); i++)
             {
+                const auto &e = m_data.MoveEffects()[i];
                 for (const auto &modifier : e.WeatherModifiers)
                 {
                     srcStream << GetAsmBytes({
                         u8(modifier.Weather),
-                        modifier.MoveId,
+                        u8(i),
                         u8(modifier.TypeEffectiveness),
                     });
                 }

@@ -152,7 +152,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
             }
             break;
 
-        case pokegold::BadDataReason::WeatherTypeModifiers:
+        case pokegold::BadDataReason::TypeWeatherModifiers:
             {
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxT("날씨에 의한 타입 위력 증가 데이터 손상"));
@@ -160,7 +160,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
             }
             break;
 
-        case pokegold::BadDataReason::WeatherMoveModifiers:
+        case pokegold::BadDataReason::MoveEffectWeatherModifiers:
             {
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxT("날씨에 의한 기술 위력 증가 데이터 손상"));

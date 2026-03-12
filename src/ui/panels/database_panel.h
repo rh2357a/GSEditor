@@ -28,7 +28,6 @@ namespace ui
 
         base::MutableState<int> m_selectedType = -1;
         base::MutableState<int> m_selectedTypeMatchup = -1;
-        base::MutableState<int> m_selectedTypeWeatherModifier = -1;
 
     public:
         DatabasePanel(wxWindow *parent,
@@ -76,6 +75,6 @@ namespace ui
         void InitializeTypeTab();
         void UpdateTypeMatchups();
         void OnTypeMatchupsButtonClick(wxCommandEvent &event) override;
-        void OnTypeWeatherModifiersButtonClick(wxCommandEvent &event) override;
+        void OnTypeWeatherModifierRadioBox(wxCommandEvent &event) override;
     };
 }

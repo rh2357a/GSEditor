@@ -3,8 +3,8 @@ GSEditor_BattleCommand_Stab:
     gse@homecall2 GSEditor_NewBattleCommand_Stab
     ret
     gse@fardw GSEditor_TypeMatchups
-    gse@fardw GSEditor_WeatherTypeModifiers
-    gse@fardw GSEditor_WeatherMoveModifiers
+    gse@fardw GSEditor_TypeWeatherModifiers
+    gse@fardw GSEditor_MoveEffectWeatherModifiers
 
 SECTION "GSEditor_CheckTypeMatchup", ROMX[$4923], BANK[$d]
 GSEditor_CheckTypeMatchup:
@@ -54,7 +54,7 @@ GSEditor_HackingData::
 
 
 GSEditor_NewDoWeatherModifiers::
-    ld de, GSEditor_WeatherTypeModifiers
+    ld de, GSEditor_TypeWeatherModifiers
     ld a, [$cbf0]
     ld b, a
     ld a, [$d20e]
@@ -80,7 +80,7 @@ GSEditor_NewDoWeatherModifiers::
     jr .check_weather_type
 
 .done_weather_types
-    ld de, GSEditor_WeatherMoveModifiers
+    ld de, GSEditor_MoveEffectWeatherModifiers
 
     ld a, $d
     call $3bd0

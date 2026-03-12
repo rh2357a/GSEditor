@@ -2556,35 +2556,29 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	typeWeatherModifierLabel->Wrap( -1 );
 	typeContainerSizer->Add( typeWeatherModifierLabel, 0, wxALL|wxEXPAND, 5 );
 
-	m_typeWeatherModifierList = new ui::ColoredListCtrl( m_typeContainer, wxID_ANY, wxDefaultPosition, wxSize( -1,160 ), wxLC_REPORT|wxLC_SINGLE_SEL );
-	typeContainerSizer->Add( m_typeWeatherModifierList, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 8 );
+	wxBoxSizer* typeWeatherModifierSizer;
+	typeWeatherModifierSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	wxBoxSizer* typeWeatherModifiersButtonsSizer;
-	typeWeatherModifiersButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
+	wxString m_typeWeatherModifierRainRadioBoxChoices[] = { wxT("없음"), wxT("위력 증가"), wxT("위력 하락") };
+	int m_typeWeatherModifierRainRadioBoxNChoices = sizeof( m_typeWeatherModifierRainRadioBoxChoices ) / sizeof( wxString );
+	m_typeWeatherModifierRainRadioBox = new wxRadioBox( m_typeContainer, wxID_ANY, wxT("비바라기"), wxDefaultPosition, wxDefaultSize, m_typeWeatherModifierRainRadioBoxNChoices, m_typeWeatherModifierRainRadioBoxChoices, 1, wxRA_SPECIFY_COLS );
+	m_typeWeatherModifierRainRadioBox->SetSelection( 0 );
+	typeWeatherModifierSizer->Add( m_typeWeatherModifierRainRadioBox, 0, wxALL, 4 );
 
-	m_typeWeatherModifiersAddButton = new wxButton( m_typeContainer, wxID_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_typeWeatherModifiersAddButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
+	wxString m_typeWeatherModifierSunRadioBoxChoices[] = { wxT("없음"), wxT("위력 증가"), wxT("위력 하락") };
+	int m_typeWeatherModifierSunRadioBoxNChoices = sizeof( m_typeWeatherModifierSunRadioBoxChoices ) / sizeof( wxString );
+	m_typeWeatherModifierSunRadioBox = new wxRadioBox( m_typeContainer, wxID_ANY, wxT("쾌청"), wxDefaultPosition, wxDefaultSize, m_typeWeatherModifierSunRadioBoxNChoices, m_typeWeatherModifierSunRadioBoxChoices, 1, wxRA_SPECIFY_COLS );
+	m_typeWeatherModifierSunRadioBox->SetSelection( 0 );
+	typeWeatherModifierSizer->Add( m_typeWeatherModifierSunRadioBox, 0, wxALL, 4 );
 
-	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersAddButton, 0, wxRIGHT, 5 );
-
-	m_typeWeatherModifiersEditButton = new wxButton( m_typeContainer, wxID_EDIT, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_typeWeatherModifiersEditButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
-
-	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersEditButton, 0, wxRIGHT, 5 );
-
-	m_typeWeatherModifiersRemoveButton = new wxButton( m_typeContainer, wxID_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_typeWeatherModifiersRemoveButton->SetForegroundColour( wxColour( 0, 0, 0 ) );
-
-	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersRemoveButton, 0, wxRIGHT, 5 );
-
-	m_typeWeatherModifiersClearButton = new wxButton( m_typeContainer, wxID_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_typeWeatherModifiersClearButton->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
-	m_typeWeatherModifiersClearButton->SetForegroundColour( wxColour( 255, 0, 0 ) );
-
-	typeWeatherModifiersButtonsSizer->Add( m_typeWeatherModifiersClearButton, 0, wxRIGHT, 5 );
+	wxString m_typeWeatherModifierSandstormRadioBoxChoices[] = { wxT("없음"), wxT("위력 증가"), wxT("위력 하락") };
+	int m_typeWeatherModifierSandstormRadioBoxNChoices = sizeof( m_typeWeatherModifierSandstormRadioBoxChoices ) / sizeof( wxString );
+	m_typeWeatherModifierSandstormRadioBox = new wxRadioBox( m_typeContainer, wxID_ANY, wxT("모래바람"), wxDefaultPosition, wxDefaultSize, m_typeWeatherModifierSandstormRadioBoxNChoices, m_typeWeatherModifierSandstormRadioBoxChoices, 1, wxRA_SPECIFY_COLS );
+	m_typeWeatherModifierSandstormRadioBox->SetSelection( 0 );
+	typeWeatherModifierSizer->Add( m_typeWeatherModifierSandstormRadioBox, 0, wxALL, 4 );
 
 
-	typeContainerSizer->Add( typeWeatherModifiersButtonsSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 8 );
+	typeContainerSizer->Add( typeWeatherModifierSizer, 0, wxALL|wxEXPAND, 4 );
 
 
 	typeContainerSizer->Add( 0, 8, 0, 0, 0 );
@@ -2631,10 +2625,9 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_typeMatchupsEditButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeMatchupsButtonClick ), NULL, this );
 	m_typeMatchupsRemoveButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeMatchupsButtonClick ), NULL, this );
 	m_typeMatchupsClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeMatchupsButtonClick ), NULL, this );
-	m_typeWeatherModifiersAddButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
-	m_typeWeatherModifiersEditButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
-	m_typeWeatherModifiersRemoveButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
-	m_typeWeatherModifiersClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifiersButtonClick ), NULL, this );
+	m_typeWeatherModifierRainRadioBox->Connect( wxEVT_COMMAND_RADIOBOX_SELECTED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifierRadioBox ), NULL, this );
+	m_typeWeatherModifierSunRadioBox->Connect( wxEVT_COMMAND_RADIOBOX_SELECTED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifierRadioBox ), NULL, this );
+	m_typeWeatherModifierSandstormRadioBox->Connect( wxEVT_COMMAND_RADIOBOX_SELECTED, wxCommandEventHandler( DatabasePanelBase::OnTypeWeatherModifierRadioBox ), NULL, this );
 }
 
 DatabasePanelBase::~DatabasePanelBase()
@@ -3139,94 +3132,6 @@ TypeMatchupEditorDialogBase::TypeMatchupEditorDialogBase( wxWindow* parent, wxWi
 }
 
 TypeMatchupEditorDialogBase::~TypeMatchupEditorDialogBase()
-{
-}
-
-TypeWeatherModifierEditorDialogBase::TypeWeatherModifierEditorDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
-{
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-
-	wxBoxSizer* dialogSizer;
-	dialogSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxPanel* contentPanel;
-	contentPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* contentPanelSizer;
-	contentPanelSizer = new wxBoxSizer( wxVERTICAL );
-
-	wxFlexGridSizer* contentGrid;
-	contentGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
-	contentGrid->AddGrowableCol( 1 );
-	contentGrid->SetFlexibleDirection( wxBOTH );
-	contentGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-	wxStaticText* weatherLabel;
-	weatherLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("날씨："), wxDefaultPosition, wxDefaultSize, 0 );
-	weatherLabel->Wrap( -1 );
-	contentGrid->Add( weatherLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_weatherComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	m_weatherComboBox->Append( wxT("비바라기") );
-	m_weatherComboBox->Append( wxT("모래바람") );
-	m_weatherComboBox->Append( wxT("쾌청") );
-	contentGrid->Add( m_weatherComboBox, 0, wxALL|wxEXPAND, 5 );
-
-	wxStaticText* effectivenessLabel;
-	effectivenessLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("보정 효과："), wxDefaultPosition, wxDefaultSize, 0 );
-	effectivenessLabel->Wrap( -1 );
-	contentGrid->Add( effectivenessLabel, 0, wxALL, 5 );
-
-	m_effectivenessComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	m_effectivenessComboBox->Append( wxT("위력을 증가") );
-	m_effectivenessComboBox->Append( wxT("위력을 낮춤") );
-	contentGrid->Add( m_effectivenessComboBox, 0, wxALL|wxEXPAND, 5 );
-
-
-	contentPanelSizer->Add( contentGrid, 0, wxEXPAND, 5 );
-
-	wxStaticLine* contentSeparator;
-	contentSeparator = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	contentPanelSizer->Add( contentSeparator, 0, wxEXPAND | wxALL, 5 );
-
-
-	contentPanel->SetSizer( contentPanelSizer );
-	contentPanel->Layout();
-	contentPanelSizer->Fit( contentPanel );
-	dialogSizer->Add( contentPanel, 1, wxEXPAND | wxALL, 5 );
-
-	wxPanel* buttonsPanel;
-	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* buttonsSizer;
-	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxButton* confirmButton;
-	confirmButton = new wxButton( buttonsPanel, wxID_OK, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
-
-	confirmButton->SetDefault();
-	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
-
-	wxButton* cancelButton;
-	cancelButton = new wxButton( buttonsPanel, wxID_CANCEL, wxT("취소"), wxDefaultPosition, wxDefaultSize, 0 );
-	buttonsSizer->Add( cancelButton, 0, wxALL, 5 );
-
-
-	buttonsPanel->SetSizer( buttonsSizer );
-	buttonsPanel->Layout();
-	buttonsSizer->Fit( buttonsPanel );
-	dialogSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
-
-
-	this->SetSizer( dialogSizer );
-	this->Layout();
-
-	this->Centre( wxBOTH );
-
-	// Connect Events
-	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TypeWeatherModifierEditorDialogBase::OnConfirmButtonClick ), NULL, this );
-	cancelButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TypeWeatherModifierEditorDialogBase::OnCancelButtonClick ), NULL, this );
-}
-
-TypeWeatherModifierEditorDialogBase::~TypeWeatherModifierEditorDialogBase()
 {
 }
 
