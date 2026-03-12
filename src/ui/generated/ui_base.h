@@ -15,6 +15,7 @@ namespace ui{ class ColoredListBox; }
 namespace ui{ class ColoredListCtrl; }
 namespace ui{ class DatabasePanel; }
 namespace ui{ class ImageEditorPanel; }
+namespace ui{ class LabeledSeparator; }
 namespace ui{ class ScriptTextCtrl; }
 
 #include <wx/panel.h>
@@ -231,7 +232,6 @@ class DatabasePanelBase : public wxPanel
 		wxPanel* m_unownInnerPanel;
 		ui::ColoredListBox* m_unownList;
 		wxPanel* m_unownContainer;
-		wxPanel* m_unownImagePanel;
 		ui::ImageEditorPanel* m_unownFrontImage;
 		ui::ImageEditorPanel* m_unownBackImage;
 		ui::ImageEditorPanel* m_unownShinyFrontImage;
@@ -266,7 +266,7 @@ class DatabasePanelBase : public wxPanel
 		wxComboBox* m_moveEffectTypeComboBox;
 		wxSpinCtrlDouble* m_moveEffectValueSpinCtrl;
 		ui::ColoredListBox* m_tmhmList;
-		wxPanel* m_tmhmContainer;
+		wxScrolledWindow* m_tmhmContainer;
 		wxComboBox* m_tmhmMoveComboBox;
 		wxButton* tmhmPokemonClearButton;
 		ui::ColoredCheckListBox* m_tmhmPokemonList;

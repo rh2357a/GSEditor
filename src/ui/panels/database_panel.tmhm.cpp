@@ -2,6 +2,7 @@
 
 #include "ui/bindings.h"
 #include "ui/dialogs/message_box.h"
+#include "ui/utils.h"
 
 #include <wx/event.h>
 #include <wx/wx.h>
@@ -11,6 +12,7 @@
 void ui::DatabasePanel::InitializeTmHmTab()
 {
     ApplyListSearch(this, {m_tmhmList, m_tmhmMoveComboBox, m_tmhmPokemonList});
+    ApplyNestedScrolling({m_tmhmMoveComboBox, m_tmhmPokemonList});
 
     BindControlSelection(this, m_tmhmList, m_selectedTMHM);
 
