@@ -2413,7 +2413,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	trainerGroupImageSizer->Add( trainerGroupImageImageLabel, 0, wxALL, 5 );
 
 	m_trainerGroupImage = new ui::ImageEditorPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
-	trainerGroupImageSizer->Add( m_trainerGroupImage, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+	trainerGroupImageSizer->Add( m_trainerGroupImage, 0, wxBOTTOM|wxLEFT, 5 );
 
 
 	trainerGroupImagePanelSizer->Add( trainerGroupImageSizer, 0, wxLEFT|wxRIGHT|wxTOP, 5 );
@@ -2456,6 +2456,58 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_trainerGroupImageContainer->AddPage( trainerGroupImageWarningPanel, wxEmptyString, false );
 
 	trainerGroupContainerSizer->Add( m_trainerGroupImageContainer, 0, wxEXPAND | wxALL, 5 );
+
+
+	trainerGroupContainerSizer->Add( 0, 8, 0, 0, 0 );
+
+	m_trainerGroupBackImagePanel = new wxPanel( m_trainerGroupContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* trainerGroupBackImagePanelSizer;
+	trainerGroupBackImagePanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	ui::LabeledSeparator* trainerGroupBackImageLabel;
+	trainerGroupBackImageLabel = new ui::LabeledSeparator( m_trainerGroupBackImagePanel, wxID_ANY, wxT("이미지 && 색상 (플레이어 뒷 모습)"), wxDefaultPosition, wxDefaultSize, 0 );
+	trainerGroupBackImageLabel->Wrap( -1 );
+	trainerGroupBackImagePanelSizer->Add( trainerGroupBackImageLabel, 0, wxALL|wxEXPAND, 5 );
+
+	wxBoxSizer* trainerGroupBackImageSizer;
+	trainerGroupBackImageSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* trainerGroupBackImageImageLabel;
+	trainerGroupBackImageImageLabel = new wxStaticText( m_trainerGroupBackImagePanel, wxID_ANY, wxT("이미지："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
+	trainerGroupBackImageImageLabel->Wrap( -1 );
+	trainerGroupBackImageSizer->Add( trainerGroupBackImageImageLabel, 0, wxALL, 5 );
+
+	m_trainerGroupBackImage_1 = new ui::ImageEditorPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	trainerGroupBackImageSizer->Add( m_trainerGroupBackImage_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_trainerGroupBackImage_2 = new ui::ImageEditorPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	trainerGroupBackImageSizer->Add( m_trainerGroupBackImage_2, 0, wxEXPAND | wxALL, 5 );
+
+
+	trainerGroupBackImagePanelSizer->Add( trainerGroupBackImageSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 10 );
+
+	wxBoxSizer* trainerGroupBackColorSizer;
+	trainerGroupBackColorSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticText* trainerGroupBackImageColorLabel;
+	trainerGroupBackImageColorLabel = new wxStaticText( m_trainerGroupBackImagePanel, wxID_ANY, wxT("색상："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
+	trainerGroupBackImageColorLabel->Wrap( -1 );
+	trainerGroupBackColorSizer->Add( trainerGroupBackImageColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_trainerGroupBackColor_1 = new ui::ColorPickerPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	trainerGroupBackColorSizer->Add( m_trainerGroupBackColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	m_trainerGroupBackColor_2 = new ui::ColorPickerPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	trainerGroupBackColorSizer->Add( m_trainerGroupBackColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	trainerGroupBackImagePanelSizer->Add( trainerGroupBackColorSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 10 );
+
+
+	m_trainerGroupBackImagePanel->SetSizer( trainerGroupBackImagePanelSizer );
+	m_trainerGroupBackImagePanel->Layout();
+	trainerGroupBackImagePanelSizer->Fit( m_trainerGroupBackImagePanel );
+	trainerGroupContainerSizer->Add( m_trainerGroupBackImagePanel, 0, wxALL|wxEXPAND, 0 );
 
 
 	m_trainerGroupContainer->SetSizer( trainerGroupContainerSizer );

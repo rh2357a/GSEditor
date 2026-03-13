@@ -133,6 +133,7 @@ namespace pokegold
         PokemonImage,
         UnownImage,
         TrainerGroupImage,
+        TrainerGroupPlayerBackImage,
         EggImage,
 
         Pokedex,
@@ -306,6 +307,10 @@ namespace pokegold
 
         std::vector<u8> Image;
         std::array<Color, 2> Colors;
+
+        // 플레이어, 튜토리얼 전용
+        std::vector<u8> BackImage, DudeBackImage;
+        std::array<Color, 2> BackColors;
     };
 
     struct Type

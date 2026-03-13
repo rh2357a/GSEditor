@@ -982,6 +982,16 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
                 e.Colors[1].GetHiByte(),
             });
         }
+
+        const auto &e = m_data.TrainerGroups()[11];
+        srcStream << GetAsmSection(0xb50d, "GSEditor_TrainerGroup_PlayerBackColor")
+                  << GetAsmLine("GSEditor_TrainerGroup_PlayerBackColor::")
+                  << GetAsmBytes({
+                         e.BackColors[0].GetLoByte(),
+                         e.BackColors[0].GetHiByte(),
+                         e.BackColors[1].GetLoByte(),
+                         e.BackColors[1].GetHiByte(),
+                     });
     }
 
     base::Log(TAG, "write trainer group (image)");
@@ -1011,6 +1021,33 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
             m_buildProgressState.Increase();
 
             data.PushImageDataBlock(std::format("GSEditor_TrainerGroup_Image_{}", i), m_data.TrainerGroups()[i].Image);
+        }
+
+        // back data
+        {
+            // data
+            data.PushPlayerBackImageDataBlock(
+                "GSEditor_TrainerGroup_BackImage",
+                m_data.TrainerGroups()[11].BackImage,
+                m_data.TrainerGroups()[11].DudeBackImage);
+
+            // ptr
+            {
+                srcStream << GetAsmSection(0x3f9b7, "GSEditor_TrainerGroup_PlayerBackImage_Pointer")
+                          << GetAsmLine("dw GSEditor_TrainerGroup_BackImage");
+
+                srcStream << GetAsmSection(0x3f9c1, "GSEditor_TrainerGroup_DudeBackImage_Pointer")
+                          << GetAsmLine("dw GSEditor_TrainerGroup_BackImage + {}", data.GetPlayerBackImageSize());
+
+                srcStream << GetAsmSection(0x3f9c7, "GSEditor_TrainerGroup_PlayerBackImage_Bank")
+                          << GetAsmLine("db BANK(GSEditor_TrainerGroup_BackImage)");
+
+                srcStream << GetAsmSection(0x8681b, "GSEditor_TrainerGroup_HallOfFrameBackImage_Pointer")
+                          << GetAsmLine("dw GSEditor_TrainerGroup_BackImage");
+
+                srcStream << GetAsmSection(0x86821, "GSEditor_TrainerGroup_HallOfFrameBackImage_Bank")
+                          << GetAsmLine("db BANK(GSEditor_TrainerGroup_BackImage)");
+            }
         }
     }
 

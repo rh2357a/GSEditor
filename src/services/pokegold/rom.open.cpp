@@ -755,6 +755,50 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
                 trainerGroup.Image = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
             }
         }
+
+        // 플레이어, 튜토리얼 이미지
+        if (i == 11)
+        {
+            // color
+            {
+                trainerGroup.BackColors[0] = Color(data.GetBytes(0xb50d + 0, 2));
+                trainerGroup.BackColors[1] = Color(data.GetBytes(0xb50d + 2, 2));
+            }
+
+            // image
+            {
+                u8 bank = data.GetByte(0x3f9c7);
+                auto offset = Calc(bank, data.GetBytes(0x3f9b7, 2));
+                auto bytes = data.GetBytes(offset, 0x400);
+                auto size = lzcomp::Uncompress(imageBuffer, bytes);
+
+                if (size == 0)
+                {
+                    trainerGroup.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
+                    trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
+                    data.BadDataList().emplace_back(BadDataReason::TrainerGroupPlayerBackImage, i);
+                }
+                else
+                {
+                    trainerGroup.BackImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
+
+                    auto offset = Calc(bank, data.GetBytes(0x3f9c1, 2));
+                    auto bytes = data.GetBytes(offset, 0x400);
+                    auto size = lzcomp::Uncompress(imageBuffer, bytes);
+
+                    if (size == 0)
+                    {
+                        trainerGroup.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
+                        trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
+                        data.BadDataList().emplace_back(BadDataReason::TrainerGroupPlayerBackImage, i);
+                    }
+                    else
+                    {
+                        trainerGroup.DudeBackImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
+                    }
+                }
+            }
+        }
     }
 
     return !m_openProgressState.HandlePausedOrCanceled();

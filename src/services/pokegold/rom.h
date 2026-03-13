@@ -30,6 +30,8 @@ namespace pokegold::internal
         FreeSpaceDataResolver m_imageDataBlocks;
         FreeSpaceDataResolver m_typeNameDataBlocks;
 
+        size_t m_playerBackImageSize = 0;
+
     public:
         RomBuildData(const std::filesystem::path &workdir)
             : m_source(workdir / "GSEditor.asm"),
@@ -50,6 +52,24 @@ namespace pokegold::internal
         {
             size_t lzSize = lzcomp::Compress(m_lzcompBuffer, data);
             m_imageDataBlocks.Push(label, {m_lzcompBuffer.begin(), m_lzcompBuffer.begin() + lzSize});
+        }
+
+        void PushPlayerBackImageDataBlock(std::string label, std::span<const u8> playerData, std::span<const u8> dudeData)
+        {
+            size_t lzSize = lzcomp::Compress(m_lzcompBuffer, playerData);
+            std::vector<u8> tempPlayerData(m_lzcompBuffer.begin(), m_lzcompBuffer.begin() + lzSize);
+            m_playerBackImageSize = lzSize;
+
+            lzSize = lzcomp::Compress(m_lzcompBuffer, dudeData);
+            std::vector<u8> tempDudeData(m_lzcompBuffer.begin(), m_lzcompBuffer.begin() + lzSize);
+            tempPlayerData.insert(tempPlayerData.end(), tempDudeData.begin(), tempDudeData.end());
+
+            m_imageDataBlocks.Push(label, tempPlayerData);
+        }
+
+        size_t GetPlayerBackImageSize() const
+        {
+            return m_playerBackImageSize;
         }
     };
 }

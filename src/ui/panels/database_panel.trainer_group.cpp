@@ -51,6 +51,8 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
 
         m_eventGuard([this, idx] {
             m_trainerGroupContainer->Enable(idx != -1);
+            m_trainerGroupBackImagePanel->Show(idx == 11);
+            m_trainerGroupBackImagePanel->GetParent()->Layout(); // wxEXPAND 속성이 재대로 적용하지 않는 문제를 해결
 
             if (idx != -1)
                 m_trainerGroupNameText->SetValue(m_pokegold.Data().TrainerGroups()[idx].Name.ToEditorWxString());
@@ -81,39 +83,109 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
     });
 
     // 이미지 변경 처리
-    m_trainerGroupImage->ImportRequested().Subscribe(this, [this] {
-        const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
-        if (path.has_value())
-        {
-            auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
-            if (result == base::ImportIndexedPngResult::PngError)
+    {
+        m_trainerGroupImage->ImportRequested().Subscribe(this, [this] {
+            const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
+            if (path.has_value())
             {
-                ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
-                return;
-            }
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
+                if (result == base::ImportIndexedPngResult::PngError)
+                {
+                    ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
+                    return;
+                }
 
-            const auto size = result.GetBitmap().GetSize();
-            if (!(size.x == 56 && size.y == 56))
+                const auto size = result.GetBitmap().GetSize();
+                if (!(size.x == 56 && size.y == 56))
+                {
+                    ShowErrorDialog(this, "알림", "앞모습의 이미지는 56x56으로 맞춰주세요.");
+                    return;
+                }
+
+                auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
+                e.Image = result.Get2bppData();
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    e.Colors[0] = result.GetPalette()[1];
+                    e.Colors[1] = result.GetPalette()[2];
+                }
+
+                m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
+                m_pokegold.Rom().NotifyRomChanged();
+
+                UpdateTrainerGroupImages();
+            }
+        });
+
+        m_trainerGroupBackImage_1->ImportRequested().Subscribe(this, [this] {
+            const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
+            if (path.has_value())
             {
-                ShowErrorDialog(this, "알림", "앞모습의 이미지는 56x56으로 맞춰주세요.");
-                return;
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
+                if (result == base::ImportIndexedPngResult::PngError)
+                {
+                    ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
+                    return;
+                }
+
+                const auto size = result.GetBitmap().GetSize();
+                if (!(size.x == 48 && size.y == 48))
+                {
+                    ShowErrorDialog(this, "알림", "뒷모습의 이미지는 48x48로 맞춰주세요.");
+                    return;
+                }
+
+                auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
+                e.BackImage = result.Get2bppData();
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    e.BackColors[0] = result.GetPalette()[1];
+                    e.BackColors[1] = result.GetPalette()[2];
+                }
+
+                m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
+                m_pokegold.Rom().NotifyRomChanged();
+
+                UpdateTrainerGroupImages();
             }
+        });
 
-            auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
-            e.Image = result.Get2bppData();
-
-            if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+        m_trainerGroupBackImage_2->ImportRequested().Subscribe(this, [this] {
+            const auto path = ShowOpenFileDialog(this, "이미지 교체...", {"png 파일|*.png"});
+            if (path.has_value())
             {
-                e.Colors[0] = result.GetPalette()[1];
-                e.Colors[1] = result.GetPalette()[2];
+                auto result = base::ImportIndexedPngFile(*path, base::ImportIndexedPngTileOrientation::Vertical);
+                if (result == base::ImportIndexedPngResult::PngError)
+                {
+                    ShowErrorDialog(this, "알림", "png 파일의 형식이 올바르지 않습니다.");
+                    return;
+                }
+
+                const auto size = result.GetBitmap().GetSize();
+                if (!(size.x == 48 && size.y == 48))
+                {
+                    ShowErrorDialog(this, "알림", "뒷모습의 이미지는 48x48로 맞춰주세요.");
+                    return;
+                }
+
+                auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
+                e.DudeBackImage = result.Get2bppData();
+
+                if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
+                {
+                    e.BackColors[0] = result.GetPalette()[1];
+                    e.BackColors[1] = result.GetPalette()[2];
+                }
+
+                m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
+                m_pokegold.Rom().NotifyRomChanged();
+
+                UpdateTrainerGroupImages();
             }
-
-            m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
-            m_pokegold.Rom().NotifyRomChanged();
-
-            UpdateTrainerGroupImages();
-        }
-    });
+        });
+    }
 
     // 색상 변경 처리
     {
@@ -146,6 +218,36 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
 
             UpdateTrainerGroupImages();
         });
+
+        m_trainerGroupBackColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+                return;
+
+            auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
+            e.BackColors[0].R(newColor.Red());
+            e.BackColors[0].G(newColor.Green());
+            e.BackColors[0].B(newColor.Blue());
+
+            m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
+            m_pokegold.Rom().NotifyRomChanged();
+
+            UpdateTrainerGroupImages();
+        });
+
+        m_trainerGroupBackColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+                return;
+
+            auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
+            e.BackColors[1].R(newColor.Red());
+            e.BackColors[1].G(newColor.Green());
+            e.BackColors[1].B(newColor.Blue());
+
+            m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
+            m_pokegold.Rom().NotifyRomChanged();
+
+            UpdateTrainerGroupImages();
+        });
     }
 }
 
@@ -169,6 +271,16 @@ void ui::DatabasePanel::UpdateTrainerGroupImages()
             m_trainerGroupImage->Set2bppData(pokegold::ImageDimensions::Size_56x56, e.Image, e.Colors);
             m_trainerGroupColor_1->SetColor(e.Colors[0].ToWxColor());
             m_trainerGroupColor_2->SetColor(e.Colors[1].ToWxColor());
+        }
+
+        // 플레이어 뒷 모습
+        if (index == 11)
+        {
+            auto &e = m_pokegold.Data().TrainerGroups()[index];
+            m_trainerGroupBackImage_1->Set2bppData(pokegold::ImageDimensions::Size_48x48, e.BackImage, e.BackColors);
+            m_trainerGroupBackImage_2->Set2bppData(pokegold::ImageDimensions::Size_48x48, e.DudeBackImage, e.BackColors);
+            m_trainerGroupBackColor_1->SetColor(e.BackColors[0].ToWxColor());
+            m_trainerGroupBackColor_2->SetColor(e.BackColors[1].ToWxColor());
         }
     });
 }

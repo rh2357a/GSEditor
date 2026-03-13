@@ -70,6 +70,16 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
             }
             break;
 
+        case pokegold::BadDataReason::TrainerGroupPlayerBackImage:
+            {
+                const size_t idx = std::any_cast<size_t>(e.Data());
+                const auto name = m_pokegold.Data().TrainerGroups()[idx].Name.ToEditorString();
+                m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
+                m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("트레이너 뒷 모습 이미지 손상 (그룹명: '{}')", name)));
+                m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
+            }
+            break;
+
         case pokegold::BadDataReason::ItemName:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
