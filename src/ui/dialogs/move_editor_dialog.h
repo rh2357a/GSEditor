@@ -20,7 +20,7 @@ namespace ui
             std::optional<pokegold::PokemonMove> m_result;
 
         public:
-            MoveEditorDialog(wxWindow *parent, std::optional<pokegold::PokemonMove> defaultValue);
+            MoveEditorDialog(wxWindow *parent, std::optional<pokegold::PokemonMove> defaultValue, bool hasLevel);
 
         private:
             void OnConfirmButtonClick(wxCommandEvent &event) override;
@@ -40,4 +40,14 @@ namespace ui
      * @return std::nullopt 사용자의 취소를 처리
      */
     std::optional<pokegold::PokemonMove> ShowMoveEditorDialog(wxWindow *parent, std::optional<pokegold::PokemonMove> defaultValue = std::nullopt);
+
+    /**
+     * @brief 기술 편집창 열기 (레벨 없음)
+     *
+     * @param parent 부모 윈도우
+     * @param defaultValue 기본값 전달
+     * @return 편집 또는 추가 결과값
+     * @return std::nullopt 사용자의 취소를 처리
+     */
+    std::optional<u8> ShowNoLevelMoveEditorDialog(wxWindow *parent, std::optional<u8> defaultValue = std::nullopt);
 }

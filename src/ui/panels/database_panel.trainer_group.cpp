@@ -26,21 +26,16 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
 
         if (m_trainerGroupList->GetCount() == 0)
         {
-            for (int i = 0; i < 67; i++)
+            for (int i = 0; i < 68; i++)
                 m_trainerGroupList->Append(wxT(""));
         }
 
-        for (int i = 0; i < 67; i++)
+        for (int i = 0; i < 68; i++)
         {
             auto &e = m_pokegold.Data().TrainerGroups()[i];
             auto str = std::format("{:02} [{}]", i + 1, e.Name.ToEditorString());
             m_trainerGroupList->SetString(i, wxString::FromUTF8(str));
         }
-
-        // 67번 이미지 경고 라벨
-        auto &group9 = m_pokegold.Data().TrainerGroups()[9 - 1];
-        auto warnLabel = std::format("'09 [{}]' 항목의 이미지를 편집해 주세요.", group9.Name.ToEditorString());
-        m_trainerGroupImageWarningLabel->SetLabel(wxString::FromUTF8(warnLabel));
 
         m_trainerGroupList->Thaw();
     });
@@ -48,6 +43,28 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
     // 선택
     m_selectedTrainerGroup.Subscribe(this, [this](const int &idx) {
         base::Log(TAG, "trainer group selected (index={})", idx);
+
+        // 67~68번 이미지 경고 라벨
+        {
+            if (idx == 67 - 1)
+            {
+                auto &group9 = m_pokegold.Data().TrainerGroups()[9 - 1];
+                auto warnLabel = std::format("'09 [{}]' 항목의 이미지를 편집해 주세요.", group9.Name.ToEditorString());
+                m_trainerGroupImageWarningLabel->SetLabel(wxString::FromUTF8(warnLabel));
+            }
+            else if (idx == 68 - 1)
+            {
+                auto &group12 = m_pokegold.Data().TrainerGroups()[12 - 1];
+                auto warnLabel = std::format("'12 [{}]' 항목의 이미지를 편집해 주세요.", group12.Name.ToEditorString());
+                m_trainerGroupImageWarningLabel->SetLabel(wxString::FromUTF8(warnLabel));
+            }
+        }
+
+        // 이름 글자수 제한
+        if (idx == 68 - 1)
+            m_trainerGroupNameText->SetMaxLength(5);
+        else
+            m_trainerGroupNameText->SetMaxLength(12);
 
         m_eventGuard([this, idx] {
             m_trainerGroupContainer->Enable(idx != -1);
@@ -255,9 +272,10 @@ void ui::DatabasePanel::UpdateTrainerGroupImages()
 {
     m_eventGuard([&] {
         int index = *m_selectedTrainerGroup;
-        if (index == -1 || index == 67 - 1)
+        bool noImage = index == 67 - 1 || index == 68 - 1;
+        if (index == -1 || noImage)
         {
-            m_trainerGroupImageContainer->SetSelection(index == 67 - 1 ? 1 : 0);
+            m_trainerGroupImageContainer->SetSelection(noImage ? 1 : 0);
 
             m_trainerGroupImage->Clear();
             m_trainerGroupColor_1->SetColor(*wxWHITE);

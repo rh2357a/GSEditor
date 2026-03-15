@@ -35,6 +35,7 @@ namespace ui
 
     protected:
         virtual wxCoord OnMeasureItem(size_t n) const override;
+        virtual wxSize DoGetBestSize() const override;
         virtual void OnDrawItem(wxDC &dc, const wxRect &rect, size_t n) const override;
 
     public:
@@ -42,5 +43,6 @@ namespace ui
         wxString GetString(int index);
         void SetString(int index, wxString str);
         void Append(wxString item);
+        void Clear();
     };
 }

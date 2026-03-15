@@ -898,22 +898,22 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* pokemonEvolutionsButtonsSizer;
 	pokemonEvolutionsButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_pokemonEvolutionAdd = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEvolutionAdd = new wxButton( pokemonEvolutionsPanel, wxID_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonEvolutionAdd->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonEvolutionsButtonsSizer->Add( m_pokemonEvolutionAdd, 0, wxALL, 2 );
 
-	m_pokemonEvolutionModify = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_MODIFY, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEvolutionModify = new wxButton( pokemonEvolutionsPanel, wxID_EDIT, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonEvolutionModify->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonEvolutionsButtonsSizer->Add( m_pokemonEvolutionModify, 0, wxALL, 2 );
 
-	m_pokemonEvolutionRemove = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEvolutionRemove = new wxButton( pokemonEvolutionsPanel, wxID_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonEvolutionRemove->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonEvolutionsButtonsSizer->Add( m_pokemonEvolutionRemove, 0, wxALL, 2 );
 
-	m_pokemonEvolutionClear = new wxButton( pokemonEvolutionsPanel, wxID_POKEMON_EVOLUTION_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEvolutionClear = new wxButton( pokemonEvolutionsPanel, wxID_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonEvolutionClear->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
 	m_pokemonEvolutionClear->SetForegroundColour( wxColour( 255, 0, 0 ) );
 
@@ -946,7 +946,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* pokemonMovesButtonsSizer;
 	pokemonMovesButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_pokemonMovesImport = new wxButton( pokemonMovesPanel, wxID_POKEMON_MOVES_IMPORT, wxT("가져오기..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonMovesImport = new wxButton( pokemonMovesPanel, wxID_IMPORT, wxT("가져오기..."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonMovesImport->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonMovesButtonsSizer->Add( m_pokemonMovesImport, 0, wxALL, 2 );
@@ -955,22 +955,22 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonMovesButtonsSeparator = new wxStaticLine( pokemonMovesPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	pokemonMovesButtonsSizer->Add( pokemonMovesButtonsSeparator, 0, wxALL|wxEXPAND, 5 );
 
-	m_pokemonMovesAdd = new wxButton( pokemonMovesPanel, wxID_POKEMON_MOVES_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonMovesAdd = new wxButton( pokemonMovesPanel, wxID_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonMovesAdd->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonMovesButtonsSizer->Add( m_pokemonMovesAdd, 0, wxALL, 2 );
 
-	m_pokemonMovesModify = new wxButton( pokemonMovesPanel, wxID_POKEMON_MOVES_MODIFY, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonMovesModify = new wxButton( pokemonMovesPanel, wxID_EDIT, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonMovesModify->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonMovesButtonsSizer->Add( m_pokemonMovesModify, 0, wxALL, 2 );
 
-	m_pokemonMovesRemove = new wxButton( pokemonMovesPanel, wxID_POKEMON_MOVES_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonMovesRemove = new wxButton( pokemonMovesPanel, wxID_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonMovesRemove->SetForegroundColour( wxColour( 0, 0, 0 ) );
 
 	pokemonMovesButtonsSizer->Add( m_pokemonMovesRemove, 0, wxALL, 2 );
 
-	m_pokemonMovesClear = new wxButton( pokemonMovesPanel, wxID_POKEMON_MOVES_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonMovesClear = new wxButton( pokemonMovesPanel, wxID_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_pokemonMovesClear->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
 	m_pokemonMovesClear->SetForegroundColour( wxColour( 255, 0, 0 ) );
 
@@ -984,6 +984,54 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	pokemonMovesPanel->Layout();
 	pokemonMovesSizer->Fit( pokemonMovesPanel );
 	pokemonPokemonTypeSizer->Add( pokemonMovesPanel, 0, wxEXPAND, 0 );
+
+	wxPanel* pokemonEggMovesPanel;
+	pokemonEggMovesPanel = new wxPanel( pokemonPokemonType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* pokemonEggMovesSizer;
+	pokemonEggMovesSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxStaticText* pokemonEggMovesLabel;
+	pokemonEggMovesLabel = new wxStaticText( pokemonEggMovesPanel, wxID_ANY, wxT("알 기술"), wxDefaultPosition, wxDefaultSize, 0 );
+	pokemonEggMovesLabel->Wrap( -1 );
+	pokemonEggMovesSizer->Add( pokemonEggMovesLabel, 0, wxLEFT|wxTOP, 8 );
+
+	m_pokemonEggMovesList = new ui::ColoredListCtrl( pokemonEggMovesPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_SINGLE_SEL );
+	m_pokemonEggMovesList->SetMinSize( wxSize( 512,180 ) );
+
+	pokemonEggMovesSizer->Add( m_pokemonEggMovesList, 0, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 8 );
+
+	wxBoxSizer* pokemonEggMovesButtonsSizer;
+	pokemonEggMovesButtonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	m_pokemonEggMovesAdd = new wxButton( pokemonEggMovesPanel, wxID_ADD, wxT("추가..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEggMovesAdd->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	pokemonEggMovesButtonsSizer->Add( m_pokemonEggMovesAdd, 0, wxALL, 2 );
+
+	m_pokemonEggMovesModify = new wxButton( pokemonEggMovesPanel, wxID_EDIT, wxT("수정..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEggMovesModify->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	pokemonEggMovesButtonsSizer->Add( m_pokemonEggMovesModify, 0, wxALL, 2 );
+
+	m_pokemonEggMovesRemove = new wxButton( pokemonEggMovesPanel, wxID_REMOVE, wxT("삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEggMovesRemove->SetForegroundColour( wxColour( 0, 0, 0 ) );
+
+	pokemonEggMovesButtonsSizer->Add( m_pokemonEggMovesRemove, 0, wxALL, 2 );
+
+	m_pokemonEggMovesClear = new wxButton( pokemonEggMovesPanel, wxID_CLEAR, wxT("전체 삭제"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_pokemonEggMovesClear->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
+	m_pokemonEggMovesClear->SetForegroundColour( wxColour( 255, 0, 0 ) );
+
+	pokemonEggMovesButtonsSizer->Add( m_pokemonEggMovesClear, 0, wxALL, 2 );
+
+
+	pokemonEggMovesSizer->Add( pokemonEggMovesButtonsSizer, 0, wxALL|wxEXPAND, 5 );
+
+
+	pokemonEggMovesPanel->SetSizer( pokemonEggMovesSizer );
+	pokemonEggMovesPanel->Layout();
+	pokemonEggMovesSizer->Fit( pokemonEggMovesPanel );
+	pokemonPokemonTypeSizer->Add( pokemonEggMovesPanel, 0, wxEXPAND, 0 );
 
 
 	pokemonPokemonTypeSizer->Add( 0, 8, 0, 0, 0 );
@@ -2665,6 +2713,10 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_pokemonMovesModify->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonMovesButtonClick ), NULL, this );
 	m_pokemonMovesRemove->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonMovesButtonClick ), NULL, this );
 	m_pokemonMovesClear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonMovesButtonClick ), NULL, this );
+	m_pokemonEggMovesAdd->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEggMovesButtonClick ), NULL, this );
+	m_pokemonEggMovesModify->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEggMovesButtonClick ), NULL, this );
+	m_pokemonEggMovesRemove->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEggMovesButtonClick ), NULL, this );
+	m_pokemonEggMovesClear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonEggMovesButtonClick ), NULL, this );
 	pokemonTMHMsCheckAllButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonTMHMsButtonClick ), NULL, this );
 	pokemonTMHMsClearButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnPokemonTMHMsButtonClick ), NULL, this );
 	tmhmPokemonCheckAllButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabasePanelBase::OnTMHMsButtonClick ), NULL, this );
@@ -3022,31 +3074,29 @@ MoveEditorDialogBase::MoveEditorDialogBase( wxWindow* parent, wxWindowID id, con
 	wxBoxSizer* contentPanelSizer;
 	contentPanelSizer = new wxBoxSizer( wxVERTICAL );
 
-	wxFlexGridSizer* contentGrid;
-	contentGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
-	contentGrid->AddGrowableCol( 1 );
-	contentGrid->SetFlexibleDirection( wxBOTH );
-	contentGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	m_contentGrid = new wxFlexGridSizer( 2, 2, 0, 0 );
+	m_contentGrid->AddGrowableCol( 1 );
+	m_contentGrid->SetFlexibleDirection( wxBOTH );
+	m_contentGrid->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
-	wxStaticText* levelLabel;
-	levelLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("레벨："), wxDefaultPosition, wxDefaultSize, 0 );
-	levelLabel->Wrap( -1 );
-	contentGrid->Add( levelLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	m_levelLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("레벨："), wxDefaultPosition, wxDefaultSize, 0 );
+	m_levelLabel->Wrap( -1 );
+	m_contentGrid->Add( m_levelLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 	m_levelSpinCtrl = new wxSpinCtrlDouble( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 1, 1 );
 	m_levelSpinCtrl->SetDigits( 0 );
-	contentGrid->Add( m_levelSpinCtrl, 0, wxALL|wxEXPAND, 5 );
+	m_contentGrid->Add( m_levelSpinCtrl, 0, wxALL|wxEXPAND, 5 );
 
 	wxStaticText* moveLabel;
 	moveLabel = new wxStaticText( contentPanel, wxID_ANY, wxT("기술："), wxDefaultPosition, wxDefaultSize, 0 );
 	moveLabel->Wrap( -1 );
-	contentGrid->Add( moveLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	m_contentGrid->Add( moveLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 	m_movesComboBox = new wxComboBox( contentPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	contentGrid->Add( m_movesComboBox, 0, wxALL|wxEXPAND, 5 );
+	m_contentGrid->Add( m_movesComboBox, 0, wxALL|wxEXPAND, 5 );
 
 
-	contentPanelSizer->Add( contentGrid, 0, wxEXPAND, 5 );
+	contentPanelSizer->Add( m_contentGrid, 0, wxEXPAND, 5 );
 
 	wxStaticLine* contentSeparator;
 	contentSeparator = new wxStaticLine( contentPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );

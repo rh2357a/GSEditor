@@ -276,6 +276,7 @@ namespace pokegold
 
         std::vector<EvolutionMethod> EvolutionMethods;
         std::vector<PokemonMove> Moves;
+        std::vector<u8> EggMoveIds;
 
         String Name;
         String DexCategoryName;

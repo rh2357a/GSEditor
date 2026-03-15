@@ -16,7 +16,6 @@ void ui::DatabasePanel::InitializeUnownTab()
     // 목록 설정
     {
         ApplyListSearch(this, {m_unownPokemonComboBox});
-
         BindControlSelection(this, m_unownList, m_selectedUnown);
 
         // 롬 열기 시, 선택 초기화...
@@ -67,6 +66,9 @@ void ui::DatabasePanel::InitializeUnownTab()
 
             m_unownList->SetFocus();
         });
+
+        // 콤보상자 휠 비활성화
+        m_unownPokemonComboBox->Bind(wxEVT_MOUSEWHEEL, [](wxMouseEvent &ev) { ev.Skip(false); });
 
         // 안농 적용 포켓몬 선택
         m_unownPokemonComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {

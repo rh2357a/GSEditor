@@ -22,7 +22,7 @@ namespace pokegold
         std::array<MoveEffect, 256> m_moveEffects;
         std::array<Pokemon, 256> m_pokemons;
         std::array<UnownImage, 26> m_unownImages;
-        std::array<TrainerGroup, 67> m_trainerGroups;
+        std::array<TrainerGroup, 68> m_trainerGroups;
         std::array<Type, 28> m_types;
         std::array<TMHM, 57> m_tmhms;
 

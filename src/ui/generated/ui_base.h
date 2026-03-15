@@ -147,15 +147,7 @@ class DatabasePanelBase : public wxPanel
 	protected:
 		enum
 		{
-			wxID_POKEMON_EVOLUTION_ADD = 6000,
-			wxID_POKEMON_EVOLUTION_MODIFY,
-			wxID_POKEMON_EVOLUTION_REMOVE,
-			wxID_POKEMON_EVOLUTION_CLEAR,
-			wxID_POKEMON_MOVES_IMPORT,
-			wxID_POKEMON_MOVES_ADD,
-			wxID_POKEMON_MOVES_MODIFY,
-			wxID_POKEMON_MOVES_REMOVE,
-			wxID_POKEMON_MOVES_CLEAR,
+			wxID_IMPORT = 6000,
 			wxID_POKEMON_TMHMS_CHECK_ALL,
 			wxID_POKEMON_TMHMS_CLEAR,
 			wxID_CHECK_ALL,
@@ -210,6 +202,11 @@ class DatabasePanelBase : public wxPanel
 		wxButton* m_pokemonMovesModify;
 		wxButton* m_pokemonMovesRemove;
 		wxButton* m_pokemonMovesClear;
+		ui::ColoredListCtrl* m_pokemonEggMovesList;
+		wxButton* m_pokemonEggMovesAdd;
+		wxButton* m_pokemonEggMovesModify;
+		wxButton* m_pokemonEggMovesRemove;
+		wxButton* m_pokemonEggMovesClear;
 		wxGridSizer* m_pokemonTMHMsSizer;
 		ui::ColoredCheckListBox* m_pokemonHmTmList1;
 		ui::ColoredCheckListBox* m_pokemonHmTmList2;
@@ -297,6 +294,7 @@ class DatabasePanelBase : public wxPanel
 		// Virtual event handlers, override them in your derived class
 		virtual void OnPokemonEvolutionsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPokemonMovesButtonClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPokemonEggMovesButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPokemonTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTMHMsButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTypeMatchupsButtonClick( wxCommandEvent& event ) { event.Skip(); }
@@ -305,7 +303,7 @@ class DatabasePanelBase : public wxPanel
 
 	public:
 
-		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,1800 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		DatabasePanelBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,2500 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~DatabasePanelBase();
 
@@ -383,6 +381,8 @@ class MoveEditorDialogBase : public wxDialog
 	private:
 
 	protected:
+		wxFlexGridSizer* m_contentGrid;
+		wxStaticText* m_levelLabel;
 		wxSpinCtrlDouble* m_levelSpinCtrl;
 		wxComboBox* m_movesComboBox;
 

@@ -19,6 +19,7 @@ namespace ui
         base::MutableState<int> m_selectedPokemon = -1;
         base::MutableState<int> m_selectedPokemonEvolution = -1;
         base::MutableState<int> m_selectedPokemonMove = -1;
+        base::MutableState<int> m_selectedPokemonEggMove = -1;
 
         base::MutableState<int> m_selectedUnown = -1;
         base::MutableState<int> m_selectedItem = -1;
@@ -54,6 +55,7 @@ namespace ui
         void UpdatePokemonEvolutionAndMoveList();
         void OnPokemonEvolutionsButtonClick(wxCommandEvent &event) override;
         void OnPokemonMovesButtonClick(wxCommandEvent &event) override;
+        void OnPokemonEggMovesButtonClick(wxCommandEvent &event) override;
         void OnPokemonTMHMsButtonClick(wxCommandEvent &event) override;
 
         void InitializeUnownTab();

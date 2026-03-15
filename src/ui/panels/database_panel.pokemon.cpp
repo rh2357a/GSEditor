@@ -21,6 +21,7 @@
 #include <wx/event.h>
 #include <wx/gdicmn.h>
 #include <wx/spinctrl.h>
+#include <wx/wx.h>
 
 #include <algorithm>
 #include <array>
@@ -167,6 +168,7 @@ void ui::DatabasePanel::InitializePokemonTab()
 
         m_pokemonEvolutionsList,
         m_pokemonMovesList,
+        m_pokemonEggMovesList,
 
         m_pokemonHmTmList1,
         m_pokemonHmTmList2,
@@ -181,12 +183,14 @@ void ui::DatabasePanel::InitializePokemonTab()
     BindControlSelection(this, m_pokemonList, m_selectedPokemon);
     BindControlSelection(this, m_pokemonEvolutionsList, m_selectedPokemonEvolution);
     BindControlSelection(this, m_pokemonMovesList, m_selectedPokemonMove);
+    BindControlSelection(this, m_pokemonEggMovesList, m_selectedPokemonEggMove);
 
     // 롬을 다시 열었을 때, 선택 초기화...
     m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
         m_selectedPokemon.Update(-1);
         m_selectedPokemonEvolution.Update(-1);
         m_selectedPokemonMove.Update(-1);
+        m_selectedPokemonEggMove.Update(-1);
     });
 
     // 포켓몬 이름 갱신
@@ -532,6 +536,28 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonMovesList->Bind(wxEVT_LIST_DELETE_ALL_ITEMS, [listCtrlFunc](wxListEvent &ev) { ev.Skip(); listCtrlFunc(); });
         m_pokemonMovesList->Bind(wxEVT_LIST_INSERT_ITEM, [listCtrlFunc](wxListEvent &ev) { ev.Skip(); listCtrlFunc(); });
         m_selectedPokemonMove.Subscribe(this, [listCtrlFunc] { listCtrlFunc(); });
+    }
+
+    // 알 기술 목록 설정
+    {
+        m_pokemonEggMovesList->AppendColumn(wxT("순번"));
+        m_pokemonEggMovesList->AppendColumn(wxT("기술"));
+        ApplyListCtrlFixedHeader(m_pokemonEggMovesList);
+        AutoListCtrlColumnWidth(m_pokemonEggMovesList);
+
+        auto listCtrlFunc = [this] {
+            int selection = *m_selectedPokemonEggMove;
+            int count = m_pokemonEggMovesList->GetItemCount();
+            m_pokemonEggMovesModify->Enable(selection != -1);
+            m_pokemonEggMovesRemove->Enable(selection != -1);
+            m_pokemonEggMovesAdd->Enable(count < 8);
+            m_pokemonEggMovesClear->Enable(count > 0);
+        };
+
+        m_pokemonEggMovesList->Bind(wxEVT_LIST_DELETE_ITEM, [listCtrlFunc](wxListEvent &ev) { ev.Skip(); listCtrlFunc(); });
+        m_pokemonEggMovesList->Bind(wxEVT_LIST_DELETE_ALL_ITEMS, [listCtrlFunc](wxListEvent &ev) { ev.Skip(); listCtrlFunc(); });
+        m_pokemonEggMovesList->Bind(wxEVT_LIST_INSERT_ITEM, [listCtrlFunc](wxListEvent &ev) { ev.Skip(); listCtrlFunc(); });
+        m_selectedPokemonEggMove.Subscribe(this, [listCtrlFunc] { listCtrlFunc(); });
     }
 
     // 이름 변경 설정
@@ -1129,6 +1155,7 @@ void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
 {
     m_pokemonEvolutionsList->DeleteAllItems();
     m_pokemonMovesList->DeleteAllItems();
+    m_pokemonEggMovesList->DeleteAllItems();
 
     const auto selected = m_pokemonList->GetSelection();
     if (selected == -1)
@@ -1229,11 +1256,23 @@ void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
         m_pokemonMovesList->SetItem(i, 1, m_pokegold.Data().Moves()[move.MoveId - 1].Name.ToEditorWxString());
     }
 
+    for (size_t i = 0; i < e.EggMoveIds.size(); i++)
+    {
+        m_pokemonEggMovesList->InsertItem(i, wxT(""));
+
+        const auto &eggMoveId = e.EggMoveIds[i];
+        auto name = m_pokegold.Data().Moves()[eggMoveId - 1].Name.ToEditorWxString();
+        m_pokemonEggMovesList->SetItem(i, 0, wxString::Format(wxT("%d"), u8(i + 1)));
+        m_pokemonEggMovesList->SetItem(i, 1, name);
+    }
+
     m_selectedPokemonEvolution.Update(-1);
     m_selectedPokemonMove.Update(-1);
+    m_selectedPokemonEggMove.Update(-1);
 
     AutoListCtrlColumnWidth(m_pokemonEvolutionsList);
     AutoListCtrlColumnWidth(m_pokemonMovesList);
+    AutoListCtrlColumnWidth(m_pokemonEggMovesList);
 }
 
 void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
@@ -1247,7 +1286,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
     const int selectedEvolveIdx = *m_selectedPokemonEvolution;
     auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
 
-    if (id == wxID_POKEMON_EVOLUTION_ADD)
+    if (id == wxID_ADD)
     {
         auto result = ShowEvolutionEditorDialog(this);
         if (result.has_value())
@@ -1266,7 +1305,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
         return;
     }
 
-    if (id == wxID_POKEMON_EVOLUTION_MODIFY)
+    if (id == wxID_EDIT)
     {
         auto result = ShowEvolutionEditorDialog(this, selectedPokemon.EvolutionMethods[selectedEvolveIdx]);
         if (result.has_value())
@@ -1285,7 +1324,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
         return;
     }
 
-    if (id == wxID_POKEMON_EVOLUTION_REMOVE)
+    if (id == wxID_REMOVE)
     {
         auto result = ShowYesNoDialog(this, "삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
         if (result == MessageBoxResult::Yes)
@@ -1298,7 +1337,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
         return;
     }
 
-    if (id == wxID_POKEMON_EVOLUTION_CLEAR)
+    if (id == wxID_CLEAR)
     {
         auto result = ShowYesNoDialog(this, "전체 삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
         if (result == MessageBoxResult::Yes)
@@ -1322,7 +1361,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
     const int selectedMoveIdx = *m_selectedPokemonMove;
     auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
 
-    if (id == wxID_POKEMON_MOVES_IMPORT)
+    if (id == wxID_IMPORT)
     {
         auto result = ShowImportMoveDialog(this);
         if (!result.empty())
@@ -1353,7 +1392,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
         return;
     }
 
-    if (id == wxID_POKEMON_MOVES_ADD)
+    if (id == wxID_ADD)
     {
         auto result = ShowMoveEditorDialog(this);
         if (result.has_value())
@@ -1383,7 +1422,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
         return;
     }
 
-    if (id == wxID_POKEMON_MOVES_MODIFY)
+    if (id == wxID_EDIT)
     {
         auto result = ShowMoveEditorDialog(this, selectedPokemon.Moves[selectedMoveIdx]);
         if (result.has_value())
@@ -1413,7 +1452,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
         return;
     }
 
-    if (id == wxID_POKEMON_MOVES_REMOVE)
+    if (id == wxID_REMOVE)
     {
         auto result = ShowYesNoDialog(this, "삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
         if (result == MessageBoxResult::Yes)
@@ -1426,12 +1465,87 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
         return;
     }
 
-    if (id == wxID_POKEMON_MOVES_CLEAR)
+    if (id == wxID_CLEAR)
     {
         auto result = ShowYesNoDialog(this, "전체 삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
         if (result == MessageBoxResult::Yes)
         {
             selectedPokemon.Moves.clear();
+            UpdatePokemonEvolutionAndMoveList();
+            m_pokegold.Rom().NotifyRomChanged();
+        }
+        return;
+    }
+}
+
+void ui::DatabasePanel::OnPokemonEggMovesButtonClick(wxCommandEvent &event)
+{
+    event.Skip();
+
+    if (!*m_pokegold.Rom().Opened() || *m_selectedPokemon == -1)
+        return;
+
+    const int id = event.GetId();
+    const int selectedEggMoveIdx = *m_selectedPokemonEggMove;
+    auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+
+    if (id == wxID_ADD)
+    {
+        auto result = ShowNoLevelMoveEditorDialog(this);
+        if (result.has_value())
+        {
+            for (const auto &e : selectedPokemon.EggMoveIds)
+            {
+                if (e == *result)
+                    return;
+            }
+
+            selectedPokemon.EggMoveIds.push_back(*result);
+
+            UpdatePokemonEvolutionAndMoveList();
+            m_pokegold.Rom().NotifyRomChanged();
+        }
+        return;
+    }
+
+    if (id == wxID_EDIT)
+    {
+        auto result = ShowNoLevelMoveEditorDialog(this, selectedPokemon.EggMoveIds[selectedEggMoveIdx]);
+        if (result.has_value())
+        {
+            for (const auto &e : selectedPokemon.EggMoveIds)
+            {
+                if (e == *result)
+                    return;
+            }
+
+            selectedPokemon.EggMoveIds[selectedEggMoveIdx] = *result;
+
+            UpdatePokemonEvolutionAndMoveList();
+            m_pokegold.Rom().NotifyRomChanged();
+        }
+        return;
+    }
+
+    if (id == wxID_REMOVE)
+    {
+        auto result = ShowYesNoDialog(this, "삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
+        if (result == MessageBoxResult::Yes)
+        {
+            auto position = selectedPokemon.EggMoveIds.begin() + selectedEggMoveIdx;
+            selectedPokemon.EggMoveIds.erase(position);
+            UpdatePokemonEvolutionAndMoveList();
+            m_pokegold.Rom().NotifyRomChanged();
+        }
+        return;
+    }
+
+    if (id == wxID_CLEAR)
+    {
+        auto result = ShowYesNoDialog(this, "전체 삭제", "삭제하면 복구할 수 없습니다.\n계속하시겠습니까?");
+        if (result == MessageBoxResult::Yes)
+        {
+            selectedPokemon.EggMoveIds.clear();
             UpdatePokemonEvolutionAndMoveList();
             m_pokegold.Rom().NotifyRomChanged();
         }

@@ -36,6 +36,7 @@ namespace
     };
 
     const std::vector<pokegold::FreeSpaceRange> k_imageFreeSpaces = {
+        {0x023a0f, 0x023fff},
         {0x0485e2, 0x04bfff},
         {0x054000, 0x057fff},
         {0x058000, 0x05bfff},
@@ -74,7 +75,8 @@ namespace
         // {0x1f0000, 0x1f3fff},
         // {0x1f4000, 0x1f7fff},
 
-        {0x1f8000, 0x1fbfff},
+        // Egg 기술 공간
+        // {0x1f8000, 0x1fbfff},
     };
 }
 
@@ -491,6 +493,51 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 tmhms[6],
                 tmhms[7],
             });
+        }
+    }
+
+    base::Log(TAG, "write pokemon (egg moves)");
+    {
+        // ptr
+        {
+            srcStream << GetAsmSection(0x1740f, "GSEditor_Pokemon_EggMoves_Pointer")
+                      << GetAsmLine("dw GSEditor_Pokemon_EggMoves")
+
+                      << GetAsmSection(0x17414, "GSEditor_Pokemon_EggMoves_Bank_1")
+                      << GetAsmLine("db BANK(GSEditor_Pokemon_EggMoves)")
+
+                      << GetAsmSection(0x17419, "GSEditor_Pokemon_EggMoves_Bank_2")
+                      << GetAsmLine("db BANK(GSEditor_Pokemon_EggMoves)");
+        }
+
+        // data
+        {
+            srcStream << GetAsmSection(0x1f8000, "GSEditor_Pokemon_EggMoves")
+                      << GetAsmLine("GSEditor_Pokemon_EggMoves::");
+            for (size_t i = 0; i < 251; i++)
+            {
+                if (m_data.Pokemons()[i].EggMoveIds.empty())
+                    srcStream << GetAsmLine("dw GSEditor_Pokemon_EggMoves_None");
+                else
+                    srcStream << GetAsmLine("dw GSEditor_Pokemon_EggMoves_{}", i);
+            }
+
+            srcStream << GetAsmSection(0x1f8000 + 502, "GSEditor_Pokemon_EggMoves_Data")
+                      << GetAsmLine("GSEditor_Pokemon_EggMoves_Data::");
+            for (size_t i = 0; i < 251; i++)
+            {
+                auto &pokemon = m_data.Pokemons()[i];
+                if (!pokemon.EggMoveIds.empty())
+                {
+                    srcStream << GetAsmLine("GSEditor_Pokemon_EggMoves_{}:", i)
+                              << GetAsmBytes(pokemon.EggMoveIds)
+                              << GetAsmBytes({0xff});
+                }
+            }
+
+            // none
+            srcStream << GetAsmLine("GSEditor_Pokemon_EggMoves_None:")
+                      << GetAsmLine("db 255");
         }
     }
 
@@ -1001,21 +1048,41 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
 
     base::Log(TAG, "write trainer group (name)");
     {
-        srcStream << GetAsmSection(0x35d5, "GSEditor_TrainerGroup_Names_Pointer")
-                  << GetAsmLine("db BANK(GSEditor_TrainerGroup_Names)")
-                  << GetAsmLine("dw GSEditor_TrainerGroup_Names");
+        // groups
+        {
+            srcStream << GetAsmSection(0x35d5, "GSEditor_TrainerGroup_Names_Pointer")
+                      << GetAsmLine("db BANK(GSEditor_TrainerGroup_Names)")
+                      << GetAsmLine("dw GSEditor_TrainerGroup_Names");
 
-        data.GetNamesSourceStream() << GetAsmLine("GSEditor_TrainerGroup_Names::");
-        for (size_t i = 0; i < 67; i++)
+            data.GetNamesSourceStream() << GetAsmLine("GSEditor_TrainerGroup_Names::");
+            for (size_t i = 0; i < 67; i++)
+            {
+                if (m_buildProgressState.HandlePausedOrCanceled())
+                    return false;
+
+                m_buildProgressState.UpdateMessage(std::format("트레이너 그룹 (이름: {}/{})", i + 1, 67));
+                m_buildProgressState.Increase();
+
+                const auto &e = m_data.TrainerGroups()[i];
+                data.GetNamesSourceStream() << GetAsmBytes(e.Name.GetData());
+            }
+        }
+
+        // dede name
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;
 
-            m_buildProgressState.UpdateMessage(std::format("트레이너 그룹 (이름: {}/{})", i + 1, 67));
+            m_buildProgressState.UpdateMessage("트레이너 그룹 (어떤 선배 이름)");
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.TrainerGroups()[i];
-            data.GetNamesSourceStream() << GetAsmBytes(e.Name.GetData());
+            const auto &e = m_data.TrainerGroups()[67];
+            srcStream << GetAsmSection(0x23995, "GSEditor_TrainerGroup_DudeName_Pointer")
+                      << GetAsmLine("dw GSEditor_TrainerGroup_DudeName")
+
+                      << GetAsmSection(0x23a04, "GSEditor_TrainerGroup_DudeName")
+                      << GetAsmLine("GSEditor_TrainerGroup_DudeName:")
+                      << GetAsmBytes(e.Name.GetData());
         }
     }
 

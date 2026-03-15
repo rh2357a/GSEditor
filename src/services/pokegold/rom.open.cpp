@@ -14,6 +14,7 @@
 #include <wx/wx.h>
 
 #include <array>
+#include <cstddef>
 #include <format>
 #include <functional>
 #include <vector>
@@ -34,6 +35,15 @@ namespace
     constexpr size_t k_imageBufferSize_5x5 = 400;
     constexpr size_t k_imageBufferSize_6x6 = 576;
     constexpr size_t k_imageBufferSize_7x7 = 784;
+
+    size_t GetBuferSize(pokegold::ImageDimensions dimens)
+    {
+        if (dimens == pokegold::ImageDimensions::Size_40x40)
+            return k_imageBufferSize_5x5;
+        if (dimens == pokegold::ImageDimensions::Size_48x48)
+            return k_imageBufferSize_6x6;
+        return k_imageBufferSize_7x7;
+    }
 }
 
 bool pokegold::Rom::Open(const std::filesystem::path &romFilePath)
@@ -279,6 +289,8 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
     }
 
     base::Log(TAG, "read pokemon (primary)");
+    const size_t eggMovesPtrOffset = Calc(data.GetByte(0x17414), data.GetBytes(0x1740f, 2));
+    const size_t eggMovesPtrBank = CalcBank(eggMovesPtrOffset);
     for (size_t i = 0; i < 256; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -289,42 +301,65 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
         auto &pokemon = data.Pokemons()[i];
 
-        if (i == 252)
-            pokemon.Type = PokemonType::Egg;
-        else if (i < 251)
-            pokemon.Type = PokemonType::Pokemon;
-        else
-            pokemon.Type = PokemonType::Dummy;
+        // type setting
+        {
+            if (i == 252)
+                pokemon.Type = PokemonType::Egg;
+            else if (i < 251)
+                pokemon.Type = PokemonType::Pokemon;
+            else
+                pokemon.Type = PokemonType::Dummy;
+        }
 
+        // 0~250
         if (pokemon.Type == PokemonType::Pokemon)
         {
             const auto bytes = data.GetBytes(0x51bdf + (i * 32), 32);
-            pokemon.Id = bytes[0];
-            pokemon.Hp = bytes[1];
-            pokemon.Attack = bytes[2];
-            pokemon.Defence = bytes[3];
-            pokemon.Speed = bytes[4];
-            pokemon.SpAttack = bytes[5];
-            pokemon.SpDefence = bytes[6];
-            pokemon.TypeIds[0] = bytes[7];
-            pokemon.TypeIds[1] = bytes[8];
-            pokemon.CatchRate = bytes[9];
-            pokemon.BaseExp = bytes[10];
-            pokemon.ItemIds[0] = bytes[11];
-            pokemon.ItemIds[1] = bytes[12];
-            pokemon.GenderRate = GenderRate(bytes[13]);
-            pokemon.EggHatchLevel = bytes[15];
-            pokemon.ImageDimensions = ImageDimensions(bytes[17]);
-            pokemon.GrowthRate = GrowthRate(bytes[22]);
-            pokemon.EggGroups[0] = EggGroup((bytes[23] & 0xf0) >> 4);
-            pokemon.EggGroups[1] = EggGroup(bytes[23] & 0x0f);
 
+            // stats
+            {
+                pokemon.Id = bytes[0];
+                pokemon.Hp = bytes[1];
+                pokemon.Attack = bytes[2];
+                pokemon.Defence = bytes[3];
+                pokemon.Speed = bytes[4];
+                pokemon.SpAttack = bytes[5];
+                pokemon.SpDefence = bytes[6];
+                pokemon.TypeIds[0] = bytes[7];
+                pokemon.TypeIds[1] = bytes[8];
+                pokemon.CatchRate = bytes[9];
+                pokemon.BaseExp = bytes[10];
+                pokemon.ItemIds[0] = bytes[11];
+                pokemon.ItemIds[1] = bytes[12];
+                pokemon.GenderRate = GenderRate(bytes[13]);
+                pokemon.EggHatchLevel = bytes[15];
+                pokemon.ImageDimensions = ImageDimensions(bytes[17]);
+                pokemon.GrowthRate = GrowthRate(bytes[22]);
+                pokemon.EggGroups[0] = EggGroup((bytes[23] & 0xf0) >> 4);
+                pokemon.EggGroups[1] = EggGroup(bytes[23] & 0x0f);
+            }
+
+            // TMHMs
             for (u8 j = 0; j < 8; j++)
             {
                 for (u8 a = 0; a < 8; a++)
                 {
                     u8 idx = (j * 8) + a;
                     pokemon.TMHMs[idx] = (bytes[24 + j] & k_bits[a]) != 0;
+                }
+            }
+
+            // egg moves
+            {
+                size_t offset = Calc(eggMovesPtrBank, data.GetBytes(eggMovesPtrOffset + (i * 2), 2));
+                for (;;)
+                {
+                    u8 byte = data.GetByte(offset);
+                    if (byte == 0xff)
+                        break;
+
+                    pokemon.EggMoveIds.push_back(byte);
+                    offset++;
                 }
             }
         }
@@ -577,7 +612,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             auto bytes = data.GetBytes(offset, 0x400);
             auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-            if (size == 0)
+            if (size == 0 || size != k_imageBufferSize_5x5)
             {
                 data.BadDataList().emplace_back(BadDataReason::EggImage, nullptr);
                 base::Log(TAG, "bad data (pokemon image (egg), idx={})", i);
@@ -606,7 +641,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                 auto bytes = data.GetBytes(offset, 0x400);
                 auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                if (size == 0)
+                if (size == 0 || size != GetBuferSize(pokemon.ImageDimensions))
                 {
                     pokemon.ImageDimensions = ImageDimensions::Size_40x40;
                     pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
@@ -622,7 +657,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                     bytes = data.GetBytes(offset, 0x400);
                     size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                    if (size == 0)
+                    if (size == 0 || size != k_imageBufferSize_6x6)
                     {
                         pokemon.ImageDimensions = ImageDimensions::Size_40x40;
                         pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
@@ -664,7 +699,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         auto bytes = data.GetBytes(offset, 0x400);
         auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-        if (size == 0)
+        if (size == 0 || size != GetBuferSize(unownImage.ImageDimensions))
         {
             unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
             unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
@@ -679,7 +714,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             bytes = data.GetBytes(offset, 0x400);
             size = lzcomp::Uncompress(imageBuffer, bytes);
 
-            if (size == 0)
+            if (size == 0 || size != k_imageBufferSize_6x6)
             {
                 unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                 unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
@@ -700,19 +735,31 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
 {
     base::Log(TAG, "read trainer groups (name)");
     size_t nameOffset = Calc(data.GetBytes(0x35d5, 3));
-    for (size_t i = 0; i < 67; i++)
+    for (size_t i = 0; i < 68; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
             return false;
 
-        m_openProgressState.UpdateMessage(std::format("트레이너 그룹 (이름: {}/67)", i + 1));
+        m_openProgressState.UpdateMessage(std::format("트레이너 그룹 (이름: {}/68)", i + 1));
         m_openProgressState.Increase();
 
         auto &trainerGroup = data.TrainerGroups()[i];
 
-        const auto bytes = data.GetBytesUntil(nameOffset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
-        trainerGroup.Name = bytes;
-        nameOffset += bytes.size();
+        if (i < 67)
+        {
+            const auto bytes = data.GetBytesUntil(nameOffset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
+            trainerGroup.Name = bytes;
+            nameOffset += bytes.size();
+        }
+        else
+        {
+            const u8 bank = CalcBank(0x23995);
+            size_t offset = Calc(bank, data.GetBytes(0x23995, 2));
+
+            const auto bytes = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
+            trainerGroup.Name = bytes;
+            nameOffset += bytes.size();
+        }
 
         if (trainerGroup.Name.HasBadData() || trainerGroup.Name.GetData().size() > 26)
         {
@@ -745,7 +792,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
             auto bytes = data.GetBytes(offset, 0x400);
             auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-            if (size == 0)
+            if (size == 0 || size != k_imageBufferSize_7x7)
             {
                 trainerGroup.Image = std::vector<u8>(k_imageBufferSize_7x7, 0);
                 data.BadDataList().emplace_back(BadDataReason::TrainerGroupImage, i);
@@ -772,7 +819,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
                 auto bytes = data.GetBytes(offset, 0x400);
                 auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                if (size == 0)
+                if (size == 0 || size != k_imageBufferSize_6x6)
                 {
                     trainerGroup.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                     trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
@@ -786,9 +833,8 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
                     auto bytes = data.GetBytes(offset, 0x400);
                     auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                    if (size == 0)
+                    if (size == 0 || size != k_imageBufferSize_6x6)
                     {
-                        trainerGroup.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                         trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                         data.BadDataList().emplace_back(BadDataReason::TrainerGroupPlayerBackImage, i);
                     }
