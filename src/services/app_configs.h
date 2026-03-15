@@ -23,7 +23,6 @@ namespace services
         base::MutableState<std::filesystem::path> m_emulatorPathState = base::GetNullPath();
         base::MutableState<bool> m_showDebugLabelState = true;
         base::MutableState<bool> m_testPlaySaveState = true;
-        base::MutableState<bool> m_buildCleanupState = false;
 
     public:
         AppConfigs(std::filesystem::path configFilePath)
@@ -54,9 +53,5 @@ namespace services
         bool GetTestPlaySave();
         void SetTestPlaySave(bool value);
         base::State<bool> &GetTestPlaySaveState() { return m_testPlaySaveState; }
-
-        bool GetBuildCleanup();
-        void SetBuildCleanup(bool value);
-        base::State<bool> &GetBuildCleanupState() { return m_buildCleanupState; }
     };
 }

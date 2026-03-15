@@ -217,9 +217,6 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	m_gameSettingsSaveMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_TEST_PLAY_SAVE, wxString( wxT("테스트 플레이 세이브 켜기/끄기(&S)") ) , wxT("테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다. (권장: 켜기)"), wxITEM_CHECK );
 	gameSettingsSubMenu->Append( m_gameSettingsSaveMenuItem );
 
-	m_gameSettingsCleanupMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_BUILD_CLEANUP, wxString( wxT("데이터 삽입 공간에 0 채우기 켜기/끄기(&C)") ) , wxT("롬 파일 빌드 시, 데이터가 삽입될 곳에 0을 채우는 기능을 켜거나 끕니다. (권장: 끄기)"), wxITEM_CHECK );
-	gameSettingsSubMenu->Append( m_gameSettingsCleanupMenuItem );
-
 	gameMenu->Append( gameSettingsSubMenuItem );
 
 	m_mainMenuBar->Append( gameMenu, wxT("게임(&G)") );
@@ -276,7 +273,6 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameSettingsEmulatorMenuItem->GetId());
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsShowDebugLabelMenuItem->GetId());
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsSaveMenuItem->GetId());
-	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsCleanupMenuItem->GetId());
 	helpMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, helpAboutMenuItem->GetId());
 	this->Connect( openToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 	this->Connect( m_saveToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));

@@ -1203,20 +1203,6 @@
               <property name="unchecked_bitmap"></property>
               <event name="OnMenuSelection">OnMenuItemSelected</event>
             </object>
-            <object class="wxMenuItem" expanded="false">
-              <property name="bitmap"></property>
-              <property name="checked">0</property>
-              <property name="enabled">1</property>
-              <property name="help">롬 파일 빌드 시, 데이터가 삽입될 곳에 0을 채우는 기능을 켜거나 끕니다. (권장: 끄기)</property>
-              <property name="id">wxID_BUILD_CLEANUP</property>
-              <property name="kind">wxITEM_CHECK</property>
-              <property name="label">데이터 삽입 공간에 0 채우기 켜기/끄기(&amp;C)</property>
-              <property name="name">m_gameSettingsCleanupMenuItem</property>
-              <property name="permission">protected</property>
-              <property name="shortcut"></property>
-              <property name="unchecked_bitmap"></property>
-              <event name="OnMenuSelection">OnMenuItemSelected</event>
-            </object>
           </object>
         </object>
         <object class="wxMenu" expanded="false">

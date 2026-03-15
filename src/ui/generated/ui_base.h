@@ -107,7 +107,6 @@ class MainFrameBase : public wxFrame
 			wxID_EMULATOR,
 			wxID_DEBUG_LABEL,
 			wxID_TEST_PLAY_SAVE,
-			wxID_BUILD_CLEANUP,
 		};
 
 		wxMenuBar* m_mainMenuBar;
@@ -118,7 +117,6 @@ class MainFrameBase : public wxFrame
 		wxMenuItem* m_gameSettingsEmulatorMenuItem;
 		wxMenuItem* m_gameSettingsShowDebugLabelMenuItem;
 		wxMenuItem* m_gameSettingsSaveMenuItem;
-		wxMenuItem* m_gameSettingsCleanupMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;

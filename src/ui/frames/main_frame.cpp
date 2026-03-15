@@ -40,7 +40,6 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
     m_configs.GetEmulatorPathState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetShowDebugLabelState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetTestPlaySaveState().Subscribe(this, [this] { SettingsMenusHandler(); });
-    m_configs.GetBuildCleanupState().Subscribe(this, [this] { SettingsMenusHandler(); });
 }
 
 void ui::MainFrame::RomOpenedControlHandler()
@@ -93,7 +92,6 @@ void ui::MainFrame::SettingsMenusHandler()
 
     m_gameSettingsShowDebugLabelMenuItem->Check(m_configs.GetShowDebugLabel());
     m_gameSettingsSaveMenuItem->Check(m_configs.GetTestPlaySave());
-    m_gameSettingsCleanupMenuItem->Check(m_configs.GetBuildCleanup());
 }
 
 void ui::MainFrame::OnClose(wxCloseEvent &event)
@@ -301,13 +299,6 @@ void ui::MainFrame::OnMenuItemSelected(wxCommandEvent &event)
     {
         auto newValue = !(m_configs.GetTestPlaySave());
         m_configs.SetTestPlaySave(newValue);
-        return;
-    }
-
-    if (id == wxID_BUILD_CLEANUP)
-    {
-        auto newValue = !(m_configs.GetBuildCleanup());
-        m_configs.SetBuildCleanup(newValue);
         return;
     }
 }
