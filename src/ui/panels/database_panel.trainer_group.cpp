@@ -158,8 +158,8 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
                 {
-                    e.BackColors[0] = result.GetPalette()[1];
-                    e.BackColors[1] = result.GetPalette()[2];
+                    e.Colors[0] = result.GetPalette()[1];
+                    e.Colors[1] = result.GetPalette()[2];
                 }
 
                 m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
@@ -192,8 +192,8 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
                 {
-                    e.BackColors[0] = result.GetPalette()[1];
-                    e.BackColors[1] = result.GetPalette()[2];
+                    e.Colors[0] = result.GetPalette()[1];
+                    e.Colors[1] = result.GetPalette()[2];
                 }
 
                 m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
@@ -235,36 +235,6 @@ void ui::DatabasePanel::InitializeTrainerGroupTab()
 
             UpdateTrainerGroupImages();
         });
-
-        m_trainerGroupBackColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
-                return;
-
-            auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
-            e.BackColors[0].R(newColor.Red());
-            e.BackColors[0].G(newColor.Green());
-            e.BackColors[0].B(newColor.Blue());
-
-            m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
-            m_pokegold.Rom().NotifyRomChanged();
-
-            UpdateTrainerGroupImages();
-        });
-
-        m_trainerGroupBackColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
-                return;
-
-            auto &e = m_pokegold.Data().TrainerGroups()[*m_selectedTrainerGroup];
-            e.BackColors[1].R(newColor.Red());
-            e.BackColors[1].G(newColor.Green());
-            e.BackColors[1].B(newColor.Blue());
-
-            m_pokegold.Data().TrainerGroupUpdated()(*m_selectedTrainerGroup);
-            m_pokegold.Rom().NotifyRomChanged();
-
-            UpdateTrainerGroupImages();
-        });
     }
 }
 
@@ -295,10 +265,8 @@ void ui::DatabasePanel::UpdateTrainerGroupImages()
         if (index == 11)
         {
             auto &e = m_pokegold.Data().TrainerGroups()[index];
-            m_trainerGroupBackImage_1->Set2bppData(pokegold::ImageDimensions::Size_48x48, e.BackImage, e.BackColors);
-            m_trainerGroupBackImage_2->Set2bppData(pokegold::ImageDimensions::Size_48x48, e.DudeBackImage, e.BackColors);
-            m_trainerGroupBackColor_1->SetColor(e.BackColors[0].ToWxColor());
-            m_trainerGroupBackColor_2->SetColor(e.BackColors[1].ToWxColor());
+            m_trainerGroupBackImage_1->Set2bppData(pokegold::ImageDimensions::Size_48x48, e.BackImage, e.Colors);
+            m_trainerGroupBackImage_2->Set2bppData(pokegold::ImageDimensions::Size_48x48, e.DudeBackImage, e.Colors);
         }
     });
 }

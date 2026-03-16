@@ -311,7 +311,7 @@ namespace pokegold
 
         // 플레이어, 튜토리얼 전용
         std::vector<u8> BackImage, DudeBackImage;
-        std::array<Color, 2> BackColors;
+        std::array<Color, 2> BackColors; // obsoluted
     };
 
     struct Type

@@ -982,10 +982,10 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
         srcStream << GetAsmSection(0xb50d, "GSEditor_TrainerGroup_PlayerBackColor")
                   << GetAsmLine("GSEditor_TrainerGroup_PlayerBackColor::")
                   << GetAsmBytes({
-                         e.BackColors[0].GetLoByte(),
-                         e.BackColors[0].GetHiByte(),
-                         e.BackColors[1].GetLoByte(),
-                         e.BackColors[1].GetHiByte(),
+                         e.Colors[0].GetLoByte(),
+                         e.Colors[0].GetHiByte(),
+                         e.Colors[1].GetLoByte(),
+                         e.Colors[1].GetHiByte(),
                      });
     }
 
@@ -1016,6 +1016,31 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
             m_buildProgressState.Increase();
 
             data.PushImageDataBlock(std::format("GSEditor_TrainerGroup_Image_{}", i), m_data.TrainerGroups()[i].Image);
+        }
+
+        // trainer card
+        if (m_appConfigs.GetTrainerCardImage())
+        {
+            auto &trainerData = m_data.TrainerGroups()[12 - 1].Image;
+
+            for (size_t i = 0; i < 7; i++)
+            {
+                std::vector<u8> tileData;
+
+                for (size_t j = 0; j < (i == 0 ? 4 : 5); j++)
+                {
+                    size_t offset = 0x70 + (i * 0x10) + (j * 0x70);
+
+                    for (size_t a = 0; a < 0x10; a++)
+                    {
+                        u8 byte = trainerData[offset + a];
+                        tileData.push_back(byte);
+                    }
+                }
+
+                srcStream << GetAsmSection(0x25507 + (i * 0x50), "GSEditor_TrainerGroup_PlayerTrainerCardImage_{}", i)
+                          << GetAsmBytes(tileData);
+            }
         }
 
         // back data

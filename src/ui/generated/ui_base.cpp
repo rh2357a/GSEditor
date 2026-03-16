@@ -211,11 +211,16 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	gameSettingsSubMenu->AppendSeparator();
 
-	m_gameSettingsShowDebugLabelMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_DEBUG_LABEL, wxString( wxT("디버그 라벨 켜기/끄기(&D)") ) , wxT("디버거에서 롬 파일에 기록된 라벨을 표시합니다."), wxITEM_CHECK );
+	m_gameSettingsShowDebugLabelMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_DEBUG_LABEL, wxString( wxT("디버그 라벨(&D)") ) , wxT("디버거에서 롬 파일에 기록된 라벨을 표시합니다."), wxITEM_CHECK );
 	gameSettingsSubMenu->Append( m_gameSettingsShowDebugLabelMenuItem );
 
-	m_gameSettingsSaveMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_TEST_PLAY_SAVE, wxString( wxT("테스트 플레이 세이브 켜기/끄기(&S)") ) , wxT("테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다. (권장: 켜기)"), wxITEM_CHECK );
+	m_gameSettingsSaveMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_TEST_PLAY_SAVE, wxString( wxT("테스트 플레이 세이브(&S)") ) , wxT("테스트 플레이 도중 세이브 시, 세이브 파일에 기록이 가능하도록 합니다. (권장: 켜기)"), wxITEM_CHECK );
 	gameSettingsSubMenu->Append( m_gameSettingsSaveMenuItem );
+
+	gameSettingsSubMenu->AppendSeparator();
+
+	m_gameSettingsTrainerCardImageMenuItem = new wxMenuItem( gameSettingsSubMenu, wxID_TRAINER_CARD_IMAGE, wxString( wxT("플레이어 이미지를 트레이너 카드에 적용") ) , wxT("트레이너 이미지를 트레이너 카드에 적용합니다. (권장: 켜기)"), wxITEM_CHECK );
+	gameSettingsSubMenu->Append( m_gameSettingsTrainerCardImageMenuItem );
 
 	gameMenu->Append( gameSettingsSubMenuItem );
 
@@ -273,6 +278,7 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameSettingsEmulatorMenuItem->GetId());
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsShowDebugLabelMenuItem->GetId());
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsSaveMenuItem->GetId());
+	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsTrainerCardImageMenuItem->GetId());
 	helpMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, helpAboutMenuItem->GetId());
 	this->Connect( openToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 	this->Connect( m_saveToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
@@ -2459,6 +2465,26 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	m_trainerGroupImage = new ui::ImageEditorPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
 	trainerGroupImageSizer->Add( m_trainerGroupImage, 0, wxBOTTOM|wxLEFT, 5 );
 
+	m_trainerGroupBackImagePanel = new wxPanel( trainerGroupImagePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* trainerGroupBackImagePanelSizer;
+	trainerGroupBackImagePanelSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxStaticLine* trainerGroupImageSeparator;
+	trainerGroupImageSeparator = new wxStaticLine( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	trainerGroupBackImagePanelSizer->Add( trainerGroupImageSeparator, 0, wxBOTTOM|wxEXPAND|wxLEFT, 5 );
+
+	m_trainerGroupBackImage_1 = new ui::ImageEditorPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	trainerGroupBackImagePanelSizer->Add( m_trainerGroupBackImage_1, 0, wxBOTTOM|wxLEFT, 5 );
+
+	m_trainerGroupBackImage_2 = new ui::ImageEditorPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
+	trainerGroupBackImagePanelSizer->Add( m_trainerGroupBackImage_2, 0, wxBOTTOM|wxLEFT, 5 );
+
+
+	m_trainerGroupBackImagePanel->SetSizer( trainerGroupBackImagePanelSizer );
+	m_trainerGroupBackImagePanel->Layout();
+	trainerGroupBackImagePanelSizer->Fit( m_trainerGroupBackImagePanel );
+	trainerGroupImageSizer->Add( m_trainerGroupBackImagePanel, 0, 0, 0 );
+
 
 	trainerGroupImagePanelSizer->Add( trainerGroupImageSizer, 0, wxLEFT|wxRIGHT|wxTOP, 5 );
 
@@ -2503,55 +2529,6 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 
 
 	trainerGroupContainerSizer->Add( 0, 8, 0, 0, 0 );
-
-	m_trainerGroupBackImagePanel = new wxPanel( m_trainerGroupContainer, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* trainerGroupBackImagePanelSizer;
-	trainerGroupBackImagePanelSizer = new wxBoxSizer( wxVERTICAL );
-
-	ui::LabeledSeparator* trainerGroupBackImageLabel;
-	trainerGroupBackImageLabel = new ui::LabeledSeparator( m_trainerGroupBackImagePanel, wxID_ANY, wxT("이미지 && 색상 (플레이어 뒷 모습)"), wxDefaultPosition, wxDefaultSize, 0 );
-	trainerGroupBackImageLabel->Wrap( -1 );
-	trainerGroupBackImagePanelSizer->Add( trainerGroupBackImageLabel, 0, wxALL|wxEXPAND, 5 );
-
-	wxBoxSizer* trainerGroupBackImageSizer;
-	trainerGroupBackImageSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticText* trainerGroupBackImageImageLabel;
-	trainerGroupBackImageImageLabel = new wxStaticText( m_trainerGroupBackImagePanel, wxID_ANY, wxT("이미지："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
-	trainerGroupBackImageImageLabel->Wrap( -1 );
-	trainerGroupBackImageSizer->Add( trainerGroupBackImageImageLabel, 0, wxALL, 5 );
-
-	m_trainerGroupBackImage_1 = new ui::ImageEditorPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
-	trainerGroupBackImageSizer->Add( m_trainerGroupBackImage_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
-
-	m_trainerGroupBackImage_2 = new ui::ImageEditorPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,64 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
-	trainerGroupBackImageSizer->Add( m_trainerGroupBackImage_2, 0, wxEXPAND | wxALL, 5 );
-
-
-	trainerGroupBackImagePanelSizer->Add( trainerGroupBackImageSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 10 );
-
-	wxBoxSizer* trainerGroupBackColorSizer;
-	trainerGroupBackColorSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticText* trainerGroupBackImageColorLabel;
-	trainerGroupBackImageColorLabel = new wxStaticText( m_trainerGroupBackImagePanel, wxID_ANY, wxT("색상："), wxDefaultPosition, wxSize( 48,-1 ), 0 );
-	trainerGroupBackImageColorLabel->Wrap( -1 );
-	trainerGroupBackColorSizer->Add( trainerGroupBackImageColorLabel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	m_trainerGroupBackColor_1 = new ui::ColorPickerPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
-	trainerGroupBackColorSizer->Add( m_trainerGroupBackColor_1, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
-
-	m_trainerGroupBackColor_2 = new ui::ColorPickerPanel( m_trainerGroupBackImagePanel, wxID_ANY, wxDefaultPosition, wxSize( 64,24 ), wxBORDER_THEME|wxTAB_TRAVERSAL );
-	trainerGroupBackColorSizer->Add( m_trainerGroupBackColor_2, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
-
-
-	trainerGroupBackImagePanelSizer->Add( trainerGroupBackColorSizer, 0, wxEXPAND|wxLEFT|wxRIGHT, 10 );
-
-
-	m_trainerGroupBackImagePanel->SetSizer( trainerGroupBackImagePanelSizer );
-	m_trainerGroupBackImagePanel->Layout();
-	trainerGroupBackImagePanelSizer->Fit( m_trainerGroupBackImagePanel );
-	trainerGroupContainerSizer->Add( m_trainerGroupBackImagePanel, 0, wxALL|wxEXPAND, 0 );
 
 
 	m_trainerGroupContainer->SetSizer( trainerGroupContainerSizer );

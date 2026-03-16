@@ -107,6 +107,7 @@ class MainFrameBase : public wxFrame
 			wxID_EMULATOR,
 			wxID_DEBUG_LABEL,
 			wxID_TEST_PLAY_SAVE,
+			wxID_TRAINER_CARD_IMAGE,
 		};
 
 		wxMenuBar* m_mainMenuBar;
@@ -117,6 +118,7 @@ class MainFrameBase : public wxFrame
 		wxMenuItem* m_gameSettingsEmulatorMenuItem;
 		wxMenuItem* m_gameSettingsShowDebugLabelMenuItem;
 		wxMenuItem* m_gameSettingsSaveMenuItem;
+		wxMenuItem* m_gameSettingsTrainerCardImageMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
@@ -271,14 +273,12 @@ class DatabasePanelBase : public wxPanel
 		wxTextCtrl* m_trainerGroupNameText;
 		wxSimplebook* m_trainerGroupImageContainer;
 		ui::ImageEditorPanel* m_trainerGroupImage;
-		ui::ColorPickerPanel* m_trainerGroupColor_1;
-		ui::ColorPickerPanel* m_trainerGroupColor_2;
-		wxStaticText* m_trainerGroupImageWarningLabel;
 		wxPanel* m_trainerGroupBackImagePanel;
 		ui::ImageEditorPanel* m_trainerGroupBackImage_1;
 		ui::ImageEditorPanel* m_trainerGroupBackImage_2;
-		ui::ColorPickerPanel* m_trainerGroupBackColor_1;
-		ui::ColorPickerPanel* m_trainerGroupBackColor_2;
+		ui::ColorPickerPanel* m_trainerGroupColor_1;
+		ui::ColorPickerPanel* m_trainerGroupColor_2;
+		wxStaticText* m_trainerGroupImageWarningLabel;
 		ui::ColoredListBox* m_typeList;
 		wxScrolledWindow* m_typeContainer;
 		wxTextCtrl* m_typeNameText;
