@@ -1441,7 +1441,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* itemInnerPanelSizer;
 	itemInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_itemList = new ui::ColoredListBox( itemInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 170,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	m_itemList = new ui::ColoredListBox( itemInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
 	itemInnerPanelSizer->Add( m_itemList, 0, wxALL|wxEXPAND, 2 );
 
 	m_itemContainer = new wxScrolledWindow( itemInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxHSCROLL|wxVSCROLL );
@@ -2414,7 +2414,7 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* trainerGroupInnerPanelSizer;
 	trainerGroupInnerPanelSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_trainerGroupList = new ui::ColoredListBox( trainerGroupInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 200,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
+	m_trainerGroupList = new ui::ColoredListBox( trainerGroupInnerPanel, wxID_ANY, wxDefaultPosition, wxSize( 160,-1 ), 0, NULL, wxLB_SINGLE|wxBORDER_STATIC );
 	trainerGroupInnerPanelSizer->Add( m_trainerGroupList, 0, wxALL|wxEXPAND, 2 );
 
 	m_trainerGroupContainer = new wxScrolledWindow( trainerGroupInnerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxHSCROLL|wxVSCROLL );

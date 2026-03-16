@@ -11831,7 +11831,7 @@
                             <property name="pos"></property>
                             <property name="resize">Resizable</property>
                             <property name="show">1</property>
-                            <property name="size">170,-1</property>
+                            <property name="size">160,-1</property>
                             <property name="style">wxLB_SINGLE</property>
                             <property name="subclass">ui::ColoredListBox; ui/ui.h; forward_declare</property>
                             <property name="toolbar_pane">0</property>
@@ -15720,7 +15720,7 @@
               <property name="bitmap"></property>
               <property name="label">트레이너 그룹</property>
               <property name="select">0</property>
-              <object class="wxPanel" expanded="true">
+              <object class="wxPanel" expanded="false">
                 <property name="BottomDockable">1</property>
                 <property name="LeftDockable">1</property>
                 <property name="RightDockable">1</property>
@@ -15772,16 +15772,16 @@
                 <property name="window_extra_style"></property>
                 <property name="window_name"></property>
                 <property name="window_style">wxTAB_TRAVERSAL</property>
-                <object class="wxBoxSizer" expanded="true">
+                <object class="wxBoxSizer" expanded="false">
                   <property name="minimum_size"></property>
                   <property name="name">trainerGroupPanelSizer</property>
                   <property name="orient">wxVERTICAL</property>
                   <property name="permission">none</property>
-                  <object class="sizeritem" expanded="true">
+                  <object class="sizeritem" expanded="false">
                     <property name="border">2</property>
                     <property name="flag">wxEXPAND | wxALL</property>
                     <property name="proportion">1</property>
-                    <object class="wxPanel" expanded="true">
+                    <object class="wxPanel" expanded="false">
                       <property name="BottomDockable">1</property>
                       <property name="LeftDockable">1</property>
                       <property name="RightDockable">1</property>
@@ -15833,7 +15833,7 @@
                       <property name="window_extra_style"></property>
                       <property name="window_name"></property>
                       <property name="window_style">wxTAB_TRAVERSAL</property>
-                      <object class="wxBoxSizer" expanded="true">
+                      <object class="wxBoxSizer" expanded="false">
                         <property name="minimum_size"></property>
                         <property name="name">trainerGroupInnerPanelSizer</property>
                         <property name="orient">wxHORIZONTAL</property>
@@ -15888,7 +15888,7 @@
                             <property name="pos"></property>
                             <property name="resize">Resizable</property>
                             <property name="show">1</property>
-                            <property name="size">200,-1</property>
+                            <property name="size">160,-1</property>
                             <property name="style">wxLB_SINGLE</property>
                             <property name="subclass">ui::ColoredListBox; ui/ui.h; forward_declare</property>
                             <property name="toolbar_pane">0</property>
@@ -15902,11 +15902,11 @@
                             <property name="window_style">wxBORDER_STATIC</property>
                           </object>
                         </object>
-                        <object class="sizeritem" expanded="true">
+                        <object class="sizeritem" expanded="false">
                           <property name="border">2</property>
                           <property name="flag">wxEXPAND | wxALL</property>
                           <property name="proportion">1</property>
-                          <object class="wxScrolledWindow" expanded="true">
+                          <object class="wxScrolledWindow" expanded="false">
                             <property name="BottomDockable">1</property>
                             <property name="LeftDockable">1</property>
                             <property name="RightDockable">1</property>
@@ -15960,7 +15960,7 @@
                             <property name="window_extra_style"></property>
                             <property name="window_name"></property>
                             <property name="window_style">wxBORDER_STATIC|wxHSCROLL|wxVSCROLL</property>
-                            <object class="wxBoxSizer" expanded="true">
+                            <object class="wxBoxSizer" expanded="false">
                               <property name="minimum_size"></property>
                               <property name="name">trainerGroupContainerSizer</property>
                               <property name="orient">wxVERTICAL</property>
@@ -16164,11 +16164,11 @@
                                   <property name="wrap">-1</property>
                                 </object>
                               </object>
-                              <object class="sizeritem" expanded="true">
+                              <object class="sizeritem" expanded="false">
                                 <property name="border">5</property>
                                 <property name="flag">wxEXPAND | wxALL</property>
                                 <property name="proportion">0</property>
-                                <object class="wxSimplebook" expanded="true">
+                                <object class="wxSimplebook" expanded="false">
                                   <property name="BottomDockable">1</property>
                                   <property name="LeftDockable">1</property>
                                   <property name="RightDockable">1</property>
@@ -16220,10 +16220,10 @@
                                   <property name="window_extra_style"></property>
                                   <property name="window_name"></property>
                                   <property name="window_style"></property>
-                                  <object class="simplebookpage" expanded="true">
+                                  <object class="simplebookpage" expanded="false">
                                     <property name="label"></property>
                                     <property name="select">1</property>
-                                    <object class="wxPanel" expanded="true">
+                                    <object class="wxPanel" expanded="false">
                                       <property name="BottomDockable">1</property>
                                       <property name="LeftDockable">1</property>
                                       <property name="RightDockable">1</property>
@@ -16275,16 +16275,16 @@
                                       <property name="window_extra_style"></property>
                                       <property name="window_name"></property>
                                       <property name="window_style">wxTAB_TRAVERSAL</property>
-                                      <object class="wxBoxSizer" expanded="true">
+                                      <object class="wxBoxSizer" expanded="false">
                                         <property name="minimum_size"></property>
                                         <property name="name">trainerGroupImagePanelSizer</property>
                                         <property name="orient">wxVERTICAL</property>
                                         <property name="permission">none</property>
-                                        <object class="sizeritem" expanded="true">
+                                        <object class="sizeritem" expanded="false">
                                           <property name="border">5</property>
                                           <property name="flag">wxLEFT|wxRIGHT|wxTOP</property>
                                           <property name="proportion">0</property>
-                                          <object class="wxBoxSizer" expanded="true">
+                                          <object class="wxBoxSizer" expanded="false">
                                             <property name="minimum_size"></property>
                                             <property name="name">trainerGroupImageSizer</property>
                                             <property name="orient">wxHORIZONTAL</property>
@@ -16409,11 +16409,11 @@
                                                 <property name="window_style">wxBORDER_THEME|wxTAB_TRAVERSAL</property>
                                               </object>
                                             </object>
-                                            <object class="sizeritem" expanded="true">
+                                            <object class="sizeritem" expanded="false">
                                               <property name="border">0</property>
                                               <property name="flag"></property>
                                               <property name="proportion">0</property>
-                                              <object class="wxPanel" expanded="true">
+                                              <object class="wxPanel" expanded="false">
                                                 <property name="BottomDockable">1</property>
                                                 <property name="LeftDockable">1</property>
                                                 <property name="RightDockable">1</property>
@@ -16470,11 +16470,11 @@
                                                   <property name="name">trainerGroupBackImagePanelSizer</property>
                                                   <property name="orient">wxHORIZONTAL</property>
                                                   <property name="permission">none</property>
-                                                  <object class="sizeritem" expanded="true">
+                                                  <object class="sizeritem" expanded="false">
                                                     <property name="border">5</property>
                                                     <property name="flag">wxBOTTOM|wxEXPAND|wxLEFT</property>
                                                     <property name="proportion">0</property>
-                                                    <object class="wxStaticLine" expanded="true">
+                                                    <object class="wxStaticLine" expanded="false">
                                                       <property name="BottomDockable">1</property>
                                                       <property name="LeftDockable">1</property>
                                                       <property name="RightDockable">1</property>

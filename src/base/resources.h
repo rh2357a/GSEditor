@@ -8,8 +8,8 @@
 #define APP_NAME     "GSEditor"
 #define APP_FILENAME "GSEditor.exe"
 
-#define APP_VERSION     1, 2, 10, 1
-#define APP_VERSION_STR "1.2.10.1"
+#define APP_VERSION     1, 2, 11, 0
+#define APP_VERSION_STR "1.2.11.0"
 
 #define RES_ID_APP_MANIFEST 1
 #define RES_ID_APP_ICON     101
