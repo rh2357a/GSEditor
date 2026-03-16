@@ -612,7 +612,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             auto bytes = data.GetBytes(offset, 0x400);
             auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-            if (size == 0 || size != k_imageBufferSize_5x5)
+            if (size == 0 || size < k_imageBufferSize_5x5)
             {
                 data.BadDataList().emplace_back(BadDataReason::EggImage, nullptr);
                 base::Log(TAG, "bad data (pokemon image (egg), idx={})", i);
@@ -641,7 +641,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                 auto bytes = data.GetBytes(offset, 0x400);
                 auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                if (size == 0 || size != GetBuferSize(pokemon.ImageDimensions))
+                if (size == 0 || size < GetBuferSize(pokemon.ImageDimensions))
                 {
                     pokemon.ImageDimensions = ImageDimensions::Size_40x40;
                     pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
@@ -657,7 +657,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                     bytes = data.GetBytes(offset, 0x400);
                     size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                    if (size == 0 || size != k_imageBufferSize_6x6)
+                    if (size == 0 || size < k_imageBufferSize_6x6)
                     {
                         pokemon.ImageDimensions = ImageDimensions::Size_40x40;
                         pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
@@ -699,7 +699,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         auto bytes = data.GetBytes(offset, 0x400);
         auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-        if (size == 0 || size != GetBuferSize(unownImage.ImageDimensions))
+        if (size == 0 || size < GetBuferSize(unownImage.ImageDimensions))
         {
             unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
             unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
@@ -714,7 +714,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             bytes = data.GetBytes(offset, 0x400);
             size = lzcomp::Uncompress(imageBuffer, bytes);
 
-            if (size == 0 || size != k_imageBufferSize_6x6)
+            if (size == 0 || size < k_imageBufferSize_6x6)
             {
                 unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                 unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
@@ -792,7 +792,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
             auto bytes = data.GetBytes(offset, 0x400);
             auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-            if (size == 0 || size != k_imageBufferSize_7x7)
+            if (size == 0 || size < k_imageBufferSize_7x7)
             {
                 trainerGroup.Image = std::vector<u8>(k_imageBufferSize_7x7, 0);
                 data.BadDataList().emplace_back(BadDataReason::TrainerGroupImage, i);
@@ -819,7 +819,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
                 auto bytes = data.GetBytes(offset, 0x400);
                 auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                if (size == 0 || size != k_imageBufferSize_6x6)
+                if (size == 0 || size < k_imageBufferSize_6x6)
                 {
                     trainerGroup.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                     trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
@@ -833,7 +833,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
                     auto bytes = data.GetBytes(offset, 0x400);
                     auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
-                    if (size == 0 || size != k_imageBufferSize_6x6)
+                    if (size == 0 || size < k_imageBufferSize_6x6)
                     {
                         trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                         data.BadDataList().emplace_back(BadDataReason::TrainerGroupPlayerBackImage, i);
