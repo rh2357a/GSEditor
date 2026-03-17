@@ -6,12 +6,8 @@ namespace base
 {
     /**
      * @brief 초기값 전용 경로
-     *
-     * @return std::filesystem::path
-     *
-     * TODO: `if (foo == base::GetNullPath())` > `if (foo == base::NullPath)`: getter 대신 constants 처럼 용도로 쓰이게 바꿀 것
      */
-    std::filesystem::path GetNullPath();
+    inline const std::filesystem::path NullPath = "<NULL_PATH>";
 
     /**
      * @brief 앱 데이터 경로

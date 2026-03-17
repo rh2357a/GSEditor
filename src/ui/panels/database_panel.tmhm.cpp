@@ -17,12 +17,12 @@ void ui::DatabasePanel::InitializeTmHmTab()
     BindControlSelection(this, m_tmhmList, m_selectedTMHM);
 
     // 롬을 다시 열었을 때, 선택 초기화...
-    m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
+    m_pokegold.IsOpenedState().Subscribe(this, [this](const bool &) {
         m_selectedTMHM.Update(-1);
     });
 
     // 기술 목록 갱신
-    m_pokegold.Data().MoveNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.MoveNameUpdated.Subscribe(this, [this](const int &idx) {
         m_tmhmMoveComboBox->Freeze();
 
         if (m_tmhmMoveComboBox->GetCount() == 0)
@@ -35,13 +35,13 @@ void ui::DatabasePanel::InitializeTmHmTab()
         {
             for (int i = 0; i < 251; i++)
             {
-                auto &pokemon = m_pokegold.Data().Moves()[i];
+                auto &pokemon = m_pokegold.Data.Moves[i];
                 m_tmhmMoveComboBox->SetString(i, pokemon.Name.ToEditorWxString());
             }
         }
         else
         {
-            auto &pokemon = m_pokegold.Data().Moves()[idx];
+            auto &pokemon = m_pokegold.Data.Moves[idx];
             m_tmhmMoveComboBox->SetString(idx, pokemon.Name.ToEditorWxString());
         }
 
@@ -49,7 +49,7 @@ void ui::DatabasePanel::InitializeTmHmTab()
     });
 
     // 포켓몬 목록 갱신
-    m_pokegold.Data().PokemonNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.PokemonNameUpdated.Subscribe(this, [this](const int &idx) {
         m_tmhmPokemonList->Freeze();
 
         if (m_tmhmPokemonList->GetCount() == 0)
@@ -62,13 +62,13 @@ void ui::DatabasePanel::InitializeTmHmTab()
         {
             for (int i = 0; i < 251; i++)
             {
-                auto &pokemon = m_pokegold.Data().Pokemons()[i];
+                auto &pokemon = m_pokegold.Data.Pokemons[i];
                 m_tmhmPokemonList->SetString(i, pokemon.Name.ToEditorWxString());
             }
         }
         else if (idx < 251)
         {
-            auto &pokemon = m_pokegold.Data().Pokemons()[idx];
+            auto &pokemon = m_pokegold.Data.Pokemons[idx];
             m_tmhmPokemonList->SetString(idx, pokemon.Name.ToEditorWxString());
         }
 
@@ -76,7 +76,7 @@ void ui::DatabasePanel::InitializeTmHmTab()
     });
 
     // 기술머신 표시 및 변경사항 갱신
-    m_pokegold.Data().TMHMsUpdated().Subscribe(this, [this] { UpdateTMHMsTab(); });
+    m_pokegold.Data.TMHMsUpdated.Subscribe(this, [this] { UpdateTMHMsTab(); });
     m_selectedTMHM.Subscribe(this, [this] {
         UpdateTMHMsTab();
         m_tmhmList->SetFocus();
@@ -86,37 +86,37 @@ void ui::DatabasePanel::InitializeTmHmTab()
     m_tmhmMoveComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
         ev.Skip();
 
-        if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+        if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
             return;
 
-        auto &e = m_pokegold.Data().TMHMs()[*m_selectedTMHM];
+        auto &e = m_pokegold.Data.TMHMs[*m_selectedTMHM];
         e.MoveId = m_tmhmMoveComboBox->GetSelection() + 1;
 
-        m_pokegold.Data().TMHMsUpdated()();
-        m_pokegold.Rom().NotifyRomChanged();
+        m_pokegold.Data.TMHMsUpdated();
+        m_pokegold.NotifyRomChanged();
     });
 
     // 배울 수 있는 포켓몬 체크 처리
     m_tmhmPokemonList->Bind(wxEVT_CHECKLISTBOX, [this](wxCommandEvent &ev) {
         ev.Skip();
 
-        if (!*m_pokegold.Rom().Opened() || m_eventGuard.IsGuarded())
+        if (!*m_pokegold.IsOpenedState() || m_eventGuard.IsGuarded())
             return;
 
         for (u16 i = 0; i < 251; i++)
         {
-            auto &pokemon = m_pokegold.Data().Pokemons()[i];
+            auto &pokemon = m_pokegold.Data.Pokemons[i];
             pokemon.TMHMs[*m_selectedTMHM] = m_tmhmPokemonList->IsChecked(i);
         }
 
-        m_pokegold.Data().TMHMsUpdated()();
-        m_pokegold.Rom().NotifyRomChanged();
+        m_pokegold.Data.TMHMsUpdated();
+        m_pokegold.NotifyRomChanged();
     });
 }
 
 void ui::DatabasePanel::UpdateTMHMsTab()
 {
-    if (!*m_pokegold.Rom().Opened())
+    if (!*m_pokegold.IsOpenedState())
         return;
 
     // 목록 업데이트
@@ -125,17 +125,17 @@ void ui::DatabasePanel::UpdateTMHMsTab()
 
         if (m_tmhmList->GetCount() == 0)
         {
-            for (size_t i = 0; i < m_pokegold.Data().TMHMs().size(); i++)
+            for (size_t i = 0; i < m_pokegold.Data.TMHMs.size(); i++)
                 m_tmhmList->Append(wxT(""));
         }
 
-        for (size_t i = 0; i < m_pokegold.Data().TMHMs().size(); i++)
+        for (size_t i = 0; i < m_pokegold.Data.TMHMs.size(); i++)
         {
             auto str = std::format(
                 "{}{:02} [{}]",
                 i < 50 ? "기술" : "비전",
                 i < 50 ? i + 1 : i - 50 + 1,
-                m_pokegold.Data().Moves()[m_pokegold.Data().TMHMs()[i].MoveId - 1].Name.ToEditorString());
+                m_pokegold.Data.Moves[m_pokegold.Data.TMHMs[i].MoveId - 1].Name.ToEditorString());
             m_tmhmList->SetString(i, wxString::FromUTF8(str));
         }
 
@@ -157,11 +157,11 @@ void ui::DatabasePanel::UpdateTMHMsTab()
         }
         else
         {
-            const int moveId = m_pokegold.Data().TMHMs()[idx].MoveId - 1;
+            const int moveId = m_pokegold.Data.TMHMs[idx].MoveId - 1;
             m_tmhmMoveComboBox->Select(moveId);
 
             for (unsigned int i = 0; i < m_tmhmPokemonList->GetCount(); i++)
-                m_tmhmPokemonList->Check(i, m_pokegold.Data().Pokemons()[i].TMHMs[idx]);
+                m_tmhmPokemonList->Check(i, m_pokegold.Data.Pokemons[i].TMHMs[idx]);
         }
     });
 }
@@ -170,7 +170,7 @@ void ui::DatabasePanel::OnTMHMsButtonClick(wxCommandEvent &event)
 {
     event.Skip();
 
-    if (!*m_pokegold.Rom().Opened() || *m_selectedTMHM == -1)
+    if (!*m_pokegold.IsOpenedState() || *m_selectedTMHM == -1)
         return;
 
     const int id = event.GetId();
@@ -183,11 +183,11 @@ void ui::DatabasePanel::OnTMHMsButtonClick(wxCommandEvent &event)
             return;
 
         m_eventGuard([&] {
-            for (auto &pokemon : m_pokegold.Data().Pokemons())
+            for (auto &pokemon : m_pokegold.Data.Pokemons)
                 pokemon.TMHMs[selected] = true;
 
-            m_pokegold.Data().TMHMsUpdated()();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.TMHMsUpdated();
+            m_pokegold.NotifyRomChanged();
         });
         return;
     }
@@ -199,11 +199,11 @@ void ui::DatabasePanel::OnTMHMsButtonClick(wxCommandEvent &event)
             return;
 
         m_eventGuard([&] {
-            for (auto &pokemon : m_pokegold.Data().Pokemons())
+            for (auto &pokemon : m_pokegold.Data.Pokemons)
                 pokemon.TMHMs[selected] = false;
 
-            m_pokegold.Data().TMHMsUpdated()();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.TMHMsUpdated();
+            m_pokegold.NotifyRomChanged();
         });
         return;
     }

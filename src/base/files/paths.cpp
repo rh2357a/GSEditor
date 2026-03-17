@@ -6,12 +6,6 @@
 #include <shlobj.h>
 #include <windows.h>
 
-std::filesystem::path base::GetNullPath()
-{
-    static const std::filesystem::path pathImpl("<NULL_PATH>");
-    return pathImpl;
-}
-
 std::filesystem::path base::GetAppDataPath()
 {
     static const std::filesystem::path pathImpl = [] {

@@ -34,9 +34,9 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
     auto title = wxString::Format(wxT("GS 에디터 v%s"), APP_VERSION_STR);
     SetTitle(title);
 
-    m_pokegold.Rom().Opened().Subscribe(this, [this] { RomOpenedControlHandler(); });
-    m_pokegold.Rom().FilePath().Subscribe(this, [this] { StatusBarTextHandler(); });
-    m_pokegold.Rom().DataChanged().Subscribe(this, [this] { StatusBarTextHandler(); });
+    m_pokegold.IsOpenedState().Subscribe(this, [this] { RomOpenedControlHandler(); });
+    m_pokegold.FilePathState().Subscribe(this, [this] { StatusBarTextHandler(); });
+    m_pokegold.IsDataChangedState().Subscribe(this, [this] { StatusBarTextHandler(); });
     m_configs.GetEmulatorPathState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetShowDebugLabelState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetTestPlaySaveState().Subscribe(this, [this] { SettingsMenusHandler(); });
@@ -45,7 +45,7 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
 
 void ui::MainFrame::RomOpenedControlHandler()
 {
-    bool isOpened = *m_pokegold.Rom().Opened();
+    bool isOpened = *m_pokegold.IsOpenedState();
 
     m_fileSaveMenuItem->Enable(isOpened);
     m_fileExportToIpsMenuItem->Enable(isOpened);
@@ -61,10 +61,10 @@ void ui::MainFrame::RomOpenedControlHandler()
 
 void ui::MainFrame::StatusBarTextHandler()
 {
-    auto romPath = *m_pokegold.Rom().FilePath();
-    auto isDataChanged = *m_pokegold.Rom().DataChanged();
+    auto romPath = *m_pokegold.FilePathState();
+    auto isDataChanged = *m_pokegold.IsDataChangedState();
 
-    if (romPath != base::GetNullPath())
+    if (romPath != base::NullPath)
     {
         auto state = isDataChanged ? "[변경됨] " : "";
         auto path = std::format("{}{}", state, romPath.string());
@@ -79,7 +79,7 @@ void ui::MainFrame::StatusBarTextHandler()
 void ui::MainFrame::SettingsMenusHandler()
 {
     auto path = *m_configs.GetEmulatorPathState();
-    if (path == base::GetNullPath())
+    if (path == base::NullPath)
     {
         wxString help = wxT("테스트 플레이 에뮬레이터를 등록합니다.");
         m_gameSettingsEmulatorMenuItem->SetHelp(help);
@@ -98,7 +98,7 @@ void ui::MainFrame::SettingsMenusHandler()
 
 void ui::MainFrame::OnClose(wxCloseEvent &event)
 {
-    if (*m_pokegold.Rom().DataChanged())
+    if (*m_pokegold.IsDataChangedState())
     {
         auto selected = ShowYesNoCancelDialog(this, "알림", "변경 사항을 롬 파일에 저장하시겠습니까?");
         if (selected == MessageBoxResult::Yes)
@@ -140,7 +140,7 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
     {
         base::Log(TAG, "menu selected (menu: open)");
 
-        if (*m_pokegold.Rom().Opened() && *m_pokegold.Rom().DataChanged())
+        if (*m_pokegold.IsOpenedState() && *m_pokegold.IsDataChangedState())
         {
             auto questionResult = ShowYesNoDialog(this, "알림", "변경된 내용이 아직 있습니다.\n그래도 다른 파일을 열겠습니까?");
             if (questionResult == MessageBoxResult::No)
@@ -151,15 +151,14 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (!openRomResult.has_value())
             return;
 
-        auto &state = m_pokegold.Rom().OpenProgressState();
+        auto &state = m_pokegold.OpenProgressState();
         auto result = ShowProgressDialog(this, "열기...", state, [this, &openRomResult] {
             std::filesystem::path filePath = *openRomResult;
-            return m_pokegold.Rom().Open(filePath);
+            return m_pokegold.Open(filePath);
         });
 
-        auto badDataList = m_pokegold.Data().BadDataList();
-        if (result && !badDataList.empty())
-            ShowBadDataDialog(this, badDataList);
+        if (result && !m_pokegold.Data.BadDataList.empty())
+            ShowBadDataDialog(this, m_pokegold.Data.BadDataList);
 
         return;
     }
@@ -202,9 +201,9 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         base::Log(TAG, "  - path: \"{}\"", (*emulatorPath).string());
 
         base::Log(TAG, "test_play: build rom");
-        auto &state = m_pokegold.Rom().BuildProgressState();
+        auto &state = m_pokegold.BuildProgressState();
         auto result = ShowProgressDialog(this, "저장...", state, [this] {
-            return m_pokegold.Rom().Build();
+            return m_pokegold.Build();
         });
 
         if (!result.has_value())
@@ -214,7 +213,7 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         }
 
         base::Log(TAG, "test_play: run");
-        m_pokegold.Rom().RunTestPlay();
+        m_pokegold.RunTestPlay();
 
         return;
     }
@@ -245,9 +244,9 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (!savePatchResult.has_value())
             return;
 
-        auto &state = m_pokegold.Rom().BuildProgressState();
+        auto &state = m_pokegold.BuildProgressState();
         auto result = ShowProgressDialog(this, "저장...", state, [this] {
-            return m_pokegold.Rom().Build();
+            return m_pokegold.Build();
         });
 
         if (result.has_value())
@@ -271,9 +270,9 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
         if (!savePatchResult.has_value())
             return;
 
-        auto &state = m_pokegold.Rom().BuildProgressState();
+        auto &state = m_pokegold.BuildProgressState();
         auto result = ShowProgressDialog(this, "저장...", state, [this] {
-            return m_pokegold.Rom().Build();
+            return m_pokegold.Build();
         });
 
         if (result.has_value())
@@ -314,9 +313,9 @@ void ui::MainFrame::OnMenuItemSelected(wxCommandEvent &event)
 
 void ui::MainFrame::SaveRomFile()
 {
-    auto &state = m_pokegold.Rom().BuildProgressState();
+    auto &state = m_pokegold.BuildProgressState();
     auto result = ShowProgressDialog(this, "저장...", state, [this] {
-        return m_pokegold.Rom().Build();
+        return m_pokegold.Build();
     });
 
     if (!result.has_value())
@@ -326,7 +325,7 @@ void ui::MainFrame::SaveRomFile()
     }
 
     auto romPath = *result;
-    auto writeToPath = *m_pokegold.Rom().FilePath();
+    auto writeToPath = *m_pokegold.FilePathState();
     std::filesystem::copy(romPath, writeToPath, std::filesystem::copy_options::overwrite_existing);
-    m_pokegold.Rom().NotifyRomSaved();
+    m_pokegold.NotifyRomSaved();
 }

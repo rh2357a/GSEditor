@@ -14,7 +14,7 @@ ui::internal::ImportMoveDialog::ImportMoveDialog(wxWindow *parent) : ImportMoveD
     {
         m_pokemonListBox->Freeze();
 
-        for (auto &e : m_pokegold.Data().Pokemons())
+        for (auto &e : m_pokegold.Data.Pokemons)
         {
             if (e.Type == pokegold::PokemonType::Pokemon)
             {
@@ -42,7 +42,7 @@ ui::internal::ImportMoveDialog::ImportMoveDialog(wxWindow *parent) : ImportMoveD
         {
             m_movesListCtrl->DeleteAllItems();
 
-            auto &moves = m_pokegold.Data().Pokemons()[idx].Moves;
+            auto &moves = m_pokegold.Data.Pokemons[idx].Moves;
 
             Result.clear();
             Result.insert(Result.begin(), moves.begin(), moves.end());
@@ -52,7 +52,7 @@ ui::internal::ImportMoveDialog::ImportMoveDialog(wxWindow *parent) : ImportMoveD
                 const auto &e = moves[i];
                 m_movesListCtrl->InsertItem(i, wxT(""));
                 m_movesListCtrl->SetItem(i, 0, wxString::Format("%d", e.Level));
-                m_movesListCtrl->SetItem(i, 1, m_pokegold.Data().Moves()[e.MoveId - 1].Name.ToEditorWxString());
+                m_movesListCtrl->SetItem(i, 1, m_pokegold.Data.Moves[e.MoveId - 1].Name.ToEditorWxString());
             }
 
             AutoListCtrlColumnWidth(m_movesListCtrl);

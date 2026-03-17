@@ -19,15 +19,15 @@ void ui::DatabasePanel::InitializeUnownTab()
         BindControlSelection(this, m_unownList, m_selectedUnown);
 
         // 롬 열기 시, 선택 초기화...
-        m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &isOpened) {
+        m_pokegold.IsOpenedState().Subscribe(this, [this](const bool &isOpened) {
             m_selectedUnown.Update(-1);
 
             if (isOpened)
-                m_unownPokemonComboBox->Select(m_pokegold.Data().UnownPokemonId);
+                m_unownPokemonComboBox->Select(m_pokegold.Data.UnownPokemonId);
         });
 
         // 포켓몬 목록 바인딩
-        m_pokegold.Data().PokemonNameUpdated().Subscribe(this, [this](const int &id) {
+        m_pokegold.Data.PokemonNameUpdated.Subscribe(this, [this](const int &id) {
             m_unownPokemonComboBox->Freeze();
 
             if (m_unownPokemonComboBox->GetCount() == 0)
@@ -42,13 +42,13 @@ void ui::DatabasePanel::InitializeUnownTab()
 
                 for (int i = 0; i < 251; i++)
                 {
-                    auto &name = m_pokegold.Data().Pokemons()[i].Name;
+                    auto &name = m_pokegold.Data.Pokemons[i].Name;
                     m_unownPokemonComboBox->SetString(i + 1, name.ToEditorWxString());
                 }
             }
             else if (id < 251)
             {
-                auto &name = m_pokegold.Data().Pokemons()[id].Name;
+                auto &name = m_pokegold.Data.Pokemons[id].Name;
                 m_unownPokemonComboBox->SetString(id + 1, name.ToEditorWxString());
             }
 
@@ -59,7 +59,7 @@ void ui::DatabasePanel::InitializeUnownTab()
         m_selectedUnown.Subscribe(this, [this](const int &idx) {
             base::Log(TAG, "unown selected (index={})", idx);
 
-            m_unownInnerPanel->Enable(m_pokegold.Data().UnownImageEnabled);
+            m_unownInnerPanel->Enable(m_pokegold.Data.UnownImageEnabled);
             m_unownContainer->Enable(idx != -1);
 
             UpdateUnownImages();
@@ -74,12 +74,12 @@ void ui::DatabasePanel::InitializeUnownTab()
         m_unownPokemonComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            m_pokegold.Data().UnownPokemonId = m_unownPokemonComboBox->GetSelection();
-            m_pokegold.Data().UnownImageEnabled = m_unownPokemonComboBox->GetSelection() != 0;
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.UnownPokemonId = m_unownPokemonComboBox->GetSelection();
+            m_pokegold.Data.UnownImageEnabled = m_unownPokemonComboBox->GetSelection() != 0;
+            m_pokegold.NotifyRomChanged();
 
             // 갱신 처리
-            m_selectedUnown.Update(m_pokegold.Data().UnownImageEnabled ? *m_selectedUnown : -1);
+            m_selectedUnown.Update(m_pokegold.Data.UnownImageEnabled ? *m_selectedUnown : -1);
             m_selectedPokemon.Update(*m_selectedPokemon);
         });
 
@@ -117,18 +117,18 @@ void ui::DatabasePanel::InitializeUnownTab()
                     return;
                 }
 
-                auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
+                auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
                 unown.FrontImage = result.Get2bppData();
                 unown.ImageDimensions = pokegold::ToImageDimensions(size);
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
                 {
-                    auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+                    auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
                     pokemon.Colors[0] = result.GetPalette()[1];
                     pokemon.Colors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdateUnownImages();
             }
@@ -152,17 +152,17 @@ void ui::DatabasePanel::InitializeUnownTab()
                     return;
                 }
 
-                auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
+                auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
                 unown.BackImage = result.Get2bppData();
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
                 {
-                    auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+                    auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
                     pokemon.Colors[0] = result.GetPalette()[1];
                     pokemon.Colors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdateUnownImages();
             }
@@ -188,18 +188,18 @@ void ui::DatabasePanel::InitializeUnownTab()
                     return;
                 }
 
-                auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
+                auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
                 unown.FrontImage = result.Get2bppData();
                 unown.ImageDimensions = pokegold::ToImageDimensions(size);
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
                 {
-                    auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+                    auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
                     pokemon.ShinyColors[0] = result.GetPalette()[1];
                     pokemon.ShinyColors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdateUnownImages();
             }
@@ -223,74 +223,74 @@ void ui::DatabasePanel::InitializeUnownTab()
                     return;
                 }
 
-                auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
+                auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
                 unown.BackImage = result.Get2bppData();
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
                 {
-                    auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+                    auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
                     pokemon.ShinyColors[0] = result.GetPalette()[1];
                     pokemon.ShinyColors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdateUnownImages();
             }
         });
 
         m_unownColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+            auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
+            auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
             pokemon.Colors[0].R(newColor.Red());
             pokemon.Colors[0].G(newColor.Green());
             pokemon.Colors[0].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdateUnownImages();
         });
 
         m_unownColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+            auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
+            auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
             pokemon.Colors[1].R(newColor.Red());
             pokemon.Colors[1].G(newColor.Green());
             pokemon.Colors[1].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdateUnownImages();
         });
 
         m_unownShinyColor_1->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+            auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
+            auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
             pokemon.ShinyColors[0].R(newColor.Red());
             pokemon.ShinyColors[0].G(newColor.Green());
             pokemon.ShinyColors[0].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdateUnownImages();
         });
 
         m_unownShinyColor_2->GetColorState().Subscribe(this, [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &unown = m_pokegold.Data().UnownImages()[*m_selectedUnown];
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+            auto &unown = m_pokegold.Data.UnownImages[*m_selectedUnown];
+            auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
             pokemon.ShinyColors[1].R(newColor.Red());
             pokemon.ShinyColors[1].G(newColor.Green());
             pokemon.ShinyColors[1].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdateUnownImages();
         });
@@ -315,8 +315,8 @@ void ui::DatabasePanel::UpdateUnownImages()
         }
         else
         {
-            auto &unown = m_pokegold.Data().UnownImages()[index];
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokegold.Data().UnownPokemonId - 1];
+            auto &unown = m_pokegold.Data.UnownImages[index];
+            auto &pokemon = m_pokegold.Data.Pokemons[m_pokegold.Data.UnownPokemonId - 1];
 
             m_unownFrontImage->Set2bppData(unown.ImageDimensions, unown.FrontImage, pokemon.Colors);
             m_unownBackImage->Set2bppData(pokegold::ImageDimensions::Size_48x48, unown.BackImage, pokemon.Colors);

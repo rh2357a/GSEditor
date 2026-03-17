@@ -8,10 +8,10 @@
 #include "ui/utils.h"
 
 #include <wx/radiobox.h>
-#include <wx/radiobox.h>
 
 #include <algorithm>
 #include <unordered_map>
+
 
 void ui::DatabasePanel::InitializeTypeTab()
 {
@@ -21,12 +21,12 @@ void ui::DatabasePanel::InitializeTypeTab()
     BindControlSelection(this, m_typeMatchupList, m_selectedTypeMatchup);
 
     // 롬을 다시 열었을 때, 선택 초기화...
-    m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
+    m_pokegold.IsOpenedState().Subscribe(this, [this](const bool &) {
         m_selectedType.Update(-1);
     });
 
     // 목록 갱신
-    m_pokegold.Data().TypeNameUpdated().Subscribe(this, [this](const int &) {
+    m_pokegold.Data.TypeNameUpdated.Subscribe(this, [this](const int &) {
         m_typeList->Freeze();
 
         if (m_typeList->GetCount() == 0)
@@ -37,7 +37,7 @@ void ui::DatabasePanel::InitializeTypeTab()
 
         for (int i = 0; i < 28; i++)
         {
-            auto &e = m_pokegold.Data().Types()[i];
+            auto &e = m_pokegold.Data.Types[i];
             m_typeList->SetString(i, e.Name.ToEditorWxString());
         }
 
@@ -54,7 +54,7 @@ void ui::DatabasePanel::InitializeTypeTab()
             if (idx == -1)
                 m_typeNameText->SetValue(wxT(""));
             else
-                m_typeNameText->SetValue(m_pokegold.Data().Types()[idx].Name.ToEditorWxString());
+                m_typeNameText->SetValue(m_pokegold.Data.Types[idx].Name.ToEditorWxString());
         });
 
         UpdateTypeMatchups();
@@ -66,18 +66,18 @@ void ui::DatabasePanel::InitializeTypeTab()
     m_typeNameText->Bind(wxEVT_TEXT, [this](wxCommandEvent &ev) {
         ev.Skip();
 
-        if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+        if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
             return;
 
         auto str = m_typeNameText->GetValue().utf8_string();
         if (pokegold::String::IsCharmapString(str))
         {
             int selected = *m_selectedType;
-            auto &e = m_pokegold.Data().Types()[selected];
+            auto &e = m_pokegold.Data.Types[selected];
             e.Name = str + "[50]";
 
-            m_pokegold.Data().TypeNameUpdated()(selected);
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.TypeNameUpdated(selected);
+            m_pokegold.NotifyRomChanged();
         }
     });
 
@@ -113,7 +113,7 @@ void ui::DatabasePanel::UpdateTypeMatchups()
     if (idx == -1)
         return;
 
-    auto &type = m_pokegold.Data().Types()[idx];
+    auto &type = m_pokegold.Data.Types[idx];
 
     // 상성
     {
@@ -122,7 +122,7 @@ void ui::DatabasePanel::UpdateTypeMatchups()
         {
             m_typeMatchupList->InsertItem(i, wxT(""));
 
-            auto defenderTypeName = m_pokegold.Data().Types()[matchup.DefenderTypeId].Name.ToEditorWxString();
+            auto defenderTypeName = m_pokegold.Data.Types[matchup.DefenderTypeId].Name.ToEditorWxString();
             m_typeMatchupList->SetItem(i, 0, defenderTypeName);
 
             switch (matchup.TypeEffectiveness)
@@ -185,12 +185,12 @@ void ui::DatabasePanel::OnTypeMatchupsButtonClick(wxCommandEvent &event)
 {
     event.Skip();
 
-    if (!*m_pokegold.Rom().Opened() || *m_selectedType == -1)
+    if (!*m_pokegold.IsOpenedState() || *m_selectedType == -1)
         return;
 
     const int id = event.GetId();
     const int selectedTypeMatchupIdx = *m_selectedTypeMatchup;
-    auto &type = m_pokegold.Data().Types()[*m_selectedType];
+    auto &type = m_pokegold.Data.Types[*m_selectedType];
 
     if (id == wxID_ADD)
     {
@@ -210,7 +210,7 @@ void ui::DatabasePanel::OnTypeMatchupsButtonClick(wxCommandEvent &event)
             type.TypeMatchups.push_back(item);
 
             UpdateTypeMatchups();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             // 추가된 항목 선택처리
             auto foundResult = std::find(type.TypeMatchups.begin(), type.TypeMatchups.end(), item);
@@ -238,7 +238,7 @@ void ui::DatabasePanel::OnTypeMatchupsButtonClick(wxCommandEvent &event)
             type.TypeMatchups[selectedTypeMatchupIdx] = item;
 
             UpdateTypeMatchups();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             // 항목 선택처리
             auto foundResult = std::find(type.TypeMatchups.begin(), type.TypeMatchups.end(), item);
@@ -257,7 +257,7 @@ void ui::DatabasePanel::OnTypeMatchupsButtonClick(wxCommandEvent &event)
             type.TypeMatchups.erase(position);
 
             UpdateTypeMatchups();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -270,7 +270,7 @@ void ui::DatabasePanel::OnTypeMatchupsButtonClick(wxCommandEvent &event)
             type.TypeMatchups.clear();
 
             UpdateTypeMatchups();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -287,7 +287,7 @@ void ui::DatabasePanel::OnTypeWeatherModifierRadioBox(wxCommandEvent &event)
     if (idx == -1)
         return;
 
-    auto &type = m_pokegold.Data().Types()[idx];
+    auto &type = m_pokegold.Data.Types[idx];
     type.WeatherModifiers.clear();
 
     int rain = m_typeWeatherModifierRainRadioBox->GetSelection();
@@ -317,5 +317,5 @@ void ui::DatabasePanel::OnTypeWeatherModifierRadioBox(wxCommandEvent &event)
             type.WeatherModifiers.emplace_back(pokegold::BattleWeather::Sandstorm, pokegold::TypeEffectiveness::NotVeryEffective);
     }
 
-    m_pokegold.Rom().NotifyRomChanged();
+    m_pokegold.NotifyRomChanged();
 }

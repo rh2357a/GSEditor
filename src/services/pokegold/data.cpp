@@ -4,7 +4,7 @@
 
 pokegold::Data::Data(std::filesystem::path romFilePath)
 {
-    if (romFilePath != base::GetNullPath())
+    if (romFilePath != base::NullPath)
         m_romBytes = base::ReadBytesFromFile(romFilePath);
 }
 
@@ -12,31 +12,30 @@ pokegold::Data &pokegold::Data::operator=(const Data &newData)
 {
     m_romBytes = newData.m_romBytes;
 
-    m_items = newData.m_items;
-    m_moves = newData.m_moves;
-    m_moveEffects = newData.m_moveEffects;
-    m_pokemons = newData.m_pokemons;
-    m_unownImages = newData.m_unownImages;
-    m_trainerGroups = newData.m_trainerGroups;
-    m_types = newData.m_types;
-    m_tmhms = newData.m_tmhms;
+    Items = newData.Items;
+    Moves = newData.Moves;
+    MoveEffects = newData.MoveEffects;
+    Pokemons = newData.Pokemons;
+    UnownImages = newData.UnownImages;
+    TrainerGroups = newData.TrainerGroups;
+    Types = newData.Types;
+    TMHMs = newData.TMHMs;
 
-    m_npcColors = newData.m_npcColors;
-    m_legacyPokemonSmallPictures = newData.m_legacyPokemonSmallPictures;
+    Maps = newData.Maps;
 
-    m_badDataList = newData.m_badDataList;
+    BadDataList = newData.BadDataList;
 
     UnownImageEnabled = newData.UnownImageEnabled;
     UnownPokemonId = newData.UnownPokemonId;
 
     // 변동 사항 전체 통지
     {
-        m_pokemonNameUpdated(-1);
-        m_itemNameUpdated(-1);
-        m_moveNameUpdated(-1);
-        m_typeNameUpdated(-1);
-        m_tmhmsUpdated();
-        m_trainerGroupUpdated(-1);
+        PokemonNameUpdated(-1);
+        ItemNameUpdated(-1);
+        MoveNameUpdated(-1);
+        TypeNameUpdated(-1);
+        TMHMsUpdated();
+        TrainerGroupUpdated(-1);
     }
 
     return *this;

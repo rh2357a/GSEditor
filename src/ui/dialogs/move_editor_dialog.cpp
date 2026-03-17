@@ -14,7 +14,7 @@ ui::internal::MoveEditorDialog::MoveEditorDialog(wxWindow *parent, std::optional
     {
         m_movesComboBox->Freeze();
 
-        for (auto &e : m_pokegold.Data().Moves())
+        for (auto &e : m_pokegold.Data.Moves)
         {
             const auto name = e.Name.ToEditorWxString();
             m_movesComboBox->Append(name);

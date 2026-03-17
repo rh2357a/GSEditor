@@ -1,13 +1,13 @@
-#include "rom.h"
+#include "pokegold.h"
 
 #include "base/files/file_util.h"
 #include "base/log.h"
 #include "base/resources.h"
 #include "base/resources_embed.h"
 #include "base/sidecar/rgbds.h"
+#include "pokegold/utils/free_space.h"
 #include "services/pokegold/data/game_data.h"
 #include "services/pokegold/utils.h"
-#include "utils/free_space.h"
 
 #include <algorithm>
 #include <array>
@@ -78,14 +78,29 @@ namespace
         // Egg 기술 공간
         // {0x1f8000, 0x1fbfff},
     };
+
+    const std::vector<size_t> k_unownIdsOffsets = {
+        0x00da2b,
+        0x00daf1,
+        0x00deea,
+        0x02a7f7,
+        0x03d5af,
+        0x03e861,
+        0x03f442,
+        0x0416ce,
+        0x042007,
+        0x05113e,
+        0x05188f,
+        0x0518f1,
+    };
 }
 
-std::optional<std::filesystem::path> pokegold::Rom::Build()
+std::optional<std::filesystem::path> services::Pokegold::Build()
 {
     base::Log(TAG, "start build.");
     m_buildProgressState.Reset();
 
-    std::vector<std::function<bool(internal::RomBuildData &)>> funcs = {
+    std::vector<std::function<bool(pokegold::internal::RomBuildData &)>> funcs = {
         [this](auto &data) { return Build_Startup(data); },
         [this](auto &data) { return Build_PokemonSources(data); },
         [this](auto &data) { return Build_MoveSources(data); },
@@ -101,7 +116,7 @@ std::optional<std::filesystem::path> pokegold::Rom::Build()
     std::filesystem::remove_all(workDir);
     std::filesystem::create_directories(workDir);
 
-    internal::RomBuildData data(workDir);
+    pokegold::internal::RomBuildData data(workDir);
     for (const auto &func : funcs)
     {
         if (!func(data))
@@ -113,7 +128,7 @@ std::optional<std::filesystem::path> pokegold::Rom::Build()
     return workDir / (s_targetName + ".bin");
 }
 
-bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
+bool services::Pokegold::Build_Startup(pokegold::internal::RomBuildData &data)
 {
     base::Log(TAG, "build: copy baserom");
     {
@@ -127,7 +142,7 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
         //       - 스몰 스프라이트 확장
         //       - 타입 상성 복구
         // std::filesystem::copy_file(*m_romFilePathState, *m_workspacePathState / (s_baseName + ".bin"));
-        base::WriteBytesToFile(*m_workspacePathState / (s_baseName + ".bin"), m_data.GetRomBytes());
+        base::WriteBytesToFile(*m_workspacePathState / (s_baseName + ".bin"), Data.GetRomBytes());
     }
 
     base::Log(TAG, "build: copy save file");
@@ -153,27 +168,27 @@ bool pokegold::Rom::Build_Startup(internal::RomBuildData &data)
         m_buildProgressState.Increase();
 
         constexpr auto filename = "GSEditor.Macros.asm";
-        data.GetSourceStream() << GetAsmInclude(filename);
+        data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
         base::WriteBytesToFile(*m_workspacePathState / filename, embed::GetPokegoldMacrosSource());
     }
 
     // names section 기록
-    data.GetNamesSourceStream() << GetAsmSection(0x1b0c4a, "GSEditor_Names");
+    data.GetNamesSourceStream() << pokegold::GetAsmSection(0x1b0c4a, "GSEditor_Names");
 
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
+bool services::Pokegold::Build_ItemSources(pokegold::internal::RomBuildData &data)
 {
     constexpr auto filename = "GSEditor.Items.asm";
     std::ofstream srcStream(*m_workspacePathState / filename);
-    data.GetSourceStream() << GetAsmInclude(filename);
+    data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
     base::Log(TAG, "write item (primary)");
     {
-        srcStream << GetAsmSection(0x697b, "GSEditor_Item_Properties")
-                  << GetAsmLine("GSEditor_Item_Properties::");
+        srcStream << pokegold::GetAsmSection(0x697b, "GSEditor_Item_Properties")
+                  << pokegold::GetAsmLine("GSEditor_Item_Properties::");
 
         for (size_t i = 0; i < 256; i++)
         {
@@ -183,8 +198,8 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("아이템 (기본 정보: {}/256)", i + 1));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.Items()[i];
-            srcStream << GetAsmBytes({
+            const auto &e = Data.Items[i];
+            srcStream << pokegold::GetAsmBytes({
                 u8(e.Price & 0xff),
                 u8((e.Price >> 8) & 0xff),
                 e.Effect,
@@ -199,7 +214,7 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
     base::Log(TAG, "write item (name)");
     {
         // data
-        data.GetNamesSourceStream() << GetAsmLine("GSEditor_Item_Names::");
+        data.GetNamesSourceStream() << pokegold::GetAsmLine("GSEditor_Item_Names::");
         for (size_t i = 0; i < 256; i++)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
@@ -208,20 +223,20 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("아이템 (이름: {}/256)", i + 1));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.Items()[i];
-            data.GetNamesSourceStream() << GetAsmBytes(e.Name.GetData());
+            const auto &e = Data.Items[i];
+            data.GetNamesSourceStream() << pokegold::GetAsmBytes(e.Name.GetData());
         }
 
         // ptr
-        srcStream << GetAsmSection(0x35cc, "GSEditor_Item_Names_Pointer_0")
-                  << GetAsmLine("db BANK(GSEditor_Item_Names)")
-                  << GetAsmLine("dw GSEditor_Item_Names")
+        srcStream << pokegold::GetAsmSection(0x35cc, "GSEditor_Item_Names_Pointer_0")
+                  << pokegold::GetAsmLine("db BANK(GSEditor_Item_Names)")
+                  << pokegold::GetAsmLine("dw GSEditor_Item_Names")
 
-                  << GetAsmSection(0x515cd, "GSEditor_Item_Names_Pointer_1")
-                  << GetAsmLine("dw GSEditor_Item_Names")
+                  << pokegold::GetAsmSection(0x515cd, "GSEditor_Item_Names_Pointer_1")
+                  << pokegold::GetAsmLine("dw GSEditor_Item_Names")
 
-                  << GetAsmSection(0x515d7, "GSEditor_Item_Names_Pointer_2")
-                  << GetAsmLine("dw GSEditor_Item_Names");
+                  << pokegold::GetAsmSection(0x515d7, "GSEditor_Item_Names_Pointer_2")
+                  << pokegold::GetAsmLine("dw GSEditor_Item_Names");
     }
 
     base::Log(TAG, "write item (description)");
@@ -232,8 +247,8 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
         {
             std::unordered_map<std::string, std::string> labelCacheMap;
 
-            srcStream << GetAsmSection(0x1b8200, "GSEditor_Item_Descriptions")
-                      << GetAsmLine("GSEditor_Item_Descriptions::");
+            srcStream << pokegold::GetAsmSection(0x1b8200, "GSEditor_Item_Descriptions")
+                      << pokegold::GetAsmLine("GSEditor_Item_Descriptions::");
             for (size_t i = 0; i < 256; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -243,7 +258,7 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
                 m_buildProgressState.Increase();
 
                 const auto label = std::format("GSEditor_Item_Description_{}", i);
-                auto &e = m_data.Items()[i].Description;
+                auto &e = Data.Items[i].Description;
                 auto str = e.ToEditorString();
 
                 if (labelCacheMap.contains(str))
@@ -252,8 +267,8 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
                 }
                 else
                 {
-                    srcStream << GetAsmLine("{}:", label)
-                              << GetAsmBytes(e.GetData());
+                    srcStream << pokegold::GetAsmLine("{}:", label)
+                              << pokegold::GetAsmBytes(e.GetData());
 
                     labelCacheMap[str] = label;
                     labels[i] = label;
@@ -263,8 +278,8 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
 
         // ptr
         {
-            srcStream << GetAsmSection(0x1b8000, "GSEditor_Item_Description_Pointers")
-                      << GetAsmLine("GSEditor_Item_Description_Pointers::");
+            srcStream << pokegold::GetAsmSection(0x1b8000, "GSEditor_Item_Description_Pointers")
+                      << pokegold::GetAsmLine("GSEditor_Item_Description_Pointers::");
             for (size_t i = 0; i < 256; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -273,7 +288,7 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("아이템 (설명 포인터: {}/256)", i + 1));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("dw {}", labels[i]);
+                srcStream << pokegold::GetAsmLine("dw {}", labels[i]);
             }
         }
     }
@@ -281,16 +296,16 @@ bool pokegold::Rom::Build_ItemSources(internal::RomBuildData &data)
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
+bool services::Pokegold::Build_MoveSources(pokegold::internal::RomBuildData &data)
 {
     constexpr auto filename = "GSEditor.Moves.asm";
     std::ofstream srcStream(*m_workspacePathState / filename);
-    data.GetSourceStream() << GetAsmInclude(filename);
+    data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
     base::Log(TAG, "write move (primary)");
     {
-        srcStream << GetAsmSection(0x4172e, "GSEditor_Move_Properties")
-                  << GetAsmLine("GSEditor_Move_Properties::");
+        srcStream << pokegold::GetAsmSection(0x4172e, "GSEditor_Move_Properties")
+                  << pokegold::GetAsmLine("GSEditor_Move_Properties::");
 
         for (size_t i = 0; i < 251; i++)
         {
@@ -300,8 +315,8 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("기술 (기본 정보: {}/251)", i + 1));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.Moves()[i];
-            srcStream << GetAsmBytes({
+            const auto &e = Data.Moves[i];
+            srcStream << pokegold::GetAsmBytes({
                 e.Id,
                 e.Effect,
                 e.Power,
@@ -316,12 +331,12 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
     base::Log(TAG, "write move (name)");
     {
         // ptr
-        srcStream << GetAsmSection(0x35c6, "GSEditor_Move_Names_Pointer")
-                  << GetAsmLine("db BANK(GSEditor_Move_Names)")
-                  << GetAsmLine("dw GSEditor_Move_Names");
+        srcStream << pokegold::GetAsmSection(0x35c6, "GSEditor_Move_Names_Pointer")
+                  << pokegold::GetAsmLine("db BANK(GSEditor_Move_Names)")
+                  << pokegold::GetAsmLine("dw GSEditor_Move_Names");
 
         // data
-        data.GetNamesSourceStream() << GetAsmLine("GSEditor_Move_Names::");
+        data.GetNamesSourceStream() << pokegold::GetAsmLine("GSEditor_Move_Names::");
         for (size_t i = 0; i < 251; i++)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
@@ -330,8 +345,8 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("기술 (이름: {}/251)", i + 1));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.Moves()[i];
-            data.GetNamesSourceStream() << GetAsmBytes(e.Name.GetData());
+            const auto &e = Data.Moves[i];
+            data.GetNamesSourceStream() << pokegold::GetAsmBytes(e.Name.GetData());
         }
     }
 
@@ -343,12 +358,12 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
         {
             std::unordered_map<std::string, std::string> labelCacheMap;
 
-            srcStream << GetAsmSection(0x1b4200, "GSEditor_Move_Descriptions")
-                      << GetAsmLine("GSEditor_Move_Descriptions::")
+            srcStream << pokegold::GetAsmSection(0x1b4200, "GSEditor_Move_Descriptions")
+                      << pokegold::GetAsmLine("GSEditor_Move_Descriptions::")
 
                       // MEMO: 더미 데이터 ("？[50]")
-                      << GetAsmLine("GSEditor_Move_Description_0:")
-                      << GetAsmBytes({230, 80});
+                      << pokegold::GetAsmLine("GSEditor_Move_Description_0:")
+                      << pokegold::GetAsmBytes({230, 80});
 
             labelCacheMap["？"] = "GSEditor_Move_Description_0";
 
@@ -361,7 +376,7 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
                 m_buildProgressState.Increase();
 
                 const auto label = std::format("GSEditor_Move_Description_{}", i + 1);
-                auto &e = m_data.Moves()[i].Description;
+                auto &e = Data.Moves[i].Description;
                 auto str = e.ToEditorString();
 
                 if (labelCacheMap.contains(str))
@@ -370,8 +385,8 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
                 }
                 else
                 {
-                    srcStream << GetAsmLine("{}:", label)
-                              << GetAsmBytes(e.GetData());
+                    srcStream << pokegold::GetAsmLine("{}:", label)
+                              << pokegold::GetAsmBytes(e.GetData());
 
                     labelCacheMap[str] = label;
                     labels[i] = label;
@@ -381,8 +396,8 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
 
         // ptr
         {
-            srcStream << GetAsmSection(0x1b4000, "GSEditor_Move_Description_Pointers")
-                      << GetAsmLine("GSEditor_Move_Description_Pointers::");
+            srcStream << pokegold::GetAsmSection(0x1b4000, "GSEditor_Move_Description_Pointers")
+                      << pokegold::GetAsmLine("GSEditor_Move_Description_Pointers::");
             for (size_t i = 0; i < 251; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -391,7 +406,7 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("기술 (설명 포인터: {}/251)", i + 1));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("dw {}", labels[i]);
+                srcStream << pokegold::GetAsmLine("dw {}", labels[i]);
             }
 
             for (size_t i = 0; i < 5; i++)
@@ -402,17 +417,17 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("기술 (더미 데이터: {}/5)", i + 1));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("dw GSEditor_Move_Description_0");
+                srcStream << pokegold::GetAsmLine("dw GSEditor_Move_Description_0");
             }
         }
     }
 
     base::Log(TAG, "write move (TM / HM)");
     {
-        srcStream << GetAsmSection(0x119f5, "GSEditor_TMHMs")
-                  << GetAsmLine("GSEditor_TMHMs::");
+        srcStream << pokegold::GetAsmSection(0x119f5, "GSEditor_TMHMs")
+                  << pokegold::GetAsmLine("GSEditor_TMHMs::");
 
-        for (size_t i = 0, max = m_data.TMHMs().size(); i < max; i++)
+        for (size_t i = 0, max = Data.TMHMs.size(); i < max; i++)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;
@@ -420,23 +435,23 @@ bool pokegold::Rom::Build_MoveSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("기술 (기술 & 비전 머신: {}/{})", i + 1, max));
             m_buildProgressState.Increase();
 
-            srcStream << GetAsmBytes({m_data.TMHMs()[i].MoveId});
+            srcStream << pokegold::GetAsmBytes({Data.TMHMs[i].MoveId});
         }
     }
 
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
+bool services::Pokegold::Build_PokemonSources(pokegold::internal::RomBuildData &data)
 {
     constexpr auto filename = "GSEditor.Pokemons.asm";
     std::ofstream srcStream(*m_workspacePathState / filename);
-    data.GetSourceStream() << GetAsmInclude(filename);
+    data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
     base::Log(TAG, "write pokemon (primary)");
     {
-        srcStream << GetAsmSection(0x51bdf, "GSEditor_Pokemon_Properties")
-                  << GetAsmLine("GSEditor_Pokemon_Properties::");
+        srcStream << pokegold::GetAsmSection(0x51bdf, "GSEditor_Pokemon_Properties")
+                  << pokegold::GetAsmLine("GSEditor_Pokemon_Properties::");
 
         for (size_t i = 0; i < 251; i++)
         {
@@ -446,7 +461,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("포켓몬 (기본 정보: {}/256)", i + 1));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.Pokemons()[i];
+            const auto &e = Data.Pokemons[i];
 
             std::array<u8, 8> tmhms{0};
             for (u8 j = 0; j < 8; j++)
@@ -459,7 +474,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 }
             }
 
-            srcStream << GetAsmBytes({
+            srcStream << pokegold::GetAsmBytes({
                 e.Id,
                 e.Hp,
                 e.Attack,
@@ -500,44 +515,44 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
     {
         // ptr
         {
-            srcStream << GetAsmSection(0x1740f, "GSEditor_Pokemon_EggMoves_Pointer")
-                      << GetAsmLine("dw GSEditor_Pokemon_EggMoves")
+            srcStream << pokegold::GetAsmSection(0x1740f, "GSEditor_Pokemon_EggMoves_Pointer")
+                      << pokegold::GetAsmLine("dw GSEditor_Pokemon_EggMoves")
 
-                      << GetAsmSection(0x17414, "GSEditor_Pokemon_EggMoves_Bank_1")
-                      << GetAsmLine("db BANK(GSEditor_Pokemon_EggMoves)")
+                      << pokegold::GetAsmSection(0x17414, "GSEditor_Pokemon_EggMoves_Bank_1")
+                      << pokegold::GetAsmLine("db BANK(GSEditor_Pokemon_EggMoves)")
 
-                      << GetAsmSection(0x17419, "GSEditor_Pokemon_EggMoves_Bank_2")
-                      << GetAsmLine("db BANK(GSEditor_Pokemon_EggMoves)");
+                      << pokegold::GetAsmSection(0x17419, "GSEditor_Pokemon_EggMoves_Bank_2")
+                      << pokegold::GetAsmLine("db BANK(GSEditor_Pokemon_EggMoves)");
         }
 
         // data
         {
-            srcStream << GetAsmSection(0x1f8000, "GSEditor_Pokemon_EggMoves")
-                      << GetAsmLine("GSEditor_Pokemon_EggMoves::");
+            srcStream << pokegold::GetAsmSection(0x1f8000, "GSEditor_Pokemon_EggMoves")
+                      << pokegold::GetAsmLine("GSEditor_Pokemon_EggMoves::");
             for (size_t i = 0; i < 251; i++)
             {
-                if (m_data.Pokemons()[i].EggMoveIds.empty())
-                    srcStream << GetAsmLine("dw GSEditor_Pokemon_EggMoves_None");
+                if (Data.Pokemons[i].EggMoveIds.empty())
+                    srcStream << pokegold::GetAsmLine("dw GSEditor_Pokemon_EggMoves_None");
                 else
-                    srcStream << GetAsmLine("dw GSEditor_Pokemon_EggMoves_{}", i);
+                    srcStream << pokegold::GetAsmLine("dw GSEditor_Pokemon_EggMoves_{}", i);
             }
 
-            srcStream << GetAsmSection(0x1f8000 + 502, "GSEditor_Pokemon_EggMoves_Data")
-                      << GetAsmLine("GSEditor_Pokemon_EggMoves_Data::");
+            srcStream << pokegold::GetAsmSection(0x1f8000 + 502, "GSEditor_Pokemon_EggMoves_Data")
+                      << pokegold::GetAsmLine("GSEditor_Pokemon_EggMoves_Data::");
             for (size_t i = 0; i < 251; i++)
             {
-                auto &pokemon = m_data.Pokemons()[i];
+                auto &pokemon = Data.Pokemons[i];
                 if (!pokemon.EggMoveIds.empty())
                 {
-                    srcStream << GetAsmLine("GSEditor_Pokemon_EggMoves_{}:", i)
-                              << GetAsmBytes(pokemon.EggMoveIds)
-                              << GetAsmBytes({0xff});
+                    srcStream << pokegold::GetAsmLine("GSEditor_Pokemon_EggMoves_{}:", i)
+                              << pokegold::GetAsmBytes(pokemon.EggMoveIds)
+                              << pokegold::GetAsmBytes({0xff});
                 }
             }
 
             // none
-            srcStream << GetAsmLine("GSEditor_Pokemon_EggMoves_None:")
-                      << GetAsmLine("db 255");
+            srcStream << pokegold::GetAsmLine("GSEditor_Pokemon_EggMoves_None:")
+                      << pokegold::GetAsmLine("db 255");
         }
     }
 
@@ -545,8 +560,8 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
     {
         // data
         {
-            srcStream << GetAsmSection(0x425e3, "GSEditor_Pokemon_EvoMoves")
-                      << GetAsmLine("GSEditor_Pokemon_EvoMoves::");
+            srcStream << pokegold::GetAsmSection(0x425e3, "GSEditor_Pokemon_EvoMoves")
+                      << pokegold::GetAsmLine("GSEditor_Pokemon_EvoMoves::");
 
             for (size_t i = 0; i < 251; i++)
             {
@@ -558,29 +573,29 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
 
                 std::vector<u8> bytes;
                 {
-                    const auto &e = m_data.Pokemons()[i];
+                    const auto &e = Data.Pokemons[i];
 
                     for (const auto &method : e.EvolutionMethods)
                     {
                         switch (method.EvolutionMethodType)
                         {
-                        case EvolutionMethodType::LevelUp:
+                        case pokegold::EvolutionMethodType::LevelUp:
                             bytes.push_back(u8(method.EvolutionMethodType));
                             bytes.push_back(method.Level);
                             bytes.push_back(method.PokemonId);
                             break;
-                        case EvolutionMethodType::Trade:
-                        case EvolutionMethodType::UseItem:
+                        case pokegold::EvolutionMethodType::Trade:
+                        case pokegold::EvolutionMethodType::UseItem:
                             bytes.push_back(u8(method.EvolutionMethodType));
                             bytes.push_back(method.ItemId);
                             bytes.push_back(method.PokemonId);
                             break;
-                        case EvolutionMethodType::LevelUpWithHappiness:
+                        case pokegold::EvolutionMethodType::LevelUpWithHappiness:
                             bytes.push_back(u8(method.EvolutionMethodType));
                             bytes.push_back(method.Happiness);
                             bytes.push_back(method.PokemonId);
                             break;
-                        case EvolutionMethodType::LevelUpWithStats:
+                        case pokegold::EvolutionMethodType::LevelUpWithStats:
                             bytes.push_back(u8(method.EvolutionMethodType));
                             bytes.push_back(method.Level);
                             bytes.push_back(method.Stats);
@@ -600,15 +615,15 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                     bytes.push_back(0);
                 }
 
-                srcStream << GetAsmLine("GSEditor_Pokemon_EvoMove_{}:", i)
-                          << GetAsmBytes(bytes);
+                srcStream << pokegold::GetAsmLine("GSEditor_Pokemon_EvoMove_{}:", i)
+                          << pokegold::GetAsmBytes(bytes);
             }
         }
 
         // ptr
         {
-            srcStream << GetAsmSection(0x423ed, "GSEditor_Pokemon_EvoMove_Pointers")
-                      << GetAsmLine("GSEditor_Pokemon_EvoMove_Pointers::");
+            srcStream << pokegold::GetAsmSection(0x423ed, "GSEditor_Pokemon_EvoMove_Pointers")
+                      << pokegold::GetAsmLine("GSEditor_Pokemon_EvoMove_Pointers::");
             for (size_t i = 0; i < 251; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -617,7 +632,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (진화 & 자력기 포인터: {}/251)", i + 1));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("dw GSEditor_Pokemon_EvoMove_{}", i);
+                srcStream << pokegold::GetAsmLine("dw GSEditor_Pokemon_EvoMove_{}", i);
             }
         }
     }
@@ -626,7 +641,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
     {
         // 1
         {
-            srcStream << GetAsmSection(0x1a0000, "GSEditor_Pokedex_0");
+            srcStream << pokegold::GetAsmSection(0x1a0000, "GSEditor_Pokedex_0");
 
             for (size_t i = 0; i < 128; i++)
             {
@@ -638,7 +653,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
 
                 std::vector<u8> bytes;
                 {
-                    const auto &e = m_data.Pokemons()[i];
+                    const auto &e = Data.Pokemons[i];
                     bytes.insert(bytes.end(), e.DexCategoryName.GetData().begin(), e.DexCategoryName.GetData().end());
                     bytes.push_back(e.Height);
                     bytes.push_back(u8(e.Weight & 0x00ff));
@@ -646,12 +661,12 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                     bytes.insert(bytes.end(), e.Description.GetData().begin(), e.Description.GetData().end());
                 }
 
-                srcStream << GetAsmLine("GSEditor_Pokedex_{}:", i)
-                          << GetAsmBytes(bytes);
+                srcStream << pokegold::GetAsmLine("GSEditor_Pokedex_{}:", i)
+                          << pokegold::GetAsmBytes(bytes);
             }
 
-            srcStream << GetAsmSection(0x442ff, "GSEditor_Pokedex_0_Pointers")
-                      << GetAsmLine("GSEditor_Pokedex_0_Pointers::");
+            srcStream << pokegold::GetAsmSection(0x442ff, "GSEditor_Pokedex_0_Pointers")
+                      << pokegold::GetAsmLine("GSEditor_Pokedex_0_Pointers::");
             for (size_t i = 0; i < 128; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -660,13 +675,13 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (도감 1 포인터: {}/128)", i + 1));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("dw GSEditor_Pokedex_{}", i);
+                srcStream << pokegold::GetAsmLine("dw GSEditor_Pokedex_{}", i);
             }
         }
 
         // 2
         {
-            srcStream << GetAsmSection(0x1a4000, "GSEditor_Pokedex_1");
+            srcStream << pokegold::GetAsmSection(0x1a4000, "GSEditor_Pokedex_1");
 
             for (size_t i = 0; i < 123; i++)
             {
@@ -678,7 +693,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
 
                 std::vector<u8> bytes;
                 {
-                    const auto &e = m_data.Pokemons()[i + 128];
+                    const auto &e = Data.Pokemons[i + 128];
                     bytes.insert(bytes.end(), e.DexCategoryName.GetData().begin(), e.DexCategoryName.GetData().end());
                     bytes.push_back(e.Height);
                     bytes.push_back(u8(e.Weight & 0x00ff));
@@ -686,12 +701,12 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                     bytes.insert(bytes.end(), e.Description.GetData().begin(), e.Description.GetData().end());
                 }
 
-                srcStream << GetAsmLine("GSEditor_Pokedex_{}:", i + 128)
-                          << GetAsmBytes(bytes);
+                srcStream << pokegold::GetAsmLine("GSEditor_Pokedex_{}:", i + 128)
+                          << pokegold::GetAsmBytes(bytes);
             }
 
-            srcStream << GetAsmSection(0x443ff, "GSEditor_Pokedex_1_Pointers")
-                      << GetAsmLine("GSEditor_Pokedex_1_Pointers::");
+            srcStream << pokegold::GetAsmSection(0x443ff, "GSEditor_Pokedex_1_Pointers")
+                      << pokegold::GetAsmLine("GSEditor_Pokedex_1_Pointers::");
             for (size_t i = 0; i < 123; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -700,24 +715,24 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (도감 2 포인터: {}/123)", i + 1));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("dw GSEditor_Pokedex_{}", i + 128);
+                srcStream << pokegold::GetAsmLine("dw GSEditor_Pokedex_{}", i + 128);
             }
         }
     }
 
     base::Log(TAG, "write pokemon (name)");
     {
-        srcStream << GetAsmSection(0x35c3, "GSEditor_Pokemon_Names_Pointer_0")
-                  << GetAsmLine("db BANK(GSEditor_Pokemon_Names)")
-                  << GetAsmLine("dw GSEditor_Pokemon_Names")
+        srcStream << pokegold::GetAsmSection(0x35c3, "GSEditor_Pokemon_Names_Pointer_0")
+                  << pokegold::GetAsmLine("db BANK(GSEditor_Pokemon_Names)")
+                  << pokegold::GetAsmLine("dw GSEditor_Pokemon_Names")
 
-                  << GetAsmSection(0x3667, "GSEditor_Pokemon_Names_Pointer_1")
-                  << GetAsmLine("dw GSEditor_Pokemon_Names")
+                  << pokegold::GetAsmSection(0x3667, "GSEditor_Pokemon_Names_Pointer_1")
+                  << pokegold::GetAsmLine("dw GSEditor_Pokemon_Names")
 
-                  << GetAsmSection(0x515bf, "GSEditor_Pokemon_Names_Pointer_2")
-                  << GetAsmLine("dw GSEditor_Pokemon_Names");
+                  << pokegold::GetAsmSection(0x515bf, "GSEditor_Pokemon_Names_Pointer_2")
+                  << pokegold::GetAsmLine("dw GSEditor_Pokemon_Names");
 
-        data.GetNamesSourceStream() << GetAsmLine("GSEditor_Pokemon_Names::");
+        data.GetNamesSourceStream() << pokegold::GetAsmLine("GSEditor_Pokemon_Names::");
         for (size_t i = 0; i < 256; i++)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
@@ -726,14 +741,14 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("포켓몬 (이름: {}/256)", i + 1));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.Pokemons()[i];
+            const auto &e = Data.Pokemons[i];
 
             std::array<u8, 10> padded;
             std::fill(padded.begin(), padded.end(), 0x50);
             for (size_t j = 0; j < e.Name.GetData().size(); j++)
                 padded[j] = e.Name.GetData()[j];
 
-            data.GetNamesSourceStream() << GetAsmBytes(padded);
+            data.GetNamesSourceStream() << pokegold::GetAsmBytes(padded);
         }
     }
 
@@ -741,10 +756,10 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
     {
         // colors
         {
-            srcStream << GetAsmSection(0xad15, "GSEditor_Pokemon_Colors")
-                      << GetAsmLine("GSEditor_Pokemon_Colors::");
+            srcStream << pokegold::GetAsmSection(0xad15, "GSEditor_Pokemon_Colors")
+                      << pokegold::GetAsmLine("GSEditor_Pokemon_Colors::");
 
-            for (size_t i = 0, max = m_data.Pokemons().size(); i < max; i++)
+            for (size_t i = 0, max = Data.Pokemons.size(); i < max; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
                     return false;
@@ -752,8 +767,8 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (색상: {}/{})", i + 1, max));
                 m_buildProgressState.Increase();
 
-                const auto &e = m_data.Pokemons()[i];
-                srcStream << GetAsmBytes({
+                const auto &e = Data.Pokemons[i];
+                srcStream << pokegold::GetAsmBytes({
                     e.Colors[0].GetLoByte(),
                     e.Colors[0].GetHiByte(),
                     e.Colors[1].GetLoByte(),
@@ -769,9 +784,9 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
         // small pics
         {
             base::WriteBytesToFile(*m_workspacePathState / "GSSEditor.SmallPictures.asm", embed::GetPokegoldSmallPicturesSource());
-            data.GetSourceStream() << GetAsmInclude("GSSEditor.SmallPictures.asm");
+            data.GetSourceStream() << pokegold::GetAsmInclude("GSSEditor.SmallPictures.asm");
 
-            srcStream << GetAsmSection(0x1f0000, "GSEditor_Pokemon_SmallPictures_0");
+            srcStream << pokegold::GetAsmSection(0x1f0000, "GSEditor_Pokemon_SmallPictures_0");
             for (size_t i = 0; i < 128; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -780,11 +795,11 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (스몰 스프라이트 이미지 1: {}/{})", i + 1, 128));
                 m_buildProgressState.Increase();
 
-                const auto &e = m_data.Pokemons()[i];
-                srcStream << GetAsmBytes(e.SmallImages);
+                const auto &e = Data.Pokemons[i];
+                srcStream << pokegold::GetAsmBytes(e.SmallImages);
             }
 
-            srcStream << GetAsmSection(0x1f4000, "GSEditor_Pokemon_SmallPictures_1");
+            srcStream << pokegold::GetAsmSection(0x1f4000, "GSEditor_Pokemon_SmallPictures_1");
             for (size_t i = 0; i < 128; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -793,11 +808,11 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (스몰 스프라이트 이미지 2: {}/{})", i + 1, 128));
                 m_buildProgressState.Increase();
 
-                const auto &e = m_data.Pokemons()[i + 128];
-                srcStream << GetAsmBytes(e.SmallImages);
+                const auto &e = Data.Pokemons[i + 128];
+                srcStream << pokegold::GetAsmBytes(e.SmallImages);
             }
 
-            srcStream << GetAsmSection(0x17ace, "GSEditor_Pokemon_SmallPicturesPaletteIds");
+            srcStream << pokegold::GetAsmSection(0x17ace, "GSEditor_Pokemon_SmallPicturesPaletteIds");
             for (size_t i = 0; i < 256; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -806,8 +821,8 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (스몰 스프라이트 팔레트: {}/{})", i + 1, 256));
                 m_buildProgressState.Increase();
 
-                const auto &e = m_data.Pokemons()[i];
-                srcStream << GetAsmBytes({e.SmallImagePaletteId});
+                const auto &e = Data.Pokemons[i];
+                srcStream << pokegold::GetAsmBytes({e.SmallImagePaletteId});
             }
 
             for (size_t i = 0; i < 256; i++)
@@ -818,15 +833,15 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (발자국 이미지: {}/{})", i + 1, 256));
                 m_buildProgressState.Increase();
 
-                const auto &e = m_data.Pokemons()[i];
-                if (e.Type == PokemonType::Pokemon)
+                const auto &e = Data.Pokemons[i];
+                if (e.Type == pokegold::PokemonType::Pokemon)
                 {
                     const auto offset = 0xf92bd + ((i / 8) * 0x100) + ((i % 8) * 0x10);
-                    srcStream << GetAsmSection(offset, "GSEditor_Pokemon_Footprint_{}_0", i)
-                              << GetAsmBytes(std::vector<u8>(e.FootprintImage.begin(), e.FootprintImage.begin() + 0x10));
+                    srcStream << pokegold::GetAsmSection(offset, "GSEditor_Pokemon_Footprint_{}_0", i)
+                              << pokegold::GetAsmBytes(std::vector<u8>(e.FootprintImage.begin(), e.FootprintImage.begin() + 0x10));
 
-                    srcStream << GetAsmSection(offset + 0x80, "GSEditor_Pokemon_Footprint_{}_1", i)
-                              << GetAsmBytes(std::vector<u8>(e.FootprintImage.begin() + 0x10, e.FootprintImage.begin() + 0x20));
+                    srcStream << pokegold::GetAsmSection(offset + 0x80, "GSEditor_Pokemon_Footprint_{}_1", i)
+                              << pokegold::GetAsmBytes(std::vector<u8>(e.FootprintImage.begin() + 0x10, e.FootprintImage.begin() + 0x20));
                 }
             }
         }
@@ -835,7 +850,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
         {
             // ptr
             {
-                srcStream << GetAsmSection(0x48000, "GSEditor_Pokemon_Image_Pointers");
+                srcStream << pokegold::GetAsmSection(0x48000, "GSEditor_Pokemon_Image_Pointers");
                 for (size_t i = 0; i < 251; i++)
                 {
                     if (m_buildProgressState.HandlePausedOrCanceled())
@@ -844,13 +859,13 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                     m_buildProgressState.UpdateMessage(std::format("포켓몬 (이미지 포인터: {}/{})", i + 1, 251));
                     m_buildProgressState.Increase();
 
-                    const auto &e = m_data.Pokemons()[i];
-                    srcStream << GetAsmLine("gse@pics Pokemon, {}", i);
+                    const auto &e = Data.Pokemons[i];
+                    srcStream << pokegold::GetAsmLine("gse@pics Pokemon, {}", i);
                 }
             }
 
             // data
-            for (size_t i = 0, max = m_data.Pokemons().size(); i < max; i++)
+            for (size_t i = 0, max = Data.Pokemons.size(); i < max; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
                     return false;
@@ -858,13 +873,13 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (이미지: {}/{})", i + 1, max));
                 m_buildProgressState.Increase();
 
-                const auto &e = m_data.Pokemons()[i];
-                if (e.Type == PokemonType::Pokemon)
+                const auto &e = Data.Pokemons[i];
+                if (e.Type == pokegold::PokemonType::Pokemon)
                 {
                     data.PushImageDataBlock(std::format("GSEditor_Pokemon_FrontImage_{}", i), e.FrontImage);
                     data.PushImageDataBlock(std::format("GSEditor_Pokemon_BackImage_{}", i), e.BackImage);
                 }
-                else if (e.Type == PokemonType::Egg)
+                else if (e.Type == pokegold::PokemonType::Egg)
                 {
                     data.PushImageDataBlock("GSEditor_Egg_Image", e.FrontImage);
                 }
@@ -874,11 +889,11 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
 
     base::Log(TAG, "write pokemon (pokedex order)");
     {
-        srcStream << GetAsmSection(0x40b66, "GSEditor_Pokemon_AlphaDexOrder");
+        srcStream << pokegold::GetAsmSection(0x40b66, "GSEditor_Pokemon_AlphaDexOrder");
 
         std::vector<pokegold::Pokemon> sortedPokemons;
         for (size_t i = 0; i < 251; i++)
-            sortedPokemons.push_back(m_data.Pokemons()[i]);
+            sortedPokemons.push_back(Data.Pokemons[i]);
 
         std::sort(
             sortedPokemons.begin(),
@@ -896,7 +911,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
             m_buildProgressState.Increase();
 
             const auto &e = sortedPokemons[i];
-            srcStream << GetAsmBytes({e.Id});
+            srcStream << pokegold::GetAsmBytes({e.Id});
         }
 
         // TODO: 사용자 지정 신형 도감 순서 추가... (0x40c61)
@@ -906,7 +921,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
     {
         // ptr
         {
-            srcStream << GetAsmSection(0x7c000, "GSEditor_Unown_Image_Pointers");
+            srcStream << pokegold::GetAsmSection(0x7c000, "GSEditor_Unown_Image_Pointers");
             for (size_t i = 0; i < 26; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -915,7 +930,7 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("포켓몬 (안농 이미지 포인터: {}/{})", i + 1, 26));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("gse@pics Unown, {}", i);
+                srcStream << pokegold::GetAsmLine("gse@pics Unown, {}", i);
             }
         }
 
@@ -928,12 +943,12 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("포켓몬 (안농 이미지: {}/{})", i + 1, 26));
             m_buildProgressState.Increase();
 
-            data.PushImageDataBlock(std::format("GSEditor_Unown_FrontImage_{}", i), m_data.UnownImages()[i].FrontImage);
-            data.PushImageDataBlock(std::format("GSEditor_Unown_BackImage_{}", i), m_data.UnownImages()[i].BackImage);
+            data.PushImageDataBlock(std::format("GSEditor_Unown_FrontImage_{}", i), Data.UnownImages[i].FrontImage);
+            data.PushImageDataBlock(std::format("GSEditor_Unown_BackImage_{}", i), Data.UnownImages[i].BackImage);
         }
 
         // unown ids
-        for (size_t i = 0, max = UnownIdsOffsets.size(); i < max; i++)
+        for (size_t i = 0, max = k_unownIdsOffsets.size(); i < max; i++)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;
@@ -941,25 +956,25 @@ bool pokegold::Rom::Build_PokemonSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("포켓몬 (안농 번호: {}/{})", i + 1, max));
             m_buildProgressState.Increase();
 
-            const auto &offset = UnownIdsOffsets[i];
-            srcStream << GetAsmSection(offset, "GSEditor_Unown_Id_{}", offset)
-                      << GetAsmBytes({m_data.UnownImageEnabled ? m_data.UnownPokemonId : u8(0xff)});
+            const auto &offset = k_unownIdsOffsets[i];
+            srcStream << pokegold::GetAsmSection(offset, "GSEditor_Unown_Id_{}", offset)
+                      << pokegold::GetAsmBytes({Data.UnownImageEnabled ? Data.UnownPokemonId : u8(0xff)});
         }
     }
 
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
+bool services::Pokegold::Build_TrainerGroupSources(pokegold::internal::RomBuildData &data)
 {
     constexpr auto filename = "GSEditor.TrainerGroups.asm";
     std::ofstream srcStream(*m_workspacePathState / filename);
-    data.GetSourceStream() << GetAsmInclude(filename);
+    data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
     base::Log(TAG, "write trainer group (color)");
     {
-        srcStream << GetAsmSection(0xb511, "GSEditor_TrainerGroup_Colors")
-                  << GetAsmLine("GSEditor_TrainerGroup_Colors::");
+        srcStream << pokegold::GetAsmSection(0xb511, "GSEditor_TrainerGroup_Colors")
+                  << pokegold::GetAsmLine("GSEditor_TrainerGroup_Colors::");
 
         for (size_t i = 0, max = 66; i < max; i++)
         {
@@ -969,8 +984,8 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("트레이너 그룹 (이미지 색상: {}/{})", i + 1, max));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.TrainerGroups()[i];
-            srcStream << GetAsmBytes({
+            const auto &e = Data.TrainerGroups[i];
+            srcStream << pokegold::GetAsmBytes({
                 e.Colors[0].GetLoByte(),
                 e.Colors[0].GetHiByte(),
                 e.Colors[1].GetLoByte(),
@@ -978,10 +993,10 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
             });
         }
 
-        const auto &e = m_data.TrainerGroups()[11];
-        srcStream << GetAsmSection(0xb50d, "GSEditor_TrainerGroup_PlayerBackColor")
-                  << GetAsmLine("GSEditor_TrainerGroup_PlayerBackColor::")
-                  << GetAsmBytes({
+        const auto &e = Data.TrainerGroups[11];
+        srcStream << pokegold::GetAsmSection(0xb50d, "GSEditor_TrainerGroup_PlayerBackColor")
+                  << pokegold::GetAsmLine("GSEditor_TrainerGroup_PlayerBackColor::")
+                  << pokegold::GetAsmBytes({
                          e.Colors[0].GetLoByte(),
                          e.Colors[0].GetHiByte(),
                          e.Colors[1].GetLoByte(),
@@ -993,7 +1008,7 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
     {
         // ptr
         {
-            srcStream << GetAsmSection(0x80000, "GSEditor_TrainerGroup_Image_Pointers");
+            srcStream << pokegold::GetAsmSection(0x80000, "GSEditor_TrainerGroup_Image_Pointers");
             for (size_t i = 0, max = 66; i < max; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -1002,7 +1017,7 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("트레이너 그룹 (이미지 포인터: {}/{})", i + 1, max));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("gse@pic TrainerGroup, {}", i);
+                srcStream << pokegold::GetAsmLine("gse@pic TrainerGroup, {}", i);
             }
         }
 
@@ -1015,13 +1030,13 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("트레이너 그룹 (이미지: {}/{})", i + 1, max));
             m_buildProgressState.Increase();
 
-            data.PushImageDataBlock(std::format("GSEditor_TrainerGroup_Image_{}", i), m_data.TrainerGroups()[i].Image);
+            data.PushImageDataBlock(std::format("GSEditor_TrainerGroup_Image_{}", i), Data.TrainerGroups[i].Image);
         }
 
         // trainer card
         if (m_appConfigs.GetTrainerCardImage())
         {
-            auto &trainerData = m_data.TrainerGroups()[12 - 1].Image;
+            auto &trainerData = Data.TrainerGroups[12 - 1].Image;
 
             for (size_t i = 0; i < 7; i++)
             {
@@ -1038,8 +1053,8 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
                     }
                 }
 
-                srcStream << GetAsmSection(0x25507 + (i * 0x50), "GSEditor_TrainerGroup_PlayerTrainerCardImage_{}", i)
-                          << GetAsmBytes(tileData);
+                srcStream << pokegold::GetAsmSection(0x25507 + (i * 0x50), "GSEditor_TrainerGroup_PlayerTrainerCardImage_{}", i)
+                          << pokegold::GetAsmBytes(tileData);
             }
         }
 
@@ -1048,25 +1063,25 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
             // data
             data.PushPlayerBackImageDataBlock(
                 "GSEditor_TrainerGroup_BackImage",
-                m_data.TrainerGroups()[11].BackImage,
-                m_data.TrainerGroups()[11].DudeBackImage);
+                Data.TrainerGroups[11].BackImage,
+                Data.TrainerGroups[11].DudeBackImage);
 
             // ptr
             {
-                srcStream << GetAsmSection(0x3f9b7, "GSEditor_TrainerGroup_PlayerBackImage_Pointer")
-                          << GetAsmLine("dw GSEditor_TrainerGroup_BackImage");
+                srcStream << pokegold::GetAsmSection(0x3f9b7, "GSEditor_TrainerGroup_PlayerBackImage_Pointer")
+                          << pokegold::GetAsmLine("dw GSEditor_TrainerGroup_BackImage");
 
-                srcStream << GetAsmSection(0x3f9c1, "GSEditor_TrainerGroup_DudeBackImage_Pointer")
-                          << GetAsmLine("dw GSEditor_TrainerGroup_BackImage + {}", data.GetPlayerBackImageSize());
+                srcStream << pokegold::GetAsmSection(0x3f9c1, "GSEditor_TrainerGroup_DudeBackImage_Pointer")
+                          << pokegold::GetAsmLine("dw GSEditor_TrainerGroup_BackImage + {}", data.GetPlayerBackImageSize());
 
-                srcStream << GetAsmSection(0x3f9c7, "GSEditor_TrainerGroup_PlayerBackImage_Bank")
-                          << GetAsmLine("db BANK(GSEditor_TrainerGroup_BackImage)");
+                srcStream << pokegold::GetAsmSection(0x3f9c7, "GSEditor_TrainerGroup_PlayerBackImage_Bank")
+                          << pokegold::GetAsmLine("db BANK(GSEditor_TrainerGroup_BackImage)");
 
-                srcStream << GetAsmSection(0x8681b, "GSEditor_TrainerGroup_HallOfFrameBackImage_Pointer")
-                          << GetAsmLine("dw GSEditor_TrainerGroup_BackImage");
+                srcStream << pokegold::GetAsmSection(0x8681b, "GSEditor_TrainerGroup_HallOfFrameBackImage_Pointer")
+                          << pokegold::GetAsmLine("dw GSEditor_TrainerGroup_BackImage");
 
-                srcStream << GetAsmSection(0x86821, "GSEditor_TrainerGroup_HallOfFrameBackImage_Bank")
-                          << GetAsmLine("db BANK(GSEditor_TrainerGroup_BackImage)");
+                srcStream << pokegold::GetAsmSection(0x86821, "GSEditor_TrainerGroup_HallOfFrameBackImage_Bank")
+                          << pokegold::GetAsmLine("db BANK(GSEditor_TrainerGroup_BackImage)");
             }
         }
     }
@@ -1075,11 +1090,11 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
     {
         // groups
         {
-            srcStream << GetAsmSection(0x35d5, "GSEditor_TrainerGroup_Names_Pointer")
-                      << GetAsmLine("db BANK(GSEditor_TrainerGroup_Names)")
-                      << GetAsmLine("dw GSEditor_TrainerGroup_Names");
+            srcStream << pokegold::GetAsmSection(0x35d5, "GSEditor_TrainerGroup_Names_Pointer")
+                      << pokegold::GetAsmLine("db BANK(GSEditor_TrainerGroup_Names)")
+                      << pokegold::GetAsmLine("dw GSEditor_TrainerGroup_Names");
 
-            data.GetNamesSourceStream() << GetAsmLine("GSEditor_TrainerGroup_Names::");
+            data.GetNamesSourceStream() << pokegold::GetAsmLine("GSEditor_TrainerGroup_Names::");
             for (size_t i = 0; i < 67; i++)
             {
                 if (m_buildProgressState.HandlePausedOrCanceled())
@@ -1088,8 +1103,8 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("트레이너 그룹 (이름: {}/{})", i + 1, 67));
                 m_buildProgressState.Increase();
 
-                const auto &e = m_data.TrainerGroups()[i];
-                data.GetNamesSourceStream() << GetAsmBytes(e.Name.GetData());
+                const auto &e = Data.TrainerGroups[i];
+                data.GetNamesSourceStream() << pokegold::GetAsmBytes(e.Name.GetData());
             }
         }
 
@@ -1101,24 +1116,24 @@ bool pokegold::Rom::Build_TrainerGroupSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage("트레이너 그룹 (어떤 선배 이름)");
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.TrainerGroups()[67];
-            srcStream << GetAsmSection(0x23995, "GSEditor_TrainerGroup_DudeName_Pointer")
-                      << GetAsmLine("dw GSEditor_TrainerGroup_DudeName")
+            const auto &e = Data.TrainerGroups[67];
+            srcStream << pokegold::GetAsmSection(0x23995, "GSEditor_TrainerGroup_DudeName_Pointer")
+                      << pokegold::GetAsmLine("dw GSEditor_TrainerGroup_DudeName")
 
-                      << GetAsmSection(0x23a04, "GSEditor_TrainerGroup_DudeName")
-                      << GetAsmLine("GSEditor_TrainerGroup_DudeName:")
-                      << GetAsmBytes(e.Name.GetData());
+                      << pokegold::GetAsmSection(0x23a04, "GSEditor_TrainerGroup_DudeName")
+                      << pokegold::GetAsmLine("GSEditor_TrainerGroup_DudeName:")
+                      << pokegold::GetAsmBytes(e.Name.GetData());
         }
     }
 
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
+bool services::Pokegold::Build_TypeSources(pokegold::internal::RomBuildData &data)
 {
     constexpr auto filename = "GSEditor.Types.asm";
     std::ofstream srcStream(*m_workspacePathState / filename);
-    data.GetSourceStream() << GetAsmInclude(filename);
+    data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
     base::Log(TAG, "write type (name)");
     {
@@ -1131,15 +1146,15 @@ bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage(std::format("타입 (이름: {}/{})", i + 1, 28));
             m_buildProgressState.Increase();
 
-            const auto &e = m_data.Types()[i];
+            const auto &e = Data.Types[i];
             data.GetTypeNameDataBlocks()
                 .Push(std::format("GSEditor_Type_Name_{}", i), e.Name.GetData());
         }
 
         // ptr
         {
-            srcStream << GetAsmSection(0x50a57, "GSEditor_Type_Name_Pointers")
-                      << GetAsmLine("GSEditor_Type_Name_Pointers::");
+            srcStream << pokegold::GetAsmSection(0x50a57, "GSEditor_Type_Name_Pointers")
+                      << pokegold::GetAsmLine("GSEditor_Type_Name_Pointers::");
 
             for (size_t i = 0; i < 28; i++)
             {
@@ -1149,7 +1164,7 @@ bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
                 m_buildProgressState.UpdateMessage(std::format("타입 (이름 포인터: {}/{})", i + 1, 28));
                 m_buildProgressState.Increase();
 
-                srcStream << GetAsmLine("dw GSEditor_Type_Name_{}", i);
+                srcStream << pokegold::GetAsmLine("dw GSEditor_Type_Name_{}", i);
             }
         }
     }
@@ -1157,22 +1172,22 @@ bool pokegold::Rom::Build_TypeSources(internal::RomBuildData &data)
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_MapsSources(internal::RomBuildData &data)
+bool services::Pokegold::Build_MapsSources(pokegold::internal::RomBuildData &data)
 {
     constexpr auto filename = "GSEditor.Maps.asm";
     std::ofstream srcStream(*m_workspacePathState / filename);
-    data.GetSourceStream() << GetAsmInclude(filename);
+    data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
     base::Log(TAG, "write map (npc colors)");
     {
-        srcStream << GetAsmSection(0xb87e, "GSEditor_Maps_NpcColors");
+        srcStream << pokegold::GetAsmSection(0xb87e, "GSEditor_Maps_NpcColors");
 
-        for (auto &npcColor : m_data.NpcColors())
+        for (auto &npcColor : Data.Maps.NpcColors)
         {
             for (auto &colors : npcColor)
             {
                 for (auto &color : colors)
-                    srcStream << GetAsmBytes({color.GetLoByte(), color.GetHiByte()});
+                    srcStream << pokegold::GetAsmBytes({color.GetLoByte(), color.GetHiByte()});
             }
         }
     }
@@ -1180,11 +1195,11 @@ bool pokegold::Rom::Build_MapsSources(internal::RomBuildData &data)
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_HackSources(internal::RomBuildData &data)
+bool services::Pokegold::Build_HackSources(pokegold::internal::RomBuildData &data)
 {
     constexpr auto filename = "GSEditor.Hacks.asm";
     std::ofstream srcStream(*m_workspacePathState / filename);
-    data.GetSourceStream() << GetAsmInclude(filename);
+    data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
     base::Log(TAG, "write hacking codes");
     {
@@ -1209,12 +1224,12 @@ bool pokegold::Rom::Build_HackSources(internal::RomBuildData &data)
 
         // matchups
         {
-            std::vector<std::reference_wrapper<TypeMatchup>> matchups;
-            std::vector<std::reference_wrapper<TypeMatchup>> foresights;
+            std::vector<std::reference_wrapper<pokegold::TypeMatchup>> matchups;
+            std::vector<std::reference_wrapper<pokegold::TypeMatchup>> foresights;
 
             for (size_t i = 0; i < 28; i++)
             {
-                for (auto &e : m_data.Types()[i].TypeMatchups)
+                for (auto &e : Data.Types[i].TypeMatchups)
                 {
                     if (e.IsForesight)
                         foresights.push_back(e);
@@ -1223,68 +1238,68 @@ bool pokegold::Rom::Build_HackSources(internal::RomBuildData &data)
                 }
             }
 
-            srcStream << GetAsmLine("GSEditor_TypeMatchups:");
+            srcStream << pokegold::GetAsmLine("GSEditor_TypeMatchups:");
             for (const auto &e : matchups)
             {
-                srcStream << GetAsmBytes({
+                srcStream << pokegold::GetAsmBytes({
                     e.get().AttackerTypeId,
                     e.get().DefenderTypeId,
                     u8(e.get().TypeEffectiveness),
                 });
             }
-            srcStream << GetAsmBytes({0xfe});
+            srcStream << pokegold::GetAsmBytes({0xfe});
 
             for (const auto &e : foresights)
             {
-                srcStream << GetAsmBytes({
+                srcStream << pokegold::GetAsmBytes({
                     e.get().AttackerTypeId,
                     e.get().DefenderTypeId,
                     u8(e.get().TypeEffectiveness),
                 });
             }
-            srcStream << GetAsmBytes({0xff});
+            srcStream << pokegold::GetAsmBytes({0xff});
         }
 
         // weather
         {
-            srcStream << GetAsmLine("GSEditor_TypeWeatherModifiers:");
-            for (size_t i = 0; i < m_data.Types().size(); i++)
+            srcStream << pokegold::GetAsmLine("GSEditor_TypeWeatherModifiers:");
+            for (size_t i = 0; i < Data.Types.size(); i++)
             {
-                const auto &e = m_data.Types()[i];
+                const auto &e = Data.Types[i];
 
                 for (const auto &modifier : e.WeatherModifiers)
                 {
-                    srcStream << GetAsmBytes({
+                    srcStream << pokegold::GetAsmBytes({
                         u8(modifier.Weather),
                         u8(i),
                         u8(modifier.TypeEffectiveness),
                     });
                 }
             }
-            srcStream << GetAsmBytes({0xff});
+            srcStream << pokegold::GetAsmBytes({0xff});
 
-            srcStream << GetAsmLine("GSEditor_MoveEffectWeatherModifiers:");
-            for (size_t i = 0; i < m_data.MoveEffects().size(); i++)
+            srcStream << pokegold::GetAsmLine("GSEditor_MoveEffectWeatherModifiers:");
+            for (size_t i = 0; i < Data.MoveEffects.size(); i++)
             {
-                const auto &e = m_data.MoveEffects()[i];
+                const auto &e = Data.MoveEffects[i];
                 for (const auto &modifier : e.WeatherModifiers)
                 {
-                    srcStream << GetAsmBytes({
+                    srcStream << pokegold::GetAsmBytes({
                         u8(modifier.Weather),
                         u8(i),
                         u8(modifier.TypeEffectiveness),
                     });
                 }
             }
-            srcStream << GetAsmBytes({0xff});
+            srcStream << pokegold::GetAsmBytes({0xff});
         }
     }
 
     base::Log(TAG, "write unown dimensions");
     {
-        srcStream << GetAsmLine("GSEditor_Unown_Dimensions:");
+        srcStream << pokegold::GetAsmLine("GSEditor_Unown_Dimensions:");
 
-        for (const auto &e : m_data.UnownImages())
+        for (const auto &e : Data.UnownImages)
         {
             if (m_buildProgressState.HandlePausedOrCanceled())
                 return false;
@@ -1292,7 +1307,7 @@ bool pokegold::Rom::Build_HackSources(internal::RomBuildData &data)
             m_buildProgressState.UpdateMessage("안농 (사이즈 데이터)");
             m_buildProgressState.Increase();
 
-            srcStream << GetAsmBytes({u8(e.ImageDimensions)});
+            srcStream << pokegold::GetAsmBytes({u8(e.ImageDimensions)});
         }
     }
 
@@ -1304,14 +1319,14 @@ bool pokegold::Rom::Build_HackSources(internal::RomBuildData &data)
         m_buildProgressState.UpdateMessage("안농 (데이터)");
         m_buildProgressState.Increase();
 
-        srcStream << GetAsmSection(0x1fc7d8, "GSEditor_UnownConfigs")
-                  << GetAsmBytes({u8(m_data.UnownImageEnabled ? 1 : 0), m_data.UnownPokemonId});
+        srcStream << pokegold::GetAsmSection(0x1fc7d8, "GSEditor_UnownConfigs")
+                  << pokegold::GetAsmBytes({u8(Data.UnownImageEnabled ? 1 : 0), Data.UnownPokemonId});
     }
 
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Build_Assemble(internal::RomBuildData &data)
+bool services::Pokegold::Build_Assemble(pokegold::internal::RomBuildData &data)
 {
     const auto workdir = *m_workspacePathState;
 
@@ -1323,9 +1338,9 @@ bool pokegold::Rom::Build_Assemble(internal::RomBuildData &data)
         m_buildProgressState.UpdateMessage("Add includes...");
         m_buildProgressState.Increase();
 
-        data.GetSourceStream() << GetAsmInclude("GSEditor.Names.asm");
-        data.GetSourceStream() << GetAsmInclude("GSEditor.Images.asm");
-        data.GetSourceStream() << GetAsmInclude("GSEditor.TypeNames.asm");
+        data.GetSourceStream() << pokegold::GetAsmInclude("GSEditor.Names.asm");
+        data.GetSourceStream() << pokegold::GetAsmInclude("GSEditor.Images.asm");
+        data.GetSourceStream() << pokegold::GetAsmInclude("GSEditor.TypeNames.asm");
     }
 
     // 이미지 데이터 기록
@@ -1344,14 +1359,14 @@ bool pokegold::Rom::Build_Assemble(internal::RomBuildData &data)
                 continue;
 
             data.GetImagesSourceStream()
-                << GetAsmSection(dataBlock.FreeSpaceRange.From, "GSEditor_Images_0x{:x}", dataBlock.FreeSpaceRange.From)
-                << GetAsmLine("GSEditor_Images_0x{:x}::", dataBlock.FreeSpaceRange.From);
+                << pokegold::GetAsmSection(dataBlock.FreeSpaceRange.From, "GSEditor_Images_0x{:x}", dataBlock.FreeSpaceRange.From)
+                << pokegold::GetAsmLine("GSEditor_Images_0x{:x}::", dataBlock.FreeSpaceRange.From);
 
             for (const auto &e : dataBlock.DataBlocks)
             {
                 data.GetImagesSourceStream()
-                    << GetAsmLine("{}:", e.Label)
-                    << GetAsmBytes(e.Data);
+                    << pokegold::GetAsmLine("{}:", e.Label)
+                    << pokegold::GetAsmBytes(e.Data);
             }
         }
     }
@@ -1372,14 +1387,14 @@ bool pokegold::Rom::Build_Assemble(internal::RomBuildData &data)
                 continue;
 
             data.GetTypeNameSourceStream()
-                << GetAsmSection(dataBlock.FreeSpaceRange.From, "GSEditor_Type_Name_0x{:x}", dataBlock.FreeSpaceRange.From)
-                << GetAsmLine("GSEditor_Type_Name_0x{:x}::", dataBlock.FreeSpaceRange.From);
+                << pokegold::GetAsmSection(dataBlock.FreeSpaceRange.From, "GSEditor_Type_Name_0x{:x}", dataBlock.FreeSpaceRange.From)
+                << pokegold::GetAsmLine("GSEditor_Type_Name_0x{:x}::", dataBlock.FreeSpaceRange.From);
 
             for (const auto &e : dataBlock.DataBlocks)
             {
                 data.GetTypeNameSourceStream()
-                    << GetAsmLine("{}:", e.Label)
-                    << GetAsmBytes(e.Data);
+                    << pokegold::GetAsmLine("{}:", e.Label)
+                    << pokegold::GetAsmBytes(e.Data);
             }
         }
     }

@@ -186,7 +186,7 @@ void ui::DatabasePanel::InitializePokemonTab()
     BindControlSelection(this, m_pokemonEggMovesList, m_selectedPokemonEggMove);
 
     // 롬을 다시 열었을 때, 선택 초기화...
-    m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
+    m_pokegold.IsOpenedState().Subscribe(this, [this](const bool &) {
         m_selectedPokemon.Update(-1);
         m_selectedPokemonEvolution.Update(-1);
         m_selectedPokemonMove.Update(-1);
@@ -194,7 +194,7 @@ void ui::DatabasePanel::InitializePokemonTab()
     });
 
     // 포켓몬 이름 갱신
-    m_pokegold.Data().PokemonNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.PokemonNameUpdated.Subscribe(this, [this](const int &idx) {
         m_pokemonList->Freeze();
 
         if (m_pokemonList->GetCount() == 0)
@@ -207,13 +207,13 @@ void ui::DatabasePanel::InitializePokemonTab()
         {
             for (size_t i = 0; i < 256; i++)
             {
-                auto &e = m_pokegold.Data().Pokemons()[i];
+                auto &e = m_pokegold.Data.Pokemons[i];
                 m_pokemonList->SetString(i, e.Name.ToEditorWxString());
             }
         }
         else
         {
-            auto &e = m_pokegold.Data().Pokemons()[idx];
+            auto &e = m_pokegold.Data.Pokemons[idx];
             m_pokemonList->SetString(idx, e.Name.ToEditorWxString());
         }
 
@@ -221,12 +221,12 @@ void ui::DatabasePanel::InitializePokemonTab()
     });
 
     // 기술명 갱신
-    m_pokegold.Data().MoveNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.MoveNameUpdated.Subscribe(this, [this](const int &idx) {
         UpdatePokemonEvolutionAndMoveList();
     });
 
     // 아이템 이름 갱신
-    m_pokegold.Data().ItemNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.ItemNameUpdated.Subscribe(this, [this](const int &idx) {
         UpdatePokemonEvolutionAndMoveList();
 
         m_pokemonItem1ComboBox->Freeze();
@@ -248,7 +248,7 @@ void ui::DatabasePanel::InitializePokemonTab()
 
             for (size_t i = 0; i < 256; i++)
             {
-                auto &e = m_pokegold.Data().Items()[i];
+                auto &e = m_pokegold.Data.Items[i];
                 auto name = e.Name.ToEditorWxString();
                 m_pokemonItem1ComboBox->SetString(i + 1, name);
                 m_pokemonItem2ComboBox->SetString(i + 1, name);
@@ -256,7 +256,7 @@ void ui::DatabasePanel::InitializePokemonTab()
         }
         else
         {
-            auto &e = m_pokegold.Data().Items()[idx];
+            auto &e = m_pokegold.Data.Items[idx];
             auto name = e.Name.ToEditorWxString();
             m_pokemonItem1ComboBox->SetString(idx + 1, name);
             m_pokemonItem2ComboBox->SetString(idx + 1, name);
@@ -267,7 +267,7 @@ void ui::DatabasePanel::InitializePokemonTab()
     });
 
     // 타입 이름 갱신
-    m_pokegold.Data().TypeNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.TypeNameUpdated.Subscribe(this, [this](const int &idx) {
         m_pokemonType1ComboBox->Freeze();
         m_pokemonType2ComboBox->Freeze();
 
@@ -284,7 +284,7 @@ void ui::DatabasePanel::InitializePokemonTab()
         {
             for (size_t i = 0; i < 28; i++)
             {
-                auto &e = m_pokegold.Data().Types()[i];
+                auto &e = m_pokegold.Data.Types[i];
                 auto name = e.Name.ToEditorWxString();
                 m_pokemonType1ComboBox->SetString(i, name);
                 m_pokemonType2ComboBox->SetString(i, name);
@@ -292,7 +292,7 @@ void ui::DatabasePanel::InitializePokemonTab()
         }
         else
         {
-            auto &e = m_pokegold.Data().Types()[idx];
+            auto &e = m_pokegold.Data.Types[idx];
             auto name = e.Name.ToEditorWxString();
             m_pokemonType1ComboBox->SetString(idx, name);
             m_pokemonType2ComboBox->SetString(idx, name);
@@ -318,7 +318,7 @@ void ui::DatabasePanel::InitializePokemonTab()
         auto tmhmsUpdateFunc = [this, tmhmCtrls] {
             for (size_t i = 0; i < 57; i++)
             {
-                auto &e = m_pokegold.Data().Moves()[m_pokegold.Data().TMHMs()[i].MoveId - 1];
+                auto &e = m_pokegold.Data.Moves[m_pokegold.Data.TMHMs[i].MoveId - 1];
                 auto ctrl = (*tmhmCtrls)[i / 8];
                 ctrl->SetString(
                     i % 8,
@@ -336,23 +336,23 @@ void ui::DatabasePanel::InitializePokemonTab()
                 for (auto *ctrl : *tmhmCtrls)
                 {
                     for (unsigned int i = 0; i < ctrl->GetCount(); i++)
-                        ctrl->Check(i, m_pokegold.Data().Pokemons()[pokemonIdx].TMHMs[tmhmIdx++]);
+                        ctrl->Check(i, m_pokegold.Data.Pokemons[pokemonIdx].TMHMs[tmhmIdx++]);
                 }
             }
         };
 
-        m_pokegold.Data().TMHMsUpdated().Subscribe(this, [tmhmsUpdateFunc] { tmhmsUpdateFunc(); });
-        m_pokegold.Data().MoveNameUpdated().Subscribe(this, [tmhmsUpdateFunc](const int &) { tmhmsUpdateFunc(); });
+        m_pokegold.Data.TMHMsUpdated.Subscribe(this, [tmhmsUpdateFunc] { tmhmsUpdateFunc(); });
+        m_pokegold.Data.MoveNameUpdated.Subscribe(this, [tmhmsUpdateFunc](const int &) { tmhmsUpdateFunc(); });
 
         for (auto *ctrl : *tmhmCtrls)
         {
             ctrl->Bind(wxEVT_CHECKLISTBOX, [&, tmhmCtrls](wxCommandEvent &ev) {
                 ev.Skip();
 
-                if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+                if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                     return;
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[m_pokemonList->GetSelection()];
+                auto &pokemon = m_pokegold.Data.Pokemons[m_pokemonList->GetSelection()];
                 size_t i = 0;
                 for (auto *ctrl2 : *tmhmCtrls)
                 {
@@ -360,8 +360,8 @@ void ui::DatabasePanel::InitializePokemonTab()
                         pokemon.TMHMs[i++] = ctrl2->IsChecked(j);
                 }
 
-                m_pokegold.Data().TMHMsUpdated()();
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.Data.TMHMsUpdated();
+                m_pokegold.NotifyRomChanged();
             });
         }
 
@@ -379,7 +379,7 @@ void ui::DatabasePanel::InitializePokemonTab()
         const auto &comboBoxBindFunc = [&](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             auto valueChangedFunc = [&](auto &field, const auto &value) {
@@ -392,7 +392,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             };
 
             bool hasChanged = false;
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokemonList->GetSelection()];
+            auto &pokemon = m_pokegold.Data.Pokemons[m_pokemonList->GetSelection()];
             if (pokemon.Type == pokegold::PokemonType::Pokemon)
             {
                 hasChanged |= valueChangedFunc(pokemon.GenderRate, k_genderRateReverseIndexes[m_pokemonGenderRateComboBox->GetSelection()]);
@@ -413,7 +413,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             if (hasChanged)
             {
                 UpdatePokemonImages();
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
             }
         };
 
@@ -437,7 +437,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             const auto catchRatePercentage = wxString::Format(wxT("(%.2lf%%)"), m_pokemonStatsCatchRateValue->GetValue() / 255.0 * 100.0);
             m_pokemonCatchRatePercentage->SetLabelText(catchRatePercentage);
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             auto valueChangedFunc = [&](u8 &field, wxSpinCtrlDouble *ctrl) {
@@ -450,7 +450,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                 return false;
             };
 
-            auto &pokemon = m_pokegold.Data().Pokemons()[m_pokemonList->GetSelection()];
+            auto &pokemon = m_pokegold.Data.Pokemons[m_pokemonList->GetSelection()];
             bool hasChanged = false;
             hasChanged |= valueChangedFunc(pokemon.Hp, m_pokemonStatsHpValue);
             hasChanged |= valueChangedFunc(pokemon.Attack, m_pokemonStatsAtkValue);
@@ -476,7 +476,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             }
 
             if (hasChanged)
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
         };
 
         m_pokemonStatsHpValue->Bind(wxEVT_SPINCTRLDOUBLE, spinCtrlBindFunc);
@@ -564,16 +564,16 @@ void ui::DatabasePanel::InitializePokemonTab()
     m_pokemonNameText->Bind(wxEVT_TEXT, [&](wxCommandEvent &ev) {
         ev.Skip();
 
-        if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+        if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
             return;
 
         auto str = m_pokemonNameText->GetValue().utf8_string();
         if (pokegold::String::IsCharmapString(str))
         {
             const auto pokemonIdx = *m_selectedPokemon;
-            m_pokegold.Data().Pokemons()[pokemonIdx].Name = str;
-            m_pokegold.Data().PokemonNameUpdated()(pokemonIdx);
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.Pokemons[pokemonIdx].Name = str;
+            m_pokegold.Data.PokemonNameUpdated(pokemonIdx);
+            m_pokegold.NotifyRomChanged();
         }
     });
 
@@ -581,16 +581,16 @@ void ui::DatabasePanel::InitializePokemonTab()
     m_pokemonEggNameText->Bind(wxEVT_TEXT, [&](wxCommandEvent &ev) {
         ev.Skip();
 
-        if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+        if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
             return;
 
         auto str = m_pokemonEggNameText->GetValue().utf8_string();
         if (pokegold::String::IsCharmapString(str))
         {
             const auto pokemonIdx = *m_selectedPokemon;
-            m_pokegold.Data().Pokemons()[pokemonIdx].Name = str;
-            m_pokegold.Data().PokemonNameUpdated()(pokemonIdx);
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.Pokemons[pokemonIdx].Name = str;
+            m_pokegold.Data.PokemonNameUpdated(pokemonIdx);
+            m_pokegold.NotifyRomChanged();
         }
     });
 
@@ -599,15 +599,15 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonDexSpeciesNameText->Bind(wxEVT_TEXT, [&](wxCommandEvent ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             auto str = m_pokemonDexSpeciesNameText->GetValue().utf8_string();
             if (pokegold::String::IsCharmapString(str))
             {
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.DexCategoryName = str + "[50]";
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
             }
         });
 
@@ -624,14 +624,14 @@ void ui::DatabasePanel::InitializePokemonTab()
             const auto dexDescLabel = wxString::Format(wxT("설명 (너비: %d/18)："), int(maxLen));
             m_pokemonDexDescriptionLabel->SetLabel(dexDescLabel);
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             if (pokegold::String::IsCharmapString(str))
             {
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.Description = str + "[50]";
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
             }
         });
     }
@@ -656,7 +656,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     return;
                 }
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.FrontImage = result.Get2bppData();
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
@@ -665,7 +665,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     pokemon.Colors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdatePokemonImages();
             }
@@ -691,7 +691,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     return;
                 }
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.ImageDimensions = pokegold::ToImageDimensions(size);
                 pokemon.FrontImage = result.Get2bppData();
 
@@ -701,7 +701,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     pokemon.Colors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdatePokemonImages();
             }
@@ -725,7 +725,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     return;
                 }
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.BackImage = result.Get2bppData();
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
@@ -734,7 +734,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     pokemon.Colors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdatePokemonImages();
             }
@@ -760,7 +760,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     return;
                 }
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.ImageDimensions = pokegold::ToImageDimensions(size);
                 pokemon.FrontImage = result.Get2bppData();
 
@@ -770,7 +770,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     pokemon.ShinyColors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdatePokemonImages();
             }
@@ -794,7 +794,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     return;
                 }
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.BackImage = result.Get2bppData();
 
                 if (ShowYesNoDialog(this, "알림", "색상을 교체하겠습니까?") == MessageBoxResult::Yes)
@@ -803,7 +803,7 @@ void ui::DatabasePanel::InitializePokemonTab()
                     pokemon.ShinyColors[1] = result.GetPalette()[2];
                 }
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdatePokemonImages();
             }
@@ -827,10 +827,10 @@ void ui::DatabasePanel::InitializePokemonTab()
                     return;
                 }
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.SmallImages = result.Get2bppData();
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdatePokemonImages();
             } };
@@ -855,24 +855,24 @@ void ui::DatabasePanel::InitializePokemonTab()
                     return;
                 }
 
-                auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+                auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
                 pokemon.FootprintImage = result.Get1bppData();
 
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
 
                 UpdatePokemonImages();
             }
         });
 
         auto color_1 = [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+            auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
             pokemon.Colors[0].R(newColor.Red());
             pokemon.Colors[0].G(newColor.Green());
             pokemon.Colors[0].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdatePokemonImages();
         };
@@ -880,14 +880,14 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonEggColor_1->GetColorState().Subscribe(this, color_1);
 
         auto color_2 = [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+            auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
             pokemon.Colors[1].R(newColor.Red());
             pokemon.Colors[1].G(newColor.Green());
             pokemon.Colors[1].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdatePokemonImages();
         };
@@ -895,14 +895,14 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonEggColor_2->GetColorState().Subscribe(this, color_2);
 
         auto shinyColor_1 = [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+            auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
             pokemon.ShinyColors[0].R(newColor.Red());
             pokemon.ShinyColors[0].G(newColor.Green());
             pokemon.ShinyColors[0].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdatePokemonImages();
         };
@@ -910,14 +910,14 @@ void ui::DatabasePanel::InitializePokemonTab()
         m_pokemonEggShinyColor_1->GetColorState().Subscribe(this, shinyColor_1);
 
         auto shinyColor_2 = [this](const wxColour &newColor) {
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &pokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+            auto &pokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
             pokemon.ShinyColors[1].R(newColor.Red());
             pokemon.ShinyColors[1].G(newColor.Green());
             pokemon.ShinyColors[1].B(newColor.Blue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             UpdatePokemonImages();
         };
@@ -939,7 +939,7 @@ void ui::DatabasePanel::InitializePokemonTab()
             }
             else
             {
-                auto &e = m_pokegold.Data().Pokemons()[idx];
+                auto &e = m_pokegold.Data.Pokemons[idx];
 
                 if (e.Type == pokegold::PokemonType::Pokemon)
                     m_pokemonContainer->SetSelection(size_t(PokemonTabType::Pokemon));
@@ -950,7 +950,7 @@ void ui::DatabasePanel::InitializePokemonTab()
 
                 if (e.Type == pokegold::PokemonType::Pokemon)
                 {
-                    if (m_pokegold.Data().UnownPokemonId == e.Id)
+                    if (m_pokegold.Data.UnownPokemonId == e.Id)
                         m_pokemonImageContainer->SetSelection(size_t(PokemonImageContainerType::Unown));
                     else
                         m_pokemonImageContainer->SetSelection(size_t(PokemonImageContainerType::Pokemon));
@@ -1070,7 +1070,7 @@ void ui::DatabasePanel::UpdatePokemonImages()
 {
     m_eventGuard([&] {
         int index = *m_selectedPokemon;
-        if (index == -1 || m_pokegold.Data().Pokemons()[index].Type == pokegold::PokemonType::Dummy)
+        if (index == -1 || m_pokegold.Data.Pokemons[index].Type == pokegold::PokemonType::Dummy)
         {
             m_pokemonFrontImage->Clear();
             m_pokemonBackImage->Clear();
@@ -1097,7 +1097,7 @@ void ui::DatabasePanel::UpdatePokemonImages()
         }
         else
         {
-            auto &pokemon = m_pokegold.Data().Pokemons()[index];
+            auto &pokemon = m_pokegold.Data.Pokemons[index];
 
             if (pokemon.Type == pokegold::PokemonType::Pokemon)
             {
@@ -1112,7 +1112,10 @@ void ui::DatabasePanel::UpdatePokemonImages()
                 m_pokemonShinyColor_2->SetColor(pokemon.ShinyColors[1].ToWxColor());
 
                 m_pokemonFootprintImage->Set1bppData(pokegold::ImageDimensions::Size_16x16, pokemon.FootprintImage);
-                m_pokemonSmallPicture->Set2bppData(pokegold::ImageDimensions::Size_32x16, pokemon.SmallImages, m_pokegold.Data().NpcColors().Morning[pokemon.SmallImagePaletteId]);
+                m_pokemonSmallPicture->Set2bppData(
+                    pokegold::ImageDimensions::Size_32x16,
+                    pokemon.SmallImages,
+                    m_pokegold.Data.Maps.NpcColors.Morning[pokemon.SmallImagePaletteId]);
 
                 m_pokemonEggImage->Clear();
 
@@ -1140,7 +1143,9 @@ void ui::DatabasePanel::UpdatePokemonImages()
                 m_pokemonSmallPicture->Clear();
 
                 m_pokemonEggImage->Set2bppData(pokegold::ImageDimensions::Size_40x40, pokemon.FrontImage, pokemon.Colors);
-                m_pokemonEggSmallPicture->Set2bppData(pokegold::ImageDimensions::Size_32x16, pokemon.SmallImages, m_pokegold.Data().NpcColors().Morning[pokemon.SmallImagePaletteId]);
+                m_pokemonEggSmallPicture->Set2bppData(
+                    pokegold::ImageDimensions::Size_32x16,
+                    pokemon.SmallImages, m_pokegold.Data.Maps.NpcColors.Morning[pokemon.SmallImagePaletteId]);
 
                 m_pokemonEggColor_1->SetColor(pokemon.Colors[0].ToWxColor());
                 m_pokemonEggColor_2->SetColor(pokemon.Colors[1].ToWxColor());
@@ -1161,7 +1166,7 @@ void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
     if (selected == -1)
         return;
 
-    auto &e = m_pokegold.Data().Pokemons()[selected];
+    auto &e = m_pokegold.Data.Pokemons[selected];
 
     for (size_t i = 0; i < e.EvolutionMethods.size(); i++)
     {
@@ -1171,33 +1176,33 @@ void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
         switch (ev.EvolutionMethodType)
         {
         case pokegold::EvolutionMethodType::LevelUp:
-            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data().Pokemons()[ev.PokemonId - 1].Name.ToEditorWxString());
+            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data.Pokemons[ev.PokemonId - 1].Name.ToEditorWxString());
             m_pokemonEvolutionsList->SetItem(i, 1, wxT("레벨 업"));
             m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("레벨 %d 달성"), ev.Level));
             m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
             break;
 
         case pokegold::EvolutionMethodType::UseItem:
-            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data().Pokemons()[ev.PokemonId - 1].Name.ToEditorWxString());
+            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data.Pokemons[ev.PokemonId - 1].Name.ToEditorWxString());
             m_pokemonEvolutionsList->SetItem(i, 1, wxT("도구 사용"));
-            m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("'%s' 사용"), m_pokegold.Data().Items()[ev.ItemId - 1].Name.ToEditorWxString()));
+            m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("'%s' 사용"), m_pokegold.Data.Items[ev.ItemId - 1].Name.ToEditorWxString()));
             m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
             break;
 
         case pokegold::EvolutionMethodType::Trade:
-            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data().Pokemons()[ev.PokemonId - 1].Name.ToEditorWxString());
+            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data.Pokemons[ev.PokemonId - 1].Name.ToEditorWxString());
             m_pokemonEvolutionsList->SetItem(i, 1, wxT("통신교환"));
 
             if (ev.ItemId == 0xff)
                 m_pokemonEvolutionsList->SetItem(i, 2, wxT("-"));
             else
-                m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("'%s' 지닌 상태"), m_pokegold.Data().Items()[ev.ItemId - 1].Name.ToEditorWxString()));
+                m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("'%s' 지닌 상태"), m_pokegold.Data.Items[ev.ItemId - 1].Name.ToEditorWxString()));
             m_pokemonEvolutionsList->SetItem(i, 3, wxT("-"));
 
             break;
 
         case pokegold::EvolutionMethodType::LevelUpWithHappiness:
-            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data().Pokemons()[ev.PokemonId - 1].Name.ToEditorWxString());
+            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data.Pokemons[ev.PokemonId - 1].Name.ToEditorWxString());
             m_pokemonEvolutionsList->SetItem(i, 1, wxT("레벨 업"));
 
             switch (ev.Happiness)
@@ -1223,7 +1228,7 @@ void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
             break;
 
         case pokegold::EvolutionMethodType::LevelUpWithStats:
-            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data().Pokemons()[ev.PokemonId - 1].Name.ToEditorWxString());
+            m_pokemonEvolutionsList->SetItem(i, 0, m_pokegold.Data.Pokemons[ev.PokemonId - 1].Name.ToEditorWxString());
             m_pokemonEvolutionsList->SetItem(i, 1, wxT("레벨 업"));
             m_pokemonEvolutionsList->SetItem(i, 2, wxString::Format(wxT("레벨 %d 달성"), ev.Level));
 
@@ -1253,7 +1258,7 @@ void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
 
         const auto &move = e.Moves[i];
         m_pokemonMovesList->SetItem(i, 0, wxString::Format(wxT("%d"), move.Level));
-        m_pokemonMovesList->SetItem(i, 1, m_pokegold.Data().Moves()[move.MoveId - 1].Name.ToEditorWxString());
+        m_pokemonMovesList->SetItem(i, 1, m_pokegold.Data.Moves[move.MoveId - 1].Name.ToEditorWxString());
     }
 
     for (size_t i = 0; i < e.EggMoveIds.size(); i++)
@@ -1261,7 +1266,7 @@ void ui::DatabasePanel::UpdatePokemonEvolutionAndMoveList()
         m_pokemonEggMovesList->InsertItem(i, wxT(""));
 
         const auto &eggMoveId = e.EggMoveIds[i];
-        auto name = m_pokegold.Data().Moves()[eggMoveId - 1].Name.ToEditorWxString();
+        auto name = m_pokegold.Data.Moves[eggMoveId - 1].Name.ToEditorWxString();
         m_pokemonEggMovesList->SetItem(i, 0, wxString::Format(wxT("%d"), u8(i + 1)));
         m_pokemonEggMovesList->SetItem(i, 1, name);
     }
@@ -1279,12 +1284,12 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
 {
     event.Skip();
 
-    if (!*m_pokegold.Rom().Opened() || *m_selectedPokemon == -1)
+    if (!*m_pokegold.IsOpenedState() || *m_selectedPokemon == -1)
         return;
 
     const int id = event.GetId();
     const int selectedEvolveIdx = *m_selectedPokemonEvolution;
-    auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+    auto &selectedPokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
 
     if (id == wxID_ADD)
     {
@@ -1300,7 +1305,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
             selectedPokemon.EvolutionMethods.push_back(*result);
 
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1319,7 +1324,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
             selectedPokemon.EvolutionMethods[selectedEvolveIdx] = *result;
 
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1332,7 +1337,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
             auto position = selectedPokemon.EvolutionMethods.begin() + selectedEvolveIdx;
             selectedPokemon.EvolutionMethods.erase(position);
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1344,7 +1349,7 @@ void ui::DatabasePanel::OnPokemonEvolutionsButtonClick(wxCommandEvent &event)
         {
             selectedPokemon.EvolutionMethods.clear();
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1354,12 +1359,12 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
 {
     event.Skip();
 
-    if (!*m_pokegold.Rom().Opened() || *m_selectedPokemon == -1)
+    if (!*m_pokegold.IsOpenedState() || *m_selectedPokemon == -1)
         return;
 
     const int id = event.GetId();
     const int selectedMoveIdx = *m_selectedPokemonMove;
-    auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+    auto &selectedPokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
 
     if (id == wxID_IMPORT)
     {
@@ -1387,7 +1392,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
                 });
 
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1412,7 +1417,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
                 });
 
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             // 추가된 항목 선택처리
             auto foundResult = std::find(selectedPokemon.Moves.begin(), selectedPokemon.Moves.end(), *result);
@@ -1442,7 +1447,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
                 });
 
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
 
             // 항목 선택처리
             auto foundResult = std::find(selectedPokemon.Moves.begin(), selectedPokemon.Moves.end(), *result);
@@ -1460,7 +1465,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
             auto position = selectedPokemon.Moves.begin() + selectedMoveIdx;
             selectedPokemon.Moves.erase(position);
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1472,7 +1477,7 @@ void ui::DatabasePanel::OnPokemonMovesButtonClick(wxCommandEvent &event)
         {
             selectedPokemon.Moves.clear();
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1482,12 +1487,12 @@ void ui::DatabasePanel::OnPokemonEggMovesButtonClick(wxCommandEvent &event)
 {
     event.Skip();
 
-    if (!*m_pokegold.Rom().Opened() || *m_selectedPokemon == -1)
+    if (!*m_pokegold.IsOpenedState() || *m_selectedPokemon == -1)
         return;
 
     const int id = event.GetId();
     const int selectedEggMoveIdx = *m_selectedPokemonEggMove;
-    auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+    auto &selectedPokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
 
     if (id == wxID_ADD)
     {
@@ -1503,7 +1508,7 @@ void ui::DatabasePanel::OnPokemonEggMovesButtonClick(wxCommandEvent &event)
             selectedPokemon.EggMoveIds.push_back(*result);
 
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1522,7 +1527,7 @@ void ui::DatabasePanel::OnPokemonEggMovesButtonClick(wxCommandEvent &event)
             selectedPokemon.EggMoveIds[selectedEggMoveIdx] = *result;
 
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1535,7 +1540,7 @@ void ui::DatabasePanel::OnPokemonEggMovesButtonClick(wxCommandEvent &event)
             auto position = selectedPokemon.EggMoveIds.begin() + selectedEggMoveIdx;
             selectedPokemon.EggMoveIds.erase(position);
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1547,7 +1552,7 @@ void ui::DatabasePanel::OnPokemonEggMovesButtonClick(wxCommandEvent &event)
         {
             selectedPokemon.EggMoveIds.clear();
             UpdatePokemonEvolutionAndMoveList();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         }
         return;
     }
@@ -1557,11 +1562,11 @@ void ui::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)
 {
     event.Skip();
 
-    if (!*m_pokegold.Rom().Opened() || *m_selectedPokemon == -1)
+    if (!*m_pokegold.IsOpenedState() || *m_selectedPokemon == -1)
         return;
 
     const int id = event.GetId();
-    auto &selectedPokemon = m_pokegold.Data().Pokemons()[*m_selectedPokemon];
+    auto &selectedPokemon = m_pokegold.Data.Pokemons[*m_selectedPokemon];
 
     auto tmhmCtrls = std::vector<ui::ColoredCheckListBox *>{
         m_pokemonHmTmList1,
@@ -1590,8 +1595,8 @@ void ui::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)
             for (auto &e : selectedPokemon.TMHMs)
                 e = true;
 
-            m_pokegold.Data().TMHMsUpdated()();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.TMHMsUpdated();
+            m_pokegold.NotifyRomChanged();
         });
         return;
     }
@@ -1612,8 +1617,8 @@ void ui::DatabasePanel::OnPokemonTMHMsButtonClick(wxCommandEvent &event)
             for (auto &e : selectedPokemon.TMHMs)
                 e = false;
 
-            m_pokegold.Data().TMHMsUpdated()();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.Data.TMHMsUpdated();
+            m_pokegold.NotifyRomChanged();
         });
         return;
     }

@@ -27,12 +27,12 @@ void ui::DatabasePanel::InitializeMoveTab()
         BindControlSelection(this, m_moveList, m_selectedMove);
 
         // 롬을 다시 열었을 때, 선택 초기화...
-        m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
+        m_pokegold.IsOpenedState().Subscribe(this, [this](const bool &) {
             m_selectedMove.Update(-1);
         });
 
         // 항목 이름 갱신
-        m_pokegold.Data().MoveNameUpdated().Subscribe(this, [this](const int &idx) {
+        m_pokegold.Data.MoveNameUpdated.Subscribe(this, [this](const int &idx) {
             m_moveList->Freeze();
 
             if (m_moveList->GetCount() == 0)
@@ -45,14 +45,14 @@ void ui::DatabasePanel::InitializeMoveTab()
             {
                 for (size_t i = 0; i < 251; i++)
                 {
-                    auto &e = m_pokegold.Data().Moves()[i];
+                    auto &e = m_pokegold.Data.Moves[i];
                     auto name = e.Name.ToEditorWxString();
                     m_moveList->SetString(i, name);
                 }
             }
             else
             {
-                auto &e = m_pokegold.Data().Moves()[idx];
+                auto &e = m_pokegold.Data.Moves[idx];
                 auto name = e.Name.ToEditorWxString();
                 m_moveList->SetString(idx, name);
             }
@@ -82,7 +82,7 @@ void ui::DatabasePanel::InitializeMoveTab()
                 }
                 else
                 {
-                    auto &e = m_pokegold.Data().Moves()[idx];
+                    auto &e = m_pokegold.Data.Moves[idx];
 
                     m_movePrimaryNumberText->SetValue(wxString::Format("%d", e.Id));
                     m_movePrimaryNameText->SetValue(e.Name.ToEditorWxString());
@@ -102,7 +102,7 @@ void ui::DatabasePanel::InitializeMoveTab()
     }
 
     // 타입 이름 갱신
-    m_pokegold.Data().TypeNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.TypeNameUpdated.Subscribe(this, [this](const int &idx) {
         m_movePrimaryTypeComboBox->Freeze();
 
         if (m_movePrimaryTypeComboBox->GetCount() == 0)
@@ -115,14 +115,14 @@ void ui::DatabasePanel::InitializeMoveTab()
         {
             for (size_t i = 0; i < 28; i++)
             {
-                auto &e = m_pokegold.Data().Types()[i];
+                auto &e = m_pokegold.Data.Types[i];
                 auto name = e.Name.ToEditorWxString();
                 m_movePrimaryTypeComboBox->SetString(i, name);
             }
         }
         else
         {
-            auto &e = m_pokegold.Data().Types()[idx];
+            auto &e = m_pokegold.Data.Types[idx];
             auto name = e.Name.ToEditorWxString();
             m_movePrimaryTypeComboBox->SetString(idx, name);
         }
@@ -141,17 +141,17 @@ void ui::DatabasePanel::InitializeMoveEditor()
         m_movePrimaryNameText->Bind(wxEVT_TEXT, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             auto str = m_movePrimaryNameText->GetValue().utf8_string();
             if (pokegold::String::IsCharmapString(str))
             {
                 int selected = *m_selectedMove;
-                auto &e = m_pokegold.Data().Moves()[selected];
+                auto &e = m_pokegold.Data.Moves[selected];
                 e.Name = str + "[50]";
-                m_pokegold.Data().MoveNameUpdated()(selected);
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.Data.MoveNameUpdated(selected);
+                m_pokegold.NotifyRomChanged();
             }
         });
 
@@ -159,24 +159,24 @@ void ui::DatabasePanel::InitializeMoveEditor()
         m_movePrimaryTypeComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Moves()[*m_selectedMove];
+            auto &e = m_pokegold.Data.Moves[*m_selectedMove];
             e.Type = m_movePrimaryTypeComboBox->GetSelection();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 위력
         m_movePrimaryPowerSpinCtrl->Bind(wxEVT_SPINCTRLDOUBLE, [this](wxSpinDoubleEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Moves()[*m_selectedMove];
+            auto &e = m_pokegold.Data.Moves[*m_selectedMove];
             e.Power = u8(m_movePrimaryPowerSpinCtrl->GetValue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 명중률
@@ -186,24 +186,24 @@ void ui::DatabasePanel::InitializeMoveEditor()
             const auto percentage = wxString::Format(wxT("(%.2lf%%)"), m_movePrimaryAccuracySpinCtrl->GetValue() / 255.0 * 100.0);
             m_movePrimaryAccuracyPercentageLabel->SetLabelText(percentage);
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Moves()[*m_selectedMove];
+            auto &e = m_pokegold.Data.Moves[*m_selectedMove];
             e.Accuracy = u8(m_movePrimaryAccuracySpinCtrl->GetValue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // PP
         m_movePrimaryPPSpinCtrl->Bind(wxEVT_SPINCTRLDOUBLE, [this](wxSpinDoubleEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Moves()[*m_selectedMove];
+            auto &e = m_pokegold.Data.Moves[*m_selectedMove];
             e.PP = u8(m_movePrimaryPPSpinCtrl->GetValue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 설명
@@ -220,14 +220,14 @@ void ui::DatabasePanel::InitializeMoveEditor()
             const auto label = wxString::Format(wxT("설명 (너비: %d/18)："), int(maxLen));
             m_movePrimaryDescriptionLabel->SetLabel(label);
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             if (pokegold::String::IsCharmapString(str))
             {
-                auto &e = m_pokegold.Data().Moves()[*m_selectedMove];
+                auto &e = m_pokegold.Data.Moves[*m_selectedMove];
                 e.Description = str + "[50]";
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
             }
         });
     }
@@ -238,24 +238,24 @@ void ui::DatabasePanel::InitializeMoveEditor()
         m_moveEffectTypeComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Moves()[*m_selectedMove];
+            auto &e = m_pokegold.Data.Moves[*m_selectedMove];
             e.Effect = m_moveEffectTypeComboBox->GetSelection();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 값
         m_moveEffectValueSpinCtrl->Bind(wxEVT_SPINCTRLDOUBLE, [this](wxSpinDoubleEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Moves()[*m_selectedMove];
+            auto &e = m_pokegold.Data.Moves[*m_selectedMove];
             e.EffectChance = u8(m_moveEffectValueSpinCtrl->GetValue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
     }
 }

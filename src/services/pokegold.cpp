@@ -1,4 +1,4 @@
-#include "rom.h"
+#include "pokegold.h"
 
 #include "base/log.h"
 #include "base/sidecar/sidecar.h"
@@ -12,7 +12,7 @@ namespace
     const base::SidecarResult k_romNotFoundResult{-2, "-"};
 }
 
-base::SidecarResult pokegold::Rom::RunTestPlay()
+base::SidecarResult services::Pokegold::RunTestPlay()
 {
     auto emulatorPath = services::AppConfigs::Default().GetEmulatorPath();
     if (!emulatorPath.has_value())

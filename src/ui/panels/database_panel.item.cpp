@@ -29,12 +29,12 @@ void ui::DatabasePanel::InitializeItemTab()
     BindControlSelection(this, m_itemList, m_selectedItem);
 
     // 롬을 다시 열었을 때, 선택 초기화...
-    m_pokegold.Rom().Opened().Subscribe(this, [this](const bool &) {
+    m_pokegold.IsOpenedState().Subscribe(this, [this](const bool &) {
         m_selectedItem.Update(-1);
     });
 
     // 아이템 이름 갱신
-    m_pokegold.Data().ItemNameUpdated().Subscribe(this, [this](const int &idx) {
+    m_pokegold.Data.ItemNameUpdated.Subscribe(this, [this](const int &idx) {
         m_itemList->Freeze();
 
         if (m_itemList->GetCount() == 0)
@@ -47,14 +47,14 @@ void ui::DatabasePanel::InitializeItemTab()
         {
             for (size_t i = 0; i < 256; i++)
             {
-                auto &e = m_pokegold.Data().Items()[i];
+                auto &e = m_pokegold.Data.Items[i];
                 auto name = e.Name.ToEditorWxString();
                 m_itemList->SetString(i, name);
             }
         }
         else
         {
-            auto &e = m_pokegold.Data().Items()[idx];
+            auto &e = m_pokegold.Data.Items[idx];
             auto name = e.Name.ToEditorWxString();
             m_itemList->SetString(idx, name);
         }
@@ -85,7 +85,7 @@ void ui::DatabasePanel::InitializeItemTab()
             }
             else
             {
-                auto &e = m_pokegold.Data().Items()[idx];
+                auto &e = m_pokegold.Data.Items[idx];
 
                 m_itemPrimaryGroupComboBox->Select(e.Pocket);
                 m_itemPrimaryNameText->SetValue(e.Name.ToEditorWxString());
@@ -115,29 +115,29 @@ void ui::DatabasePanel::InitializeItemEditor()
         m_itemPrimaryGroupComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+            auto &e = m_pokegold.Data.Items[*m_selectedItem];
             e.Pocket = m_itemPrimaryGroupComboBox->GetSelection();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 아이템 이름
         m_itemPrimaryNameText->Bind(wxEVT_TEXT, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             auto str = m_itemPrimaryNameText->GetValue().utf8_string();
             if (pokegold::String::IsCharmapString(str))
             {
                 int selected = *m_selectedItem;
-                auto &e = m_pokegold.Data().Items()[selected];
+                auto &e = m_pokegold.Data.Items[selected];
                 e.Name = str + "[50]";
-                m_pokegold.Data().ItemNameUpdated()(selected);
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.Data.ItemNameUpdated(selected);
+                m_pokegold.NotifyRomChanged();
             }
         });
 
@@ -145,12 +145,12 @@ void ui::DatabasePanel::InitializeItemEditor()
         m_itemPrimaryPriceSpinCtrl->Bind(wxEVT_SPINCTRLDOUBLE, [this](wxSpinDoubleEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+            auto &e = m_pokegold.Data.Items[*m_selectedItem];
             e.Price = u16(m_itemPrimaryPriceSpinCtrl->GetValue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 아이템 설명
@@ -167,14 +167,14 @@ void ui::DatabasePanel::InitializeItemEditor()
             const auto label = wxString::Format(wxT("설명 (너비: %d/18)："), int(maxLen));
             m_itemPrimaryDescriptionLabel->SetLabel(label);
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
             if (pokegold::String::IsCharmapString(str))
             {
-                auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+                auto &e = m_pokegold.Data.Items[*m_selectedItem];
                 e.Description = str + "[50]";
-                m_pokegold.Rom().NotifyRomChanged();
+                m_pokegold.NotifyRomChanged();
             }
         });
     }
@@ -185,24 +185,24 @@ void ui::DatabasePanel::InitializeItemEditor()
         m_itemFieldMenuComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+            auto &e = m_pokegold.Data.Items[*m_selectedItem];
             e.FieldMenu = m_itemFieldMenuComboBox->GetSelection();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 배틀
         m_itemBattleMenuComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+            auto &e = m_pokegold.Data.Items[*m_selectedItem];
             e.BattleMenu = m_itemBattleMenuComboBox->GetSelection();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
     }
 
@@ -212,36 +212,36 @@ void ui::DatabasePanel::InitializeItemEditor()
         m_itemEtcEffectComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+            auto &e = m_pokegold.Data.Items[*m_selectedItem];
             e.Effect = m_itemEtcEffectComboBox->GetSelection();
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 지닌 도구 효과
         m_itemEtcRegisterComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+            auto &e = m_pokegold.Data.Items[*m_selectedItem];
             e.Property = u8(m_itemEtcRegisterComboBox->GetSelection() << 6);
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
 
         // 값
         m_itemEtcValueSpinCtrl->Bind(wxEVT_SPINCTRLDOUBLE, [this](wxSpinDoubleEvent &ev) {
             ev.Skip();
 
-            if (m_eventGuard.IsGuarded() || !*m_pokegold.Rom().Opened())
+            if (m_eventGuard.IsGuarded() || !*m_pokegold.IsOpenedState())
                 return;
 
-            auto &e = m_pokegold.Data().Items()[*m_selectedItem];
+            auto &e = m_pokegold.Data.Items[*m_selectedItem];
             e.Parameter = u8(m_itemEtcValueSpinCtrl->GetValue());
-            m_pokegold.Rom().NotifyRomChanged();
+            m_pokegold.NotifyRomChanged();
         });
     }
 }

@@ -11,7 +11,7 @@ ui::internal::TypeMatchupEditorDialog::TypeMatchupEditorDialog(wxWindow *parent,
     {
         m_typeComboBox->Freeze();
 
-        for (auto &e : m_pokegold.Data().Types())
+        for (auto &e : m_pokegold.Data.Types)
         {
             const auto name = e.Name.ToEditorWxString();
             m_typeComboBox->Append(name);

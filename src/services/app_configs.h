@@ -20,7 +20,7 @@ namespace services
         std::filesystem::path m_configFilePath;
         wxFileConfig *m_configs = nullptr;
 
-        base::MutableState<std::filesystem::path> m_emulatorPathState = base::GetNullPath();
+        base::MutableState<std::filesystem::path> m_emulatorPathState = base::NullPath;
         base::MutableState<bool> m_showDebugLabelState = true;
         base::MutableState<bool> m_testPlaySaveState = true;
         base::MutableState<bool> m_trainerCardImageState = false;

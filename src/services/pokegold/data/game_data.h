@@ -367,6 +367,19 @@ namespace pokegold
         auto end() { return m_colors.end(); }
     };
 
+    // TODO: 작업 중...
+    // struct Map
+    // {};
+
+    struct Maps
+    {
+        // TODO: 작업 중...
+        // std::array<Map, 26> MapGroups;
+
+        NpcColors NpcColors;
+        std::array<std::array<std::vector<u8>, 2>, 38> LegacyPokemonSmallPictures; // 롬 빌드에 포함하지 않음 (읽기 전용)
+    };
+
     class BadData
     {
     private:
@@ -379,26 +392,5 @@ namespace pokegold
     public:
         const auto &Reason() const { return m_reason; }
         const auto &Data() const { return m_data; }
-    };
-}
-
-namespace pokegold
-{
-    /**
-     * @brief 안농 번호 오프셋 목록
-     */
-    inline static const std::vector<size_t> UnownIdsOffsets = {
-        0x00da2b,
-        0x00daf1,
-        0x00deea,
-        0x02a7f7,
-        0x03d5af,
-        0x03e861,
-        0x03f442,
-        0x0416ce,
-        0x042007,
-        0x05113e,
-        0x05188f,
-        0x0518f1,
     };
 }

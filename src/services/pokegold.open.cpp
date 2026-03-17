@@ -1,4 +1,4 @@
-#include "rom.h"
+#include "pokegold.h"
 
 #include "base/files/paths.h"
 #include "base/log.h"
@@ -46,21 +46,21 @@ namespace
     }
 }
 
-bool pokegold::Rom::Open(const std::filesystem::path &romFilePath)
+bool services::Pokegold::Open(const std::filesystem::path &romFilePath)
 {
     base::Log(TAG, "start open. (path=\"{}\")", romFilePath.string());
     m_openProgressState.Reset();
 
-    std::vector<std::function<bool(Data &)>> funcs = {
-        [this](Data &data) { return Open_ReadItems(data); },
-        [this](Data &data) { return Open_ReadMoves(data); },
-        [this](Data &data) { return Open_ReadPokemons(data); },
-        [this](Data &data) { return Open_ReadTrainerGroups(data); },
-        [this](Data &data) { return Open_ReadTypes(data); },
-        [this](Data &data) { return Open_ReadMaps(data); },
+    std::vector<std::function<bool(pokegold::Data &)>> funcs = {
+        [this](pokegold::Data &data) { return Open_ReadItems(data); },
+        [this](pokegold::Data &data) { return Open_ReadMoves(data); },
+        [this](pokegold::Data &data) { return Open_ReadPokemons(data); },
+        [this](pokegold::Data &data) { return Open_ReadTrainerGroups(data); },
+        [this](pokegold::Data &data) { return Open_ReadTypes(data); },
+        [this](pokegold::Data &data) { return Open_ReadMaps(data); },
     };
 
-    Data data(romFilePath);
+    pokegold::Data data(romFilePath);
 
     for (const auto &func : funcs)
     {
@@ -68,23 +68,23 @@ bool pokegold::Rom::Open(const std::filesystem::path &romFilePath)
             return false;
     }
 
-    m_data = data;
+    Data = data;
 
     base::Log(TAG, "finish open.");
     m_romFilePathState.Update(romFilePath);
-    m_romOpenedState.Update(true);
+    m_isOpenedState.Update(true);
 
     std::filesystem::path workSpacePath = base::GetAppDataPath() / "workspaces" / base::Hash(romFilePath.string());
     std::filesystem::create_directories(workSpacePath);
     m_workspacePathState.Update(workSpacePath);
 
     // 손상된 데이터 유무에 따라 변동 사항을 통지
-    m_romDataChangedState.Update(!data.BadDataList().empty());
+    m_isDataChangedState.Update(!data.BadDataList.empty());
 
     return true;
 }
 
-bool pokegold::Rom::Open_ReadItems(Data &data)
+bool services::Pokegold::Open_ReadItems(pokegold::Data &data)
 {
     base::Log(TAG, "read items (primary)");
     for (size_t i = 0; i < 256; i++)
@@ -96,7 +96,7 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
         m_openProgressState.Increase();
 
         auto bytes = data.GetBytes(0x697b + (i * 7), 7);
-        auto &item = data.Items()[i];
+        auto &item = data.Items[i];
         item.Price = bytes[0] | (u16(bytes[1]) << 8);
         item.Effect = bytes[2];
         item.Parameter = bytes[3];
@@ -107,7 +107,7 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
     }
 
     base::Log(TAG, "read items (name)");
-    size_t itemNameOffset = Calc(data.GetBytes(0x35cc, 3));
+    size_t itemNameOffset = pokegold::Calc(data.GetBytes(0x35cc, 3));
     bool hasBadItemName = false;
     for (size_t i = 0; i < 256; i++)
     {
@@ -120,7 +120,7 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
         const auto bytes = data.GetBytesUntil(itemNameOffset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
         itemNameOffset += bytes.size();
 
-        auto &item = data.Items()[i];
+        auto &item = data.Items[i];
         pokegold::String str = bytes;
         if (hasBadItemName || str.HasBadData() || str.GetData().size() > 24)
         {
@@ -129,7 +129,7 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
             if (!hasBadItemName)
             {
                 hasBadItemName = true;
-                data.BadDataList().emplace_back(BadDataReason::ItemName, i);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::ItemName, i);
                 base::Log(TAG, "bad data (item name, idx={})", i);
             }
         }
@@ -140,7 +140,7 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
     }
 
     base::Log(TAG, "read items (description)");
-    size_t itemDescriptionBank = CalcBank(0x1b8000);
+    size_t itemDescriptionBank = pokegold::CalcBank(0x1b8000);
     for (size_t i = 0; i < 256; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -149,13 +149,13 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
         m_openProgressState.UpdateMessage(std::format("아이템 (설명: {}/256)", i + 1));
         m_openProgressState.Increase();
 
-        size_t offset = Calc(itemDescriptionBank, data.GetBytes(0x1b8000 + (i * 2), 2));
-        auto &item = data.Items()[i];
+        size_t offset = pokegold::Calc(itemDescriptionBank, data.GetBytes(0x1b8000 + (i * 2), 2));
+        auto &item = data.Items[i];
         pokegold::String str = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
         if (str.HasBadData() || str.GetData().size() > 110)
         {
             item.Description = "?";
-            data.BadDataList().emplace_back(BadDataReason::ItemDescription, i);
+            data.BadDataList.emplace_back(pokegold::BadDataReason::ItemDescription, i);
             base::Log(TAG, "bad data (item description, idx={})", i);
         }
         else
@@ -167,7 +167,7 @@ bool pokegold::Rom::Open_ReadItems(Data &data)
     return !m_openProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Open_ReadMoves(Data &data)
+bool services::Pokegold::Open_ReadMoves(pokegold::Data &data)
 {
     base::Log(TAG, "read moves (primary)");
     for (size_t i = 0; i < 251; i++)
@@ -178,7 +178,7 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
         m_openProgressState.UpdateMessage(std::format("기술 (기본 정보: {}/251)", i + 1));
         m_openProgressState.Increase();
 
-        auto &move = data.Moves()[i];
+        auto &move = data.Moves[i];
         auto bytes = data.GetBytes(0x4172e + (i * 7), 7);
         move.Id = bytes[0];
         move.Effect = bytes[1];
@@ -190,7 +190,7 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
     }
 
     base::Log(TAG, "read moves (name)");
-    size_t nameOffset = Calc(data.GetBytes(0x35c6, 3));
+    size_t nameOffset = pokegold::Calc(data.GetBytes(0x35c6, 3));
     bool hasBadMoveName = false;
     for (size_t i = 0; i < 251; i++)
     {
@@ -206,25 +206,25 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
         pokegold::String str = bytes;
         if (hasBadMoveName || str.HasBadData() || str.GetData().size() > 24)
         {
-            data.Moves()[i].Name = "?";
+            data.Moves[i].Name = "?";
 
             if (!hasBadMoveName)
             {
                 hasBadMoveName = true;
-                data.BadDataList().emplace_back(BadDataReason::MoveName, i);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::MoveName, i);
                 base::Log(TAG, "bad data (move name, idx={})", i);
             }
         }
         else
         {
-            data.Moves()[i].Name = str;
+            data.Moves[i].Name = str;
         }
 
-        data.Moves()[i].Name = bytes;
+        data.Moves[i].Name = bytes;
     }
 
     base::Log(TAG, "read moves (description)");
-    size_t descriptionBank = CalcBank(0x1b4000);
+    size_t descriptionBank = pokegold::CalcBank(0x1b4000);
     for (size_t i = 0; i < 251; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -233,17 +233,17 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
         m_openProgressState.UpdateMessage(std::format("기술 (설명: {}/251)", i + 1));
         m_openProgressState.Increase();
 
-        size_t offset = Calc(descriptionBank, data.GetBytes(0x1b4000 + (i * 2), 2));
+        size_t offset = pokegold::Calc(descriptionBank, data.GetBytes(0x1b4000 + (i * 2), 2));
         pokegold::String str = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
         if (str.HasBadData() || str.GetData().size() > 110)
         {
-            data.Moves()[i].Description = "?";
-            data.BadDataList().emplace_back(BadDataReason::MoveDescription, i);
+            data.Moves[i].Description = "?";
+            data.BadDataList.emplace_back(pokegold::BadDataReason::MoveDescription, i);
             base::Log(TAG, "bad data (move description, idx={})", i);
         }
         else
         {
-            data.Moves()[i].Description = str;
+            data.Moves[i].Description = str;
         }
     }
 
@@ -257,13 +257,13 @@ bool pokegold::Rom::Open_ReadMoves(Data &data)
         m_openProgressState.Increase();
 
         const u8 moveId = data.GetByte(0x119f5 + i);
-        data.TMHMs()[i].MoveId = moveId;
+        data.TMHMs[i].MoveId = moveId;
     }
 
     return !m_openProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Open_ReadPokemons(Data &data)
+bool services::Pokegold::Open_ReadPokemons(pokegold::Data &data)
 {
     std::vector<u8> imageBuffer(0x400, 0);
 
@@ -289,8 +289,8 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
     }
 
     base::Log(TAG, "read pokemon (primary)");
-    const size_t eggMovesPtrOffset = Calc(data.GetByte(0x17414), data.GetBytes(0x1740f, 2));
-    const size_t eggMovesPtrBank = CalcBank(eggMovesPtrOffset);
+    const size_t eggMovesPtrOffset = pokegold::Calc(data.GetByte(0x17414), data.GetBytes(0x1740f, 2));
+    const size_t eggMovesPtrBank = pokegold::CalcBank(eggMovesPtrOffset);
     for (size_t i = 0; i < 256; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -299,20 +299,20 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.UpdateMessage(std::format("포켓몬 (기본 정보: {}/256)", i + 1));
         m_openProgressState.Increase();
 
-        auto &pokemon = data.Pokemons()[i];
+        auto &pokemon = data.Pokemons[i];
 
         // type setting
         {
             if (i == 252)
-                pokemon.Type = PokemonType::Egg;
+                pokemon.Type = pokegold::PokemonType::Egg;
             else if (i < 251)
-                pokemon.Type = PokemonType::Pokemon;
+                pokemon.Type = pokegold::PokemonType::Pokemon;
             else
-                pokemon.Type = PokemonType::Dummy;
+                pokemon.Type = pokegold::PokemonType::Dummy;
         }
 
         // 0~250
-        if (pokemon.Type == PokemonType::Pokemon)
+        if (pokemon.Type == pokegold::PokemonType::Pokemon)
         {
             const auto bytes = data.GetBytes(0x51bdf + (i * 32), 32);
 
@@ -331,12 +331,12 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                 pokemon.BaseExp = bytes[10];
                 pokemon.ItemIds[0] = bytes[11];
                 pokemon.ItemIds[1] = bytes[12];
-                pokemon.GenderRate = GenderRate(bytes[13]);
+                pokemon.GenderRate = pokegold::GenderRate(bytes[13]);
                 pokemon.EggHatchLevel = bytes[15];
-                pokemon.ImageDimensions = ImageDimensions(bytes[17]);
-                pokemon.GrowthRate = GrowthRate(bytes[22]);
-                pokemon.EggGroups[0] = EggGroup((bytes[23] & 0xf0) >> 4);
-                pokemon.EggGroups[1] = EggGroup(bytes[23] & 0x0f);
+                pokemon.ImageDimensions = pokegold::ImageDimensions(bytes[17]);
+                pokemon.GrowthRate = pokegold::GrowthRate(bytes[22]);
+                pokemon.EggGroups[0] = pokegold::EggGroup((bytes[23] & 0xf0) >> 4);
+                pokemon.EggGroups[1] = pokegold::EggGroup(bytes[23] & 0x0f);
             }
 
             // TMHMs
@@ -351,7 +351,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
 
             // egg moves
             {
-                size_t offset = Calc(eggMovesPtrBank, data.GetBytes(eggMovesPtrOffset + (i * 2), 2));
+                size_t offset = pokegold::Calc(eggMovesPtrBank, data.GetBytes(eggMovesPtrOffset + (i * 2), 2));
                 for (;;)
                 {
                     u8 byte = data.GetByte(offset);
@@ -366,7 +366,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
     }
 
     base::Log(TAG, "read pokemon (evolves & moves)");
-    size_t evolveBank = CalcBank(0x423ed);
+    size_t evolveBank = pokegold::CalcBank(0x423ed);
     for (size_t i = 0; i < 256; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -375,10 +375,10 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.UpdateMessage(std::format("포켓몬 (진화 & 자력기: {}/256)", i + 1));
         m_openProgressState.Increase();
 
-        auto &pokemon = data.Pokemons()[i];
-        if (pokemon.Type == PokemonType::Pokemon)
+        auto &pokemon = data.Pokemons[i];
+        if (pokemon.Type == pokegold::PokemonType::Pokemon)
         {
-            const auto offset = Calc(evolveBank, data.GetBytes(0x423ed + (i * 2), 2));
+            const auto offset = pokegold::Calc(evolveBank, data.GetBytes(0x423ed + (i * 2), 2));
             const auto bytes = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0; }, true);
 
             bool hasBadData = false;
@@ -387,7 +387,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                 if (hasBadData)
                     break;
 
-                EvolutionMethod newEvolve;
+                pokegold::EvolutionMethod newEvolve;
 
                 u8 b = bytes[j++];
 
@@ -399,34 +399,34 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                     hasBadData = true;
                     pokemon.EvolutionMethods.clear();
                     pokemon.Moves.clear();
-                    data.BadDataList().emplace_back(BadDataReason::EvolutionAndMoves, i);
+                    data.BadDataList.emplace_back(pokegold::BadDataReason::EvolutionAndMoves, i);
                     base::Log(TAG, "bad data (pokemon evolve & moves, idx={})", i);
                     break;
                 }
 
-                newEvolve.EvolutionMethodType = EvolutionMethodType(b);
+                newEvolve.EvolutionMethodType = pokegold::EvolutionMethodType(b);
                 switch (newEvolve.EvolutionMethodType)
                 {
-                case EvolutionMethodType::LevelUp:
+                case pokegold::EvolutionMethodType::LevelUp:
                     newEvolve.Level = bytes[j++];
                     newEvolve.PokemonId = bytes[j++];
                     pokemon.EvolutionMethods.push_back(newEvolve);
                     break;
 
-                case EvolutionMethodType::UseItem:
-                case EvolutionMethodType::Trade:
+                case pokegold::EvolutionMethodType::UseItem:
+                case pokegold::EvolutionMethodType::Trade:
                     newEvolve.ItemId = bytes[j++];
                     newEvolve.PokemonId = bytes[j++];
                     pokemon.EvolutionMethods.push_back(newEvolve);
                     break;
 
-                case EvolutionMethodType::LevelUpWithHappiness:
+                case pokegold::EvolutionMethodType::LevelUpWithHappiness:
                     newEvolve.Happiness = bytes[j++];
                     newEvolve.PokemonId = bytes[j++];
                     pokemon.EvolutionMethods.push_back(newEvolve);
                     break;
 
-                case EvolutionMethodType::LevelUpWithStats:
+                case pokegold::EvolutionMethodType::LevelUpWithStats:
                     newEvolve.Level = bytes[j++];
                     newEvolve.Stats = bytes[j++];
                     newEvolve.PokemonId = bytes[j++];
@@ -444,7 +444,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                     if (b == 0 || j >= movesBytes.size())
                         break;
 
-                    PokemonMove newMove;
+                    pokegold::PokemonMove newMove;
                     newMove.Level = b;
                     newMove.MoveId = movesBytes[j++];
                     pokemon.Moves.push_back(newMove);
@@ -462,14 +462,14 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.UpdateMessage(std::format("포켓몬 (도감 & 이름: {}/256)", i + 1));
         m_openProgressState.Increase();
 
-        auto &pokemon = data.Pokemons()[i];
-        if (pokemon.Type == PokemonType::Pokemon)
+        auto &pokemon = data.Pokemons[i];
+        if (pokemon.Type == pokegold::PokemonType::Pokemon)
         {
             size_t offset;
             if (i < 128)
-                offset = Calc(0x68, data.GetBytes(0x442ff + (i * 2), 2));
+                offset = pokegold::Calc(0x68, data.GetBytes(0x442ff + (i * 2), 2));
             else
-                offset = Calc(0x69, data.GetBytes(0x443ff + ((i - 128) * 2), 2));
+                offset = pokegold::Calc(0x69, data.GetBytes(0x443ff + ((i - 128) * 2), 2));
 
             pokemon.DexCategoryName = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             offset += pokemon.DexCategoryName.GetData().size();
@@ -480,7 +480,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                 pokemon.Height = 0;
                 pokemon.Weight = 0;
                 pokemon.Description = "[50]";
-                data.BadDataList().emplace_back(BadDataReason::Pokedex, i);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::Pokedex, i);
                 base::Log(TAG, "bad data (pokedex1, idx={})", i);
             }
             else
@@ -499,18 +499,18 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                     pokemon.Height = 0;
                     pokemon.Weight = 0;
                     pokemon.Description = "[50]";
-                    data.BadDataList().emplace_back(BadDataReason::Pokedex, i);
+                    data.BadDataList.emplace_back(pokegold::BadDataReason::Pokedex, i);
                     base::Log(TAG, "bad data (pokedex2, idx={})", i);
                 }
             }
         }
 
-        size_t offset = Calc(data.GetBytes(0x35c3, 3)) + (i * 10);
+        size_t offset = pokegold::Calc(data.GetBytes(0x35c3, 3)) + (i * 10);
         pokemon.Name = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return idx == 9 || b == 0x50; }, true);
         if (pokemon.Name.HasBadData() || pokemon.Name.GetData().size() > 11)
         {
             pokemon.Name = "[50]";
-            data.BadDataList().emplace_back(BadDataReason::PokemonName, i);
+            data.BadDataList.emplace_back(pokegold::BadDataReason::PokemonName, i);
             base::Log(TAG, "bad data (pokemon name, idx={})", i);
         }
     }
@@ -524,33 +524,31 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.Increase();
 
         auto newData = data.GetBytes(0x8eab6 + (i * 0x80), 0x40);
-        data.LegacyPokemonSmallPictures()[i][0] = std::vector<u8>(newData.begin(), newData.end());
+        data.Maps.LegacyPokemonSmallPictures[i][0] = std::vector<u8>(newData.begin(), newData.end());
 
         newData = data.GetBytes(0x8eab6 + (i * 0x80) + 0x40, 0x40);
-        data.LegacyPokemonSmallPictures()[i][1] = std::vector<u8>(newData.begin(), newData.end());
+        data.Maps.LegacyPokemonSmallPictures[i][1] = std::vector<u8>(newData.begin(), newData.end());
     }
 
     const bool isHackedExtendedSmallPics = data.MatchBytes(0x14348, {0xc3, 0xc2, 0x7a}) || data.MatchBytes(0x14334, {0xc3});
     if (!isHackedExtendedSmallPics)
     {
         // 기본 스프라이트 주입 시키기
-        // const auto &picsData = embed::GetPokegoldDefaultSmallPicturesData();
-        // data.SetBytes(0x1f0000, picsData);
         for (size_t i = 0; i < 256; i++)
         {
-            auto &pokemon = data.Pokemons()[i];
+            auto &pokemon = data.Pokemons[i];
 
-            if (pokemon.Type == PokemonType::Pokemon)
+            if (pokemon.Type == pokegold::PokemonType::Pokemon)
             {
                 u8 picId = data.GetByte(0x8e96d + i) - 1;
-                data.SetBytes(0x1f0000 + (i * 0x80), data.LegacyPokemonSmallPictures()[picId][0]);
-                data.SetBytes(0x1f0000 + (i * 0x80) + 0x40, data.LegacyPokemonSmallPictures()[picId][1]);
+                data.SetBytes(0x1f0000 + (i * 0x80), data.Maps.LegacyPokemonSmallPictures[picId][0]);
+                data.SetBytes(0x1f0000 + (i * 0x80) + 0x40, data.Maps.LegacyPokemonSmallPictures[picId][1]);
             }
-            else if (pokemon.Type == PokemonType::Egg)
+            else if (pokemon.Type == pokegold::PokemonType::Egg)
             {
                 u8 picId = data.GetByte(0x8e96b) - 1;
-                data.SetBytes(0x1f0000 + (i * 0x80), data.LegacyPokemonSmallPictures()[picId][0]);
-                data.SetBytes(0x1f0000 + (i * 0x80) + 0x40, data.LegacyPokemonSmallPictures()[picId][1]);
+                data.SetBytes(0x1f0000 + (i * 0x80), data.Maps.LegacyPokemonSmallPictures[picId][0]);
+                data.SetBytes(0x1f0000 + (i * 0x80) + 0x40, data.Maps.LegacyPokemonSmallPictures[picId][1]);
             }
         }
 
@@ -570,15 +568,15 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.UpdateMessage(std::format("포켓몬 (이미지: {}/256)", i + 1));
         m_openProgressState.Increase();
 
-        auto &pokemon = data.Pokemons()[i];
+        auto &pokemon = data.Pokemons[i];
 
         // color
         {
             const auto offset = 0xad15 + (i * 8);
-            pokemon.Colors[0] = Color(data.GetBytes(offset, 2));
-            pokemon.Colors[1] = Color(data.GetBytes(offset + 2, 2));
-            pokemon.ShinyColors[0] = Color(data.GetBytes(offset + 4, 2));
-            pokemon.ShinyColors[1] = Color(data.GetBytes(offset + 6, 2));
+            pokemon.Colors[0] = pokegold::Color(data.GetBytes(offset, 2));
+            pokemon.Colors[1] = pokegold::Color(data.GetBytes(offset + 2, 2));
+            pokemon.ShinyColors[0] = pokegold::Color(data.GetBytes(offset + 4, 2));
+            pokemon.ShinyColors[1] = pokegold::Color(data.GetBytes(offset + 6, 2));
         }
 
         // small pics
@@ -601,20 +599,20 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             pokemon.FootprintImage.insert(pokemon.FootprintImage.end(), bytes.begin(), bytes.end());
         }
 
-        if (pokemon.Type == PokemonType::Egg)
+        if (pokemon.Type == pokegold::PokemonType::Egg)
         {
             size_t offset;
             if (isHackedUnownIds)
-                offset = Calc(data.GetByte(0x1fc7da), data.GetBytes(0x1fc7db, 2));
+                offset = pokegold::Calc(data.GetByte(0x1fc7da), data.GetBytes(0x1fc7db, 2));
             else
-                offset = Calc(data.GetByte(0x5189a), data.GetBytes(0x51897, 2));
+                offset = pokegold::Calc(data.GetByte(0x5189a), data.GetBytes(0x51897, 2));
 
             auto bytes = data.GetBytes(offset, 0x400);
             auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
             if (size == 0 || size < k_imageBufferSize_5x5)
             {
-                data.BadDataList().emplace_back(BadDataReason::EggImage, nullptr);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::EggImage, nullptr);
                 base::Log(TAG, "bad data (pokemon image (egg), idx={})", i);
             }
 
@@ -622,47 +620,47 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
                                      ? std::vector<u8>(k_imageBufferSize_5x5, 0)
                                      : std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
         }
-        else if (pokemon.Type == PokemonType::Pokemon)
+        else if (pokemon.Type == pokegold::PokemonType::Pokemon)
         {
             if (data.MatchBytes(0x48000 + (i * 6), {0xff, 0xff, 0xff}))
             {
                 // 새로운 이미지 속성 복사
-                for (auto &e : data.UnownImages())
+                for (auto &e : data.UnownImages)
                     e.ImageDimensions = pokemon.ImageDimensions;
 
                 // 안농 이미지 해킹하기 전까지는 기본 이미지가 NULL인 상태이므로 예외처리
-                pokemon.ImageDimensions = ImageDimensions::Size_40x40;
+                pokemon.ImageDimensions = pokegold::ImageDimensions::Size_40x40;
                 pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                 pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
             }
             else
             {
-                size_t offset = CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6), 3));
+                size_t offset = pokegold::CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6), 3));
                 auto bytes = data.GetBytes(offset, 0x400);
                 auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
                 if (size == 0 || size < GetBuferSize(pokemon.ImageDimensions))
                 {
-                    pokemon.ImageDimensions = ImageDimensions::Size_40x40;
+                    pokemon.ImageDimensions = pokegold::ImageDimensions::Size_40x40;
                     pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                     pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
-                    data.BadDataList().emplace_back(BadDataReason::PokemonImage, i);
+                    data.BadDataList.emplace_back(pokegold::BadDataReason::PokemonImage, i);
                     base::Log(TAG, "bad data (pokemon image front, idx={})", i);
                 }
                 else
                 {
                     pokemon.FrontImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
 
-                    offset = CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6) + 3, 3));
+                    offset = pokegold::CalcFromEncodedBank(data.GetBytes(0x48000 + (i * 6) + 3, 3));
                     bytes = data.GetBytes(offset, 0x400);
                     size = lzcomp::Uncompress(imageBuffer, bytes);
 
                     if (size == 0 || size < k_imageBufferSize_6x6)
                     {
-                        pokemon.ImageDimensions = ImageDimensions::Size_40x40;
+                        pokemon.ImageDimensions = pokegold::ImageDimensions::Size_40x40;
                         pokemon.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                         pokemon.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
-                        data.BadDataList().emplace_back(BadDataReason::PokemonImage, i);
+                        data.BadDataList.emplace_back(pokegold::BadDataReason::PokemonImage, i);
                         base::Log(TAG, "bad data (pokemon image back, idx={})", i);
                     }
                     else
@@ -683,19 +681,19 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         m_openProgressState.UpdateMessage(std::format("포켓몬 (안농 이미지: {}/26)", i + 1));
         m_openProgressState.Increase();
 
-        auto &unownImage = data.UnownImages()[i];
+        auto &unownImage = data.UnownImages[i];
 
         if (isHackedUnownIds)
         {
-            size_t offset = Calc(data.GetByte(0x1fc7dd), data.GetBytes(0x1fc7de, 2)) + i;
-            unownImage.ImageDimensions = ImageDimensions(data.GetByte(offset));
+            size_t offset = pokegold::Calc(data.GetByte(0x1fc7dd), data.GetBytes(0x1fc7de, 2)) + i;
+            unownImage.ImageDimensions = pokegold::ImageDimensions(data.GetByte(offset));
         }
         else
         {
             // NOTE: 포켓몬 항목에서 이미 처리됨.
         }
 
-        size_t offset = CalcFromEncodedBank(data.GetBytes(0x7c000 + (i * 6), 3));
+        size_t offset = pokegold::CalcFromEncodedBank(data.GetBytes(0x7c000 + (i * 6), 3));
         auto bytes = data.GetBytes(offset, 0x400);
         auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
@@ -703,14 +701,14 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
         {
             unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
             unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
-            data.BadDataList().emplace_back(BadDataReason::UnownImage, i);
+            data.BadDataList.emplace_back(pokegold::BadDataReason::UnownImage, i);
             base::Log(TAG, "bad data (pokemon (unown front image), idx={})", i);
         }
         else
         {
             unownImage.FrontImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
 
-            offset = CalcFromEncodedBank(data.GetBytes(0x7c000 + (i * 6) + 3, 3));
+            offset = pokegold::CalcFromEncodedBank(data.GetBytes(0x7c000 + (i * 6) + 3, 3));
             bytes = data.GetBytes(offset, 0x400);
             size = lzcomp::Uncompress(imageBuffer, bytes);
 
@@ -718,7 +716,7 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
             {
                 unownImage.FrontImage = std::vector<u8>(k_imageBufferSize_5x5, 0);
                 unownImage.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
-                data.BadDataList().emplace_back(BadDataReason::UnownImage, i);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::UnownImage, i);
                 base::Log(TAG, "bad data (pokemon (unown back image), idx={})", i);
             }
             else
@@ -731,10 +729,10 @@ bool pokegold::Rom::Open_ReadPokemons(Data &data)
     return !m_openProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
+bool services::Pokegold::Open_ReadTrainerGroups(pokegold::Data &data)
 {
     base::Log(TAG, "read trainer groups (name)");
-    size_t nameOffset = Calc(data.GetBytes(0x35d5, 3));
+    size_t nameOffset = pokegold::Calc(data.GetBytes(0x35d5, 3));
     for (size_t i = 0; i < 68; i++)
     {
         if (m_openProgressState.HandlePausedOrCanceled())
@@ -743,7 +741,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
         m_openProgressState.UpdateMessage(std::format("트레이너 그룹 (이름: {}/68)", i + 1));
         m_openProgressState.Increase();
 
-        auto &trainerGroup = data.TrainerGroups()[i];
+        auto &trainerGroup = data.TrainerGroups[i];
 
         if (i < 67)
         {
@@ -753,8 +751,8 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
         }
         else
         {
-            const u8 bank = CalcBank(0x23995);
-            size_t offset = Calc(bank, data.GetBytes(0x23995, 2));
+            const u8 bank = pokegold::CalcBank(0x23995);
+            size_t offset = pokegold::Calc(bank, data.GetBytes(0x23995, 2));
 
             const auto bytes = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
             trainerGroup.Name = bytes;
@@ -764,7 +762,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
         if (trainerGroup.Name.HasBadData() || trainerGroup.Name.GetData().size() > 26)
         {
             trainerGroup.Name = "[50]";
-            data.BadDataList().emplace_back(BadDataReason::TrainerGroupName, i);
+            data.BadDataList.emplace_back(pokegold::BadDataReason::TrainerGroupName, i);
         }
     }
 
@@ -778,24 +776,24 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
         m_openProgressState.UpdateMessage(std::format("트레이너 그룹 (이미지: {}/66)", i + 1));
         m_openProgressState.Increase();
 
-        auto &trainerGroup = data.TrainerGroups()[i];
+        auto &trainerGroup = data.TrainerGroups[i];
 
         // color
         {
-            trainerGroup.Colors[0] = Color(data.GetBytes(0xb511 + (i * 4) + 0, 2));
-            trainerGroup.Colors[1] = Color(data.GetBytes(0xb511 + (i * 4) + 2, 2));
+            trainerGroup.Colors[0] = pokegold::Color(data.GetBytes(0xb511 + (i * 4) + 0, 2));
+            trainerGroup.Colors[1] = pokegold::Color(data.GetBytes(0xb511 + (i * 4) + 2, 2));
         }
 
         // image
         {
-            auto offset = CalcFromEncodedBank(data.GetBytes(0x80000 + (i * 3), 3));
+            auto offset = pokegold::CalcFromEncodedBank(data.GetBytes(0x80000 + (i * 3), 3));
             auto bytes = data.GetBytes(offset, 0x400);
             auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
             if (size == 0 || size < k_imageBufferSize_7x7)
             {
                 trainerGroup.Image = std::vector<u8>(k_imageBufferSize_7x7, 0);
-                data.BadDataList().emplace_back(BadDataReason::TrainerGroupImage, i);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::TrainerGroupImage, i);
             }
             else
             {
@@ -808,14 +806,14 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
         {
             // color
             {
-                trainerGroup.BackColors[0] = Color(data.GetBytes(0xb50d + 0, 2));
-                trainerGroup.BackColors[1] = Color(data.GetBytes(0xb50d + 2, 2));
+                trainerGroup.BackColors[0] = pokegold::Color(data.GetBytes(0xb50d + 0, 2));
+                trainerGroup.BackColors[1] = pokegold::Color(data.GetBytes(0xb50d + 2, 2));
             }
 
             // image
             {
                 u8 bank = data.GetByte(0x3f9c7);
-                auto offset = Calc(bank, data.GetBytes(0x3f9b7, 2));
+                auto offset = pokegold::Calc(bank, data.GetBytes(0x3f9b7, 2));
                 auto bytes = data.GetBytes(offset, 0x400);
                 auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
@@ -823,20 +821,20 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
                 {
                     trainerGroup.BackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
                     trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
-                    data.BadDataList().emplace_back(BadDataReason::TrainerGroupPlayerBackImage, i);
+                    data.BadDataList.emplace_back(pokegold::BadDataReason::TrainerGroupPlayerBackImage, i);
                 }
                 else
                 {
                     trainerGroup.BackImage = std::vector<u8>(imageBuffer.begin(), imageBuffer.begin() + size);
 
-                    auto offset = Calc(bank, data.GetBytes(0x3f9c1, 2));
+                    auto offset = pokegold::Calc(bank, data.GetBytes(0x3f9c1, 2));
                     auto bytes = data.GetBytes(offset, 0x400);
                     auto size = lzcomp::Uncompress(imageBuffer, bytes);
 
                     if (size == 0 || size < k_imageBufferSize_6x6)
                     {
                         trainerGroup.DudeBackImage = std::vector<u8>(k_imageBufferSize_6x6, 0);
-                        data.BadDataList().emplace_back(BadDataReason::TrainerGroupPlayerBackImage, i);
+                        data.BadDataList.emplace_back(pokegold::BadDataReason::TrainerGroupPlayerBackImage, i);
                     }
                     else
                     {
@@ -850,7 +848,7 @@ bool pokegold::Rom::Open_ReadTrainerGroups(Data &data)
     return !m_openProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Open_ReadTypes(Data &data)
+bool services::Pokegold::Open_ReadTypes(pokegold::Data &data)
 {
     base::Log(TAG, "read type (names)");
     for (size_t i = 0; i < 28; i++)
@@ -861,22 +859,22 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
         m_openProgressState.UpdateMessage(std::format("타입 (이름: {}/28)", i + 1));
         m_openProgressState.Increase();
 
-        auto &type = data.Types()[i];
+        auto &type = data.Types[i];
 
-        size_t offset = Calc(0x14, data.GetBytes(0x50a57 + (i * 2), 2));
+        size_t offset = pokegold::Calc(0x14, data.GetBytes(0x50a57 + (i * 2), 2));
         type.Name = data.GetBytesUntil(offset, [&](size_t idx, u8 b) { return b == 0x50; }, true);
 
         if (type.Name.HasBadData() || type.Name.GetData().size() > 9)
         {
             type.Name = "[50]";
-            data.BadDataList().emplace_back(BadDataReason::TypeName, i);
+            data.BadDataList.emplace_back(pokegold::BadDataReason::TypeName, i);
         }
     }
 
     const bool isHackedTypeMatchups = data.MatchBytes(0x1fc7d4, {0xfe, 0xff});
-    size_t typeMatchupsOffset = isHackedTypeMatchups ? Calc(data.GetBytes(0x348a7, 3)) : 0x34d01;
-    size_t weatherTypeModifiersOffset = isHackedTypeMatchups ? Calc(data.GetBytes(0x348aa, 3)) : 0xfbe68;
-    size_t weatherMoveModifiersOffset = isHackedTypeMatchups ? Calc(data.GetBytes(0x348ad, 3)) : 0xfbe75;
+    size_t typeMatchupsOffset = isHackedTypeMatchups ? pokegold::Calc(data.GetBytes(0x348a7, 3)) : 0x34d01;
+    size_t weatherTypeModifiersOffset = isHackedTypeMatchups ? pokegold::Calc(data.GetBytes(0x348aa, 3)) : 0xfbe68;
+    size_t weatherMoveModifiersOffset = isHackedTypeMatchups ? pokegold::Calc(data.GetBytes(0x348ad, 3)) : 0xfbe75;
 
     base::Log(TAG, "read type (type matchups)");
     {
@@ -903,23 +901,23 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             const u8 effectiveness = data.GetByte(typeMatchupsOffset++);
 
             // 손상 데이터 체크 및 기본값 사용
-            if (attacker >= data.Types().size() || !(effectiveness % 5 == 0 && effectiveness <= 20))
+            if (attacker >= data.Types.size() || !(effectiveness % 5 == 0 && effectiveness <= 20))
             {
-                for (auto &e : data.Types())
+                for (auto &e : data.Types)
                     e.TypeMatchups.clear();
 
                 typeMatchupsOffset = 0x34d01;
                 data.SetBytes(0x34d01, embed::GetPokegoldDefaultTypeMatchupsData());
-                data.BadDataList().emplace_back(BadDataReason::TypeMatchups, nullptr);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::TypeMatchups, nullptr);
                 continue;
             }
 
-            TypeMatchup newMatchup;
+            pokegold::TypeMatchup newMatchup;
             newMatchup.AttackerTypeId = attacker;
             newMatchup.DefenderTypeId = defender;
-            newMatchup.TypeEffectiveness = TypeEffectiveness(effectiveness);
+            newMatchup.TypeEffectiveness = pokegold::TypeEffectiveness(effectiveness);
             newMatchup.IsForesight = foresight;
-            data.Types()[attacker].TypeMatchups.push_back(newMatchup);
+            data.Types[attacker].TypeMatchups.push_back(newMatchup);
         }
     }
 
@@ -942,21 +940,21 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             const u8 effectiveness = data.GetByte(weatherTypeModifiersOffset++);
 
             // 손상 데이터 체크 및 기본값 사용
-            if (typeId >= data.Types().size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
+            if (typeId >= data.Types.size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
             {
-                for (auto &e : data.Types())
+                for (auto &e : data.Types)
                     e.WeatherModifiers.clear();
 
                 weatherTypeModifiersOffset = 0xfbe68;
                 data.SetBytes(0xfbe68, embed::GetPokegoldDefaultTypeWeatherModifiersData());
-                data.BadDataList().emplace_back(BadDataReason::TypeWeatherModifiers, nullptr);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::TypeWeatherModifiers, nullptr);
                 continue;
             }
 
-            WeatherModifier newModifier;
-            newModifier.Weather = BattleWeather(weather);
-            newModifier.TypeEffectiveness = TypeEffectiveness(effectiveness);
-            data.Types()[typeId].WeatherModifiers.push_back(newModifier);
+            pokegold::WeatherModifier newModifier;
+            newModifier.Weather = pokegold::BattleWeather(weather);
+            newModifier.TypeEffectiveness = pokegold::TypeEffectiveness(effectiveness);
+            data.Types[typeId].WeatherModifiers.push_back(newModifier);
         }
     }
 
@@ -978,28 +976,28 @@ bool pokegold::Rom::Open_ReadTypes(Data &data)
             const u8 effectiveness = data.GetByte(weatherMoveModifiersOffset++);
 
             // 손상 데이터 체크 및 기본값 사용
-            if (moveEffectId >= data.MoveEffects().size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
+            if (size_t(moveEffectId) >= data.MoveEffects.size() || weather > 3 || !(effectiveness % 5 == 0 && effectiveness <= 20))
             {
-                for (auto &e : data.MoveEffects())
+                for (auto &e : data.MoveEffects)
                     e.WeatherModifiers.clear();
 
                 weatherMoveModifiersOffset = 0xfbe75;
                 data.SetBytes(0xfbe75, embed::GetPokegoldDefaultMoveEffectWeatherModifiersData());
-                data.BadDataList().emplace_back(BadDataReason::MoveEffectWeatherModifiers, nullptr);
+                data.BadDataList.emplace_back(pokegold::BadDataReason::MoveEffectWeatherModifiers, nullptr);
                 continue;
             }
 
-            WeatherModifier newModifier;
-            newModifier.Weather = BattleWeather(weather);
-            newModifier.TypeEffectiveness = TypeEffectiveness(effectiveness);
-            data.MoveEffects()[moveEffectId].WeatherModifiers.push_back(newModifier);
+            pokegold::WeatherModifier newModifier;
+            newModifier.Weather = pokegold::BattleWeather(weather);
+            newModifier.TypeEffectiveness = pokegold::TypeEffectiveness(effectiveness);
+            data.MoveEffects[moveEffectId].WeatherModifiers.push_back(newModifier);
         }
     }
 
     return !m_openProgressState.HandlePausedOrCanceled();
 }
 
-bool pokegold::Rom::Open_ReadMaps(Data &data)
+bool services::Pokegold::Open_ReadMaps(pokegold::Data &data)
 {
     base::Log(TAG, "read npc colors");
     for (size_t i = 0, max = 4; i < max; i++)
@@ -1011,7 +1009,7 @@ bool pokegold::Rom::Open_ReadMaps(Data &data)
         m_openProgressState.Increase();
 
         size_t offset = 0xb87e + (i * 64);
-        for (auto &npcColor : data.NpcColors()[i])
+        for (auto &npcColor : data.Maps.NpcColors[i])
         {
             for (size_t j = 0; j < 4; j++)
             {

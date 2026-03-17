@@ -53,7 +53,7 @@ ui::internal::EvolutionEditorDialog::EvolutionEditorDialog(wxWindow *parent, std
         m_useItems->Freeze();
         m_tradeItems->Freeze();
 
-        for (auto &e : m_pokegold.Data().Pokemons())
+        for (auto &e : m_pokegold.Data.Pokemons)
         {
             if (e.Type == pokegold::PokemonType::Pokemon)
             {
@@ -62,7 +62,7 @@ ui::internal::EvolutionEditorDialog::EvolutionEditorDialog(wxWindow *parent, std
             }
         }
 
-        for (auto &e : m_pokegold.Data().Items())
+        for (auto &e : m_pokegold.Data.Items)
         {
             const auto name = e.Name.ToEditorWxString();
             m_useItems->Append(name);

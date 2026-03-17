@@ -26,7 +26,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         case pokegold::BadDataReason::EvolutionAndMoves:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
-                const auto name = m_pokegold.Data().Pokemons()[idx].Name.ToEditorString();
+                const auto name = m_pokegold.Data.Pokemons[idx].Name.ToEditorString();
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("진화·자력기 데이터 손상 (번호: {}, 이름: '{}')", idx, name)));
                 m_badDataList->SetItem(i, 2, wxT("해당 포켓몬의 진화·자력기를 비움"));
@@ -44,7 +44,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         case pokegold::BadDataReason::PokemonImage:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
-                const auto name = m_pokegold.Data().Pokemons()[idx].Name.ToEditorString();
+                const auto name = m_pokegold.Data.Pokemons[idx].Name.ToEditorString();
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("포켓몬 이미지 손상 (번호: {}, 이름: '{}')", idx, name)));
                 m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
@@ -63,7 +63,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         case pokegold::BadDataReason::TrainerGroupImage:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
-                const auto name = m_pokegold.Data().TrainerGroups()[idx].Name.ToEditorString();
+                const auto name = m_pokegold.Data.TrainerGroups[idx].Name.ToEditorString();
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("트레이너 이미지 손상 (그룹명: '{}')", name)));
                 m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
@@ -73,7 +73,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         case pokegold::BadDataReason::TrainerGroupPlayerBackImage:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
-                const auto name = m_pokegold.Data().TrainerGroups()[idx].Name.ToEditorString();
+                const auto name = m_pokegold.Data.TrainerGroups[idx].Name.ToEditorString();
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("트레이너 뒷 모습 이미지 손상 (그룹명: '{}')", name)));
                 m_badDataList->SetItem(i, 2, wxT("비어있는 이미지로 변경"));
@@ -92,7 +92,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         case pokegold::BadDataReason::ItemDescription:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
-                const auto name = m_pokegold.Data().Items()[idx].Name.ToEditorString();
+                const auto name = m_pokegold.Data.Items[idx].Name.ToEditorString();
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("아이템 설명 손상 (번호: {}, 이름: {})", idx, name)));
                 m_badDataList->SetItem(i, 2, wxT("'?'로 변경"));
@@ -111,7 +111,7 @@ ui::internal::BadDataDialog::BadDataDialog(wxWindow *parent, std::span<const pok
         case pokegold::BadDataReason::MoveDescription:
             {
                 const size_t idx = std::any_cast<size_t>(e.Data());
-                const auto name = m_pokegold.Data().Moves()[idx].Name.ToEditorString();
+                const auto name = m_pokegold.Data.Moves[idx].Name.ToEditorString();
                 m_badDataList->SetItem(i, 0, wxString::FromUTF8(std::format("{}", i)));
                 m_badDataList->SetItem(i, 1, wxString::FromUTF8(std::format("기술 설명 손상 (번호: {}, 이름: {})", idx, name)));
                 m_badDataList->SetItem(i, 2, wxT("'?'로 변경"));
