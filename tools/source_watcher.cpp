@@ -5,8 +5,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <string>
-#include <unordered_set>
 
 std::string strip_quotes(const std::string &s)
 {
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     DWORD changedReturn;
     std::cout << "source-watcher start." << std::endl;
 
-    std::unordered_set<std::string> files;
+    std::set<std::string> files;
     auto scan_sources = [&](const std::filesystem::path &dir) {
         for (auto &entry : std::filesystem::recursive_directory_iterator(dir))
         {
@@ -190,13 +190,13 @@ int main(int argc, char *argv[])
             std::string filename = to_string(std::wstring(info->FileName, info->FileNameLength / sizeof(WCHAR)));
             if ((filename.ends_with("c_cpp_properties.json") || filename.ends_with("compile_commands.json")) && (info->Action == FILE_ACTION_REMOVED || info->Action == FILE_ACTION_RENAMED_OLD_NAME))
             {
-                std::cout << "Removed: " << filename << std::endl;
+                std::cout << "Removed: " << filename << " (Update)" << std::endl;
                 needUpdateOutput = true;
             }
             else if (filename.ends_with(".h") || filename.ends_with(".hpp"))
             {
                 std::cout << "Modified: " << filename << std::endl;
-                needUpdateOutput = true;
+                // needUpdateOutput = true;
             }
             else if (filename.ends_with(".c") || filename.ends_with(".cpp"))
             {
@@ -204,19 +204,19 @@ int main(int argc, char *argv[])
                 {
                 case FILE_ACTION_MODIFIED:
                     std::cout << "Modified: " << filename << std::endl;
-                    needUpdateOutput = true;
+                    // needUpdateOutput = true;
                     break;
 
                 case FILE_ACTION_ADDED:
                 case FILE_ACTION_RENAMED_NEW_NAME:
-                    std::cout << "Added: " << filename << std::endl;
+                    std::cout << "Added: " << filename << " (Update)" << std::endl;
                     files.insert((std::filesystem::path(workDir) / filename).string());
                     needUpdateOutput = true;
                     break;
 
                 case FILE_ACTION_REMOVED:
                 case FILE_ACTION_RENAMED_OLD_NAME:
-                    std::cout << "Removed: " << filename << std::endl;
+                    std::cout << "Removed: " << filename << " (Update)" << std::endl;
                     files.erase((std::filesystem::path(workDir) / filename).string());
                     needUpdateOutput = true;
                     break;
