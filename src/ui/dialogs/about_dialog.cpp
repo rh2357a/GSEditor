@@ -22,10 +22,6 @@ ui::internal::AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(paren
     const auto appThirdPartyNotices = embed::GetAppThirdPartyNotices();
     m_thirdPartyNoticesText->SetValue(base::ToWxString(appThirdPartyNotices));
     m_thirdPartyNoticesText->Bind(wxEVT_CONTEXT_MENU, [](wxContextMenuEvent &) { /* 오른쪽 메뉴 방지 */ });
-
-#ifdef RELEASE
-    m_aboutContentTabs->RemovePage(2);
-#endif
 }
 
 void ui::internal::AboutDialog::OnOkButtonClick(wxCommandEvent &event)
