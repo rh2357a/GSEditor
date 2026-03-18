@@ -34,13 +34,16 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
     auto title = wxString::Format(wxT("GS 에디터 v%s"), APP_VERSION_STR);
     SetTitle(title);
 
+    m_pokegold.FilePathState().Subscribe(this, [this] {
+        StatusBarTextHandler();
+        SettingsMenusHandler();
+    });
+
     m_pokegold.IsOpenedState().Subscribe(this, [this] { RomOpenedControlHandler(); });
-    m_pokegold.FilePathState().Subscribe(this, [this] { StatusBarTextHandler(); });
     m_pokegold.IsDataChangedState().Subscribe(this, [this] { StatusBarTextHandler(); });
     m_configs.GetEmulatorPathState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetShowDebugLabelState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetTestPlaySaveState().Subscribe(this, [this] { SettingsMenusHandler(); });
-    m_configs.GetTrainerCardImageState().Subscribe(this, [this] { SettingsMenusHandler(); });
 }
 
 void ui::MainFrame::RomOpenedControlHandler()
@@ -93,7 +96,7 @@ void ui::MainFrame::SettingsMenusHandler()
 
     m_gameSettingsShowDebugLabelMenuItem->Check(m_configs.GetShowDebugLabel());
     m_gameSettingsSaveMenuItem->Check(m_configs.GetTestPlaySave());
-    m_gameSettingsTrainerCardImageMenuItem->Check(m_configs.GetTrainerCardImage());
+    m_gameSettingsTrainerCardImageMenuItem->Check(m_pokegold.Data.TrainerCardImageEnabled);
 }
 
 void ui::MainFrame::OnClose(wxCloseEvent &event)
@@ -305,8 +308,9 @@ void ui::MainFrame::OnMenuItemSelected(wxCommandEvent &event)
 
     if (id == wxID_TRAINER_CARD_IMAGE)
     {
-        auto newValue = !(m_configs.GetTrainerCardImage());
-        m_configs.SetTrainerCardImage(newValue);
+        auto newValue = !m_pokegold.Data.TrainerCardImageEnabled;
+        m_pokegold.Data.TrainerCardImageEnabled = newValue;
+        SettingsMenusHandler();
         return;
     }
 }

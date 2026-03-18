@@ -38,7 +38,7 @@ namespace pokegold
         base::Event<int> TrainerGroupUpdated;
 
     public:
-        bool UnownImageEnabled = true;
+        bool TrainerCardImageEnabled = true;
         u8 UnownPokemonId = 0xc9;
 
     public:

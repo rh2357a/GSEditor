@@ -10,8 +10,6 @@ namespace
 
     constexpr const auto k_showDebugLabelKey = wxT("App/TestPlay/ShowDebugLabel");
     constexpr const auto k_testPlaySaveKey = wxT("App/TestPlay/TestPlaySave");
-
-    constexpr const auto k_trainerCardImageKey = wxT("App/Build/TrainerCardImage");
 }
 
 void services::AppConfigs::Initialize()
@@ -122,28 +120,5 @@ void services::AppConfigs::SetTestPlaySave(bool value)
         m_configs->Flush();
 
         m_testPlaySaveState.Update(value);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-bool services::AppConfigs::GetTrainerCardImage()
-{
-    if (m_configs != nullptr && m_configs->Exists(k_trainerCardImageKey))
-    {
-        const bool value = m_configs->ReadBool(k_trainerCardImageKey, false);
-        return value;
-    }
-    return false;
-}
-
-void services::AppConfigs::SetTrainerCardImage(bool value)
-{
-    if (m_configs != nullptr)
-    {
-        m_configs->Write(k_trainerCardImageKey, value);
-        m_configs->Flush();
-
-        m_trainerCardImageState.Update(value);
     }
 }

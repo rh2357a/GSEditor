@@ -273,12 +273,14 @@ class DatabasePanelBase : public wxPanel
 		wxTextCtrl* m_trainerGroupNameText;
 		wxSimplebook* m_trainerGroupImageContainer;
 		ui::ImageEditorPanel* m_trainerGroupImage;
-		wxPanel* m_trainerGroupBackImagePanel;
-		ui::ImageEditorPanel* m_trainerGroupBackImage_1;
-		ui::ImageEditorPanel* m_trainerGroupBackImage_2;
 		ui::ColorPickerPanel* m_trainerGroupColor_1;
 		ui::ColorPickerPanel* m_trainerGroupColor_2;
 		wxStaticText* m_trainerGroupImageWarningLabel;
+		wxPanel* m_trainerGroupBackImagePanel;
+		ui::ImageEditorPanel* m_trainerGroupBackImage_1;
+		ui::ImageEditorPanel* m_trainerGroupBackImage_2;
+		ui::ColorPickerPanel* m_trainerGroupBackColor_1;
+		ui::ColorPickerPanel* m_trainerGroupBackColor_2;
 		ui::ColoredListBox* m_typeList;
 		wxScrolledWindow* m_typeContainer;
 		wxTextCtrl* m_typeNameText;

@@ -177,6 +177,12 @@ bool services::Pokegold::Build_Startup(pokegold::internal::RomBuildData &data)
     // names section 기록
     data.GetNamesSourceStream() << pokegold::GetAsmSection(0x1b0c4a, "GSEditor_Names");
 
+    // 트레이너 카드 코드 기록
+    {
+        base::WriteBytesToFile(*m_workspacePathState / "GSSEditor.TrainerCard.asm", embed::GetPokegoldTrainerCardSource());
+        data.GetSourceStream() << pokegold::GetAsmInclude("GSSEditor.TrainerCard.asm");
+    }
+
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
@@ -959,7 +965,7 @@ bool services::Pokegold::Build_PokemonSources(pokegold::internal::RomBuildData &
 
             const auto &offset = k_unownIdsOffsets[i];
             srcStream << pokegold::GetAsmSection(offset, "GSEditor_Unown_Id_{}", offset)
-                      << pokegold::GetAsmBytes({Data.UnownImageEnabled ? Data.UnownPokemonId : u8(0xff)});
+                      << pokegold::GetAsmBytes({Data.UnownPokemonId});
         }
     }
 
@@ -998,10 +1004,10 @@ bool services::Pokegold::Build_TrainerGroupSources(pokegold::internal::RomBuildD
         srcStream << pokegold::GetAsmSection(0xb50d, "GSEditor_TrainerGroup_PlayerBackColor")
                   << pokegold::GetAsmLine("GSEditor_TrainerGroup_PlayerBackColor::")
                   << pokegold::GetAsmBytes({
-                         e.Colors[0].GetLoByte(),
-                         e.Colors[0].GetHiByte(),
-                         e.Colors[1].GetLoByte(),
-                         e.Colors[1].GetHiByte(),
+                         e.BackColors[0].GetLoByte(),
+                         e.BackColors[0].GetHiByte(),
+                         e.BackColors[1].GetLoByte(),
+                         e.BackColors[1].GetHiByte(),
                      });
     }
 
@@ -1035,7 +1041,7 @@ bool services::Pokegold::Build_TrainerGroupSources(pokegold::internal::RomBuildD
         }
 
         // trainer card
-        if (m_appConfigs.GetTrainerCardImage())
+        if (Data.TrainerCardImageEnabled)
         {
             auto &trainerData = Data.TrainerGroups[12 - 1].Image;
 
@@ -1473,18 +1479,6 @@ bool services::Pokegold::Build_HackSources(pokegold::internal::RomBuildData &dat
         }
     }
 
-    base::Log(TAG, "write unown ids configs");
-    {
-        if (m_buildProgressState.HandlePausedOrCanceled())
-            return false;
-
-        m_buildProgressState.UpdateMessage("안농 (데이터)");
-        m_buildProgressState.Increase();
-
-        srcStream << pokegold::GetAsmSection(0x1fc7d8, "GSEditor_UnownConfigs")
-                  << pokegold::GetAsmBytes({u8(Data.UnownImageEnabled ? 1 : 0), Data.UnownPokemonId});
-    }
-
     return !m_buildProgressState.HandlePausedOrCanceled();
 }
 
@@ -1559,6 +1553,18 @@ bool services::Pokegold::Build_Assemble(pokegold::internal::RomBuildData &data)
                     << pokegold::GetAsmBytes(e.Data);
             }
         }
+    }
+
+    // 설정 기록
+    {
+        if (m_buildProgressState.HandlePausedOrCanceled())
+            return false;
+
+        m_buildProgressState.UpdateMessage("데이터 기록");
+        m_buildProgressState.Increase();
+
+        data.GetSourceStream() << pokegold::GetAsmSection(0x1fc7d8, "GSEditor_Configs")
+                               << pokegold::GetAsmBytes({u8(Data.TrainerCardImageEnabled ? 1 : 0), Data.UnownPokemonId});
     }
 
     // 파일 스트림 동기화

@@ -279,12 +279,12 @@ bool services::Pokegold::Open_ReadPokemons(pokegold::Data &data)
     const bool isHackedUnownIds = data.MatchBytes(0x1fc7d6, {0xfd, 0xff});
     if (isHackedUnownIds)
     {
-        data.UnownImageEnabled = data.GetByte(0x1fc7d8) == 1;
+        data.TrainerCardImageEnabled = data.GetByte(0x1fc7d8) == 1;
         data.UnownPokemonId = data.GetByte(0x1fc7d9);
     }
     else
     {
-        data.UnownImageEnabled = true;
+        data.TrainerCardImageEnabled = false;
         data.UnownPokemonId = 0xc9;
     }
 

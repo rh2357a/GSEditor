@@ -25,7 +25,7 @@ pokegold::Data &pokegold::Data::operator=(const Data &newData)
 
     BadDataList = newData.BadDataList;
 
-    UnownImageEnabled = newData.UnownImageEnabled;
+    TrainerCardImageEnabled = newData.TrainerCardImageEnabled;
     UnownPokemonId = newData.UnownPokemonId;
 
     // 변동 사항 전체 통지

@@ -59,7 +59,7 @@ void ui::DatabasePanel::InitializeUnownTab()
         m_selectedUnown.Subscribe(this, [this](const int &idx) {
             base::Log(TAG, "unown selected (index={})", idx);
 
-            m_unownInnerPanel->Enable(m_pokegold.Data.UnownImageEnabled);
+            m_unownInnerPanel->Enable(m_pokegold.Data.UnownPokemonId != 0xff);
             m_unownContainer->Enable(idx != -1);
 
             UpdateUnownImages();
@@ -74,12 +74,11 @@ void ui::DatabasePanel::InitializeUnownTab()
         m_unownPokemonComboBox->Bind(wxEVT_COMBOBOX, [this](wxCommandEvent &ev) {
             ev.Skip();
 
-            m_pokegold.Data.UnownPokemonId = m_unownPokemonComboBox->GetSelection();
-            m_pokegold.Data.UnownImageEnabled = m_unownPokemonComboBox->GetSelection() != 0;
+            m_pokegold.Data.UnownPokemonId = m_unownPokemonComboBox->GetSelection() == 0 ? 0xff : m_unownPokemonComboBox->GetSelection();
             m_pokegold.NotifyRomChanged();
 
             // 갱신 처리
-            m_selectedUnown.Update(m_pokegold.Data.UnownImageEnabled ? *m_selectedUnown : -1);
+            m_selectedUnown.Update(m_pokegold.Data.UnownPokemonId != 0xff ? *m_selectedUnown : -1);
             m_selectedPokemon.Update(*m_selectedPokemon);
         });
 

@@ -40,8 +40,9 @@ GSEditor_HackingData::
 
 .unown_configs_flag
     db $fd, $ff ; 0x1fc7d6
-    db $01      ; 0x1fc7d8 - enabled
 
+.configs
+    db $01      ; 0x1fc7d8 - enabled
 .unown_configs_pokemon_id
     db $c9      ; 0x1fc7d9 - pokemon id
 
