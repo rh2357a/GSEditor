@@ -1019,5 +1019,148 @@ bool services::Pokegold::Open_ReadMaps(pokegold::Data &data)
         }
     }
 
+#ifdef DEBUG
+    base::Log(TAG, "read maps");
+    {
+        const u8 bank = data.GetByte(0x2d46);
+        const size_t ptrBaseOffset = pokegold::Calc(bank, data.GetBytes(0x2d29, 2));
+
+        std::array<size_t, data.Maps.MapGroups.size()> groupCnts;
+        {
+            for (size_t i = 0, max = data.Maps.MapGroups.size(); i < max; i++)
+            {
+                const size_t mapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + (i * 2), 2));
+                const size_t nextMapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + ((i + 1) * 2), 2));
+
+                if (i == max - 1)
+                {
+                    groupCnts[i] = 0;
+
+                    for (size_t j = 0; groupCnts[i] < 255;)
+                    {
+                        const u8 attrBank = data.GetByte(mapGroupOffset + j);
+                        const size_t attrOffset = pokegold::Calc(attrBank, data.GetBytes(mapGroupOffset + j + 3, 2));
+                        if (attrBank != bank || (attrOffset >= 0x4000 && attrOffset <= 0x7fff))
+                            break;
+
+                        const u8 locationId = data.GetByte(attrOffset);
+                        const u8 width = data.GetByte(attrOffset + 4);
+                        const u8 height = data.GetByte(attrOffset + 3);
+                        if (locationId >= 95 || width * height == 0)
+                            break;
+
+                        groupCnts[i]++;
+                        j += 9;
+                    }
+                }
+                else
+                {
+                    groupCnts[i] = (nextMapGroupOffset - mapGroupOffset) / 9;
+                }
+            }
+        }
+
+        for (size_t i = 0, max = data.Maps.MapGroups.size(); i < max; i++)
+        {
+            if (m_openProgressState.HandlePausedOrCanceled())
+                return false;
+
+            m_openProgressState.UpdateMessage(std::format("맵 (기본 정보: {}/{})", i + 1, max));
+            m_openProgressState.Increase();
+
+            const size_t mapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + (i * 2), 2));
+            for (size_t j = 0; j < groupCnts[i]; j++)
+            {
+                const size_t curretMapGroupOffset = mapGroupOffset + (j * 9);
+                const size_t currentMapAttributeOffset = pokegold::Calc(data.GetByte(curretMapGroupOffset + 0), data.GetBytes(curretMapGroupOffset + 3, 2));
+
+                pokegold::Map newMap;
+
+                // header
+                {
+                    newMap.TilesetId = data.GetByte(curretMapGroupOffset + 1);
+                    newMap.Environment = pokegold::MapEnvironment(data.GetByte(curretMapGroupOffset + 2));
+                    newMap.LocationId = data.GetByte(curretMapGroupOffset + 5);
+                    newMap.MusicId = data.GetByte(curretMapGroupOffset + 6);
+                    newMap.PhoneMuted = ((data.GetByte(curretMapGroupOffset + 7) & 0xf0) >> 4) == 1;
+                    newMap.Color = pokegold::MapColor(data.GetByte(curretMapGroupOffset + 7) & 0x0f);
+                    newMap.FishingGroupId = data.GetByte(curretMapGroupOffset + 8);
+                }
+
+                // attributes
+                {
+                    newMap.BorderTileId = data.GetByte(currentMapAttributeOffset + 0);
+                    newMap.Width = data.GetByte(currentMapAttributeOffset + 2);
+                    newMap.Height = data.GetByte(currentMapAttributeOffset + 1);
+                }
+
+                data.Maps.MapGroups[i].push_back(newMap);
+            }
+        }
+
+        for (size_t i = 0, max = data.Maps.MapGroups.size(); i < max; i++)
+        {
+            if (m_openProgressState.HandlePausedOrCanceled())
+                return false;
+
+            m_openProgressState.UpdateMessage(std::format("맵 (추가 정보: {}/{})", i + 1, max));
+            m_openProgressState.Increase();
+
+            const size_t mapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + (i * 2), 2));
+            for (size_t j = 0; j < groupCnts[i]; j++)
+            {
+                const size_t curretMapGroupOffset = mapGroupOffset + (j * 9);
+                const size_t currentMapAttributeOffset = pokegold::Calc(data.GetByte(curretMapGroupOffset + 0), data.GetBytes(curretMapGroupOffset + 3, 2));
+
+                const size_t tilesOffset = pokegold::Calc(data.GetByte(currentMapAttributeOffset + 3), data.GetBytes(currentMapAttributeOffset + 4, 2));
+                const size_t scriptsOffset = pokegold::Calc(data.GetByte(currentMapAttributeOffset + 6), data.GetBytes(currentMapAttributeOffset + 7, 2));
+                const size_t eventsOffset = pokegold::Calc(data.GetByte(currentMapAttributeOffset + 6), data.GetBytes(currentMapAttributeOffset + 9, 2));
+
+                // TODO: 테스트... 작업 필요
+                data.Maps.MapGroups[i][j].TilesBank = data.GetByte(currentMapAttributeOffset + 3);
+                data.Maps.MapGroups[i][j].ScriptsBank = data.GetByte(currentMapAttributeOffset + 6);
+                data.Maps.MapGroups[i][j].TilesPtr = data.GetByte(currentMapAttributeOffset + 4) | (data.GetByte(currentMapAttributeOffset + 5) << 8);
+                data.Maps.MapGroups[i][j].ScriptsPtr = data.GetByte(currentMapAttributeOffset + 7) | (data.GetByte(currentMapAttributeOffset + 8) << 8);
+                data.Maps.MapGroups[i][j].EventsPtr = data.GetByte(currentMapAttributeOffset + 9) | (data.GetByte(currentMapAttributeOffset + 10) << 8);
+
+                u8 connectionByte = data.GetByte(currentMapAttributeOffset + 11);
+                if (connectionByte != 0)
+                {
+                    size_t connectionOffset = currentMapAttributeOffset + 12;
+
+                    for (int c = 4; c >= 1; c--)
+                    {
+                        auto &bits = k_bits[c - 1];
+
+                        if ((connectionByte & bits) != 0)
+                        {
+                            u8 targetMapGroup = data.GetByte(connectionOffset + 0) - 1;
+                            u8 targetMapNo = data.GetByte(connectionOffset + 1) - 1;
+
+                            auto &targetMap = data.Maps.MapGroups[targetMapGroup][targetMapNo];
+
+                            i8 x = (i8)data.GetByte(connectionOffset + 9);
+                            i8 y = (i8)data.GetByte(connectionOffset + 8);
+
+                            // base::Log(TAG, "{}, {} ({}, {}, {} ,{})", i, j, targetMapGroupIdx, targetMapIdx, x, y);
+
+                            connectionOffset += 12;
+
+                            if (bits == 0b1000)
+                                data.Maps.MapGroups[i][j].NorthConnection = {targetMapGroup, targetMapNo, i8(x / -2)};
+                            else if (bits == 0b0100)
+                                data.Maps.MapGroups[i][j].SouthConnection = {targetMapGroup, targetMapNo, i8(x / -2)};
+                            else if (bits == 0b0010)
+                                data.Maps.MapGroups[i][j].WestConnection = {targetMapGroup, targetMapNo, i8(y / -2)};
+                            else if (bits == 0b0001)
+                                data.Maps.MapGroups[i][j].EastConnection = {targetMapGroup, targetMapNo, i8(y / -2)};
+                        }
+                    }
+                }
+            }
+        }
+    }
+#endif
+
     return !m_openProgressState.HandlePausedOrCanceled();
 }

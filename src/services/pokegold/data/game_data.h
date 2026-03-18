@@ -8,6 +8,7 @@
 
 #include <any>
 #include <array>
+#include <optional>
 #include <vector>
 
 namespace pokegold
@@ -112,6 +113,27 @@ namespace pokegold
         Trade = 3,
         LevelUpWithHappiness = 4,
         LevelUpWithStats = 5,
+    };
+
+    enum class MapEnvironment : u8
+    {
+        Unknown = 0,
+        Town,
+        Route,
+        Indoor,
+        Cave,
+        Environment_5,
+        Gate,
+        Dungeon,
+    };
+
+    enum class MapColor : u8
+    {
+        Auto = 0,
+        Day,
+        Night,
+        Morning,
+        Dark,
     };
 
     enum class NpcColorIndex : u8
@@ -367,14 +389,65 @@ namespace pokegold
         auto end() { return m_colors.end(); }
     };
 
-    // TODO: 작업 중...
-    // struct Map
-    // {};
+    struct Map;
+    struct MapConnection
+    {
+        size_t MapGroup, MapNo;
+        i8 Offset;
+
+        MapConnection(size_t mapGroup, size_t mapNo, i8 offset)
+            : MapGroup(mapGroup),
+              MapNo(mapNo),
+              Offset(offset) {}
+
+        MapConnection(const MapConnection &other)
+            : MapGroup(other.MapGroup),
+              MapNo(other.MapNo),
+              Offset(other.Offset) {}
+
+        MapConnection &operator=(const MapConnection &other)
+        {
+            MapGroup = other.MapGroup;
+            MapNo = other.MapNo;
+            Offset = other.Offset;
+            return *this;
+        }
+    };
+
+    struct Map
+    {
+        // header
+
+        u8 TilesetId;
+        u8 LocationId;
+        u8 MusicId;
+        u8 FishingGroupId;
+
+        bool PhoneMuted;
+
+        MapEnvironment Environment;
+        MapColor Color;
+
+        // attributes
+
+        u8 BorderTileId;
+        u8 Width, Height;
+
+        std::optional<MapConnection> NorthConnection = std::nullopt;
+        std::optional<MapConnection> SouthConnection = std::nullopt;
+        std::optional<MapConnection> WestConnection = std::nullopt;
+        std::optional<MapConnection> EastConnection = std::nullopt;
+
+        // TODO: tiles... (bank, 2-bytes ptr)
+        // TODO: scripts, events... (bank, 2-bytes ptr x2)
+
+        u8 TilesBank, ScriptsBank;
+        u16 TilesPtr, ScriptsPtr, EventsPtr;
+    };
 
     struct Maps
     {
-        // TODO: 작업 중...
-        // std::array<Map, 26> MapGroups;
+        std::array<std::vector<Map>, 26> MapGroups;
 
         NpcColors NpcColors;
         std::array<std::array<std::vector<u8>, 2>, 38> LegacyPokemonSmallPictures; // 롬 빌드에 포함하지 않음 (읽기 전용)

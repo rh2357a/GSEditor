@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <format>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -1191,6 +1192,167 @@ bool services::Pokegold::Build_MapsSources(pokegold::internal::RomBuildData &dat
             }
         }
     }
+
+#ifdef DEBUG
+    base::Log(TAG, "write map (maps)");
+    {
+        // map gourps ptr, bank
+        srcStream << pokegold::GetAsmSection(0x2d46, "GSEditor_MapGroupBank")
+                  << pokegold::GetAsmLine("db BANK(GSEditor_MapGroupPointers)")
+
+                  << pokegold::GetAsmSection(0x2d29, "GSEditor_MapGroupPointer")
+                  << pokegold::GetAsmLine("dw GSEditor_MapGroupPointers");
+
+        // 맵 기록 시작
+        // TODO: 테스트... 여유공간을 확보하고 작업할 예정
+        srcStream << pokegold::GetAsmSection(0x940ed, "GSEditor_MapGroups");
+
+        // header ptr
+        srcStream << pokegold::GetAsmLine("GSEditor_MapGroupPointers::");
+        for (size_t i = 0; i < Data.Maps.MapGroups.size(); i++)
+            srcStream << pokegold::GetAsmLine("dw GSEditor_MapGroup_{}", i);
+
+        // header data
+        for (size_t i = 0; i < Data.Maps.MapGroups.size(); i++)
+        {
+            srcStream << pokegold::GetAsmLine("GSEditor_MapGroup_{}:", i);
+
+            for (size_t j = 0; j < Data.Maps.MapGroups[i].size(); j++)
+            {
+                auto &e = Data.Maps.MapGroups[i][j];
+                srcStream << pokegold::GetAsmLine("db BANK(GSEditor_MapAttribute_{}_{})", i, j)
+                          << pokegold ::GetAsmLine("db {},{}", +e.TilesetId, +u8(e.Environment))
+                          << pokegold ::GetAsmLine("dw GSEditor_MapAttribute_{}_{}", i, j)
+                          << pokegold ::GetAsmLine("db {},{}", +e.LocationId, +e.MusicId)
+                          << pokegold ::GetAsmLine("db {}", (e.PhoneMuted ? 0xf0 : 0x00) | u8(e.Color))
+                          << pokegold ::GetAsmLine("db {}", +e.FishingGroupId);
+            }
+        }
+
+        // attributes
+        for (size_t i = 0; i < Data.Maps.MapGroups.size(); i++)
+        {
+            for (size_t j = 0; j < Data.Maps.MapGroups[i].size(); j++)
+            {
+                const auto &e = Data.Maps.MapGroups[i][j];
+
+                const u8 connectionByte = 0
+                                          | (e.NorthConnection.has_value() ? 0b1000 : 0)
+                                          | (e.SouthConnection.has_value() ? 0b0100 : 0)
+                                          | (e.WestConnection.has_value() ? 0b0010 : 0)
+                                          | (e.EastConnection.has_value() ? 0b0001 : 0);
+
+                srcStream << pokegold::GetAsmLine("GSEditor_MapAttribute_{}_{}:", i, j)
+                          << pokegold::GetAsmLine("db {},{},{}", +e.BorderTileId, +e.Height, +e.Width)
+
+                          // TODO: 절대주소 제거...
+                          << pokegold::GetAsmLine("db {}", +e.TilesBank)
+                          << pokegold::GetAsmLine("dw {}", e.TilesPtr)
+                          << pokegold::GetAsmLine("db {}", +e.ScriptsBank)
+                          << pokegold::GetAsmLine("dw {}", e.ScriptsPtr)
+                          << pokegold::GetAsmLine("dw {}", e.EventsPtr)
+                          // TODO: 절대주소 제거...
+
+                          << pokegold::GetAsmLine("db {}", +connectionByte);
+
+                auto appendConnectionAsm = [&srcStream](
+                                               size_t mapGroup, size_t mapNo,
+                                               i16 blk, i16 map, i16 win, i16 y, i16 x, i16 len,
+                                               i16 src, u16 width, u16 tilesPtr) {
+                    srcStream << pokegold::GetAsmLine("db {},{}", mapGroup + 1, mapNo + 1)
+
+                              // TODO: 절대주소 제거...
+                              << pokegold::GetAsmLine("dw ${:04x} + {}", tilesPtr, +blk)
+                              << pokegold::GetAsmLine("dw $c700 + {}", +map)
+                              << pokegold::GetAsmLine("db {} - {}", +len, +src)
+                              << pokegold::GetAsmLine("db {}", +width)
+                              << pokegold::GetAsmLine("db {},{}", +u8(y), +u8(x))
+                              << pokegold::GetAsmLine("dw $c700 + {}", +win);
+                };
+
+                if (e.NorthConnection.has_value())
+                {
+                    const auto &conn = e.NorthConnection;
+                    const auto &targetMap = Data.Maps.MapGroups[conn->MapGroup][conn->MapNo];
+
+                    i16 tgt = conn->Offset + 3;
+                    i16 src = std::max<i16>(0, -tgt);
+                    tgt = std::max<i16>(0, tgt);
+
+                    appendConnectionAsm(
+                        conn->MapGroup, conn->MapNo,
+                        i16(targetMap.Width) * (i16(targetMap.Height) - 3) + src,
+                        tgt,
+                        (i16(targetMap.Width) + 6) * i16(targetMap.Height) + 1,
+                        i16(targetMap.Height) * 2 - 1,
+                        conn->Offset * -2,
+                        std::min<i16>(i16(targetMap.Width), i16(e.Width) + 3 - conn->Offset),
+                        src, targetMap.Width, targetMap.TilesPtr);
+                }
+
+                if (e.SouthConnection.has_value())
+                {
+                    const auto &conn = e.SouthConnection;
+                    const auto &targetMap = Data.Maps.MapGroups[conn->MapGroup][conn->MapNo];
+
+                    i16 tgt = conn->Offset + 3;
+                    i16 src = std::max<i16>(0, -tgt);
+                    tgt = std::max<i16>(0, tgt);
+
+                    appendConnectionAsm(
+                        conn->MapGroup, conn->MapNo,
+                        src,
+                        (i16(e.Width) + 6) * (i16(e.Height) + 3) + tgt,
+                        i16(targetMap.Width) + 7,
+                        0,
+                        conn->Offset * -2,
+                        std::min<i16>(i16(targetMap.Width), i16(e.Width) + 3 - conn->Offset),
+                        src, targetMap.Width, targetMap.TilesPtr);
+                }
+
+                if (e.WestConnection.has_value())
+                {
+                    const auto &conn = e.WestConnection;
+                    const auto &targetMap = Data.Maps.MapGroups[conn->MapGroup][conn->MapNo];
+
+                    i16 tgt = conn->Offset + 3;
+                    i16 src = std::max<i16>(0, -tgt);
+                    tgt = std::max<i16>(0, tgt);
+
+                    appendConnectionAsm(
+                        conn->MapGroup, conn->MapNo,
+                        (i16(targetMap.Width) * src) + i16(targetMap.Width) - 3,
+                        (i16(e.Width) + 6) * tgt,
+                        (i16(targetMap.Width) + 6) * 2 - 6,
+                        conn->Offset * -2,
+                        i16(targetMap.Width) * 2 - 1,
+                        std::min<i16>(i16(targetMap.Height), i16(e.Height) + 3 - conn->Offset),
+                        src, targetMap.Width, targetMap.TilesPtr);
+                }
+
+                if (e.EastConnection.has_value())
+                {
+                    const auto &conn = e.EastConnection;
+                    const auto &targetMap = Data.Maps.MapGroups[conn->MapGroup][conn->MapNo];
+
+                    i16 tgt = conn->Offset + 3;
+                    i16 src = std::max<i16>(0, -tgt);
+                    tgt = std::max<i16>(0, tgt);
+
+                    appendConnectionAsm(
+                        conn->MapGroup, conn->MapNo,
+                        i16(targetMap.Width) * src,
+                        (i16(e.Width) + 6) * tgt + i16(e.Width) + 3,
+                        i16(targetMap.Width) + 7,
+                        conn->Offset * -2,
+                        0,
+                        std::min<i16>(i16(targetMap.Height), i16(e.Height) + 3 - conn->Offset),
+                        src, targetMap.Width, targetMap.TilesPtr);
+                }
+            }
+        }
+    }
+#endif
 
     return !m_buildProgressState.HandlePausedOrCanceled();
 }

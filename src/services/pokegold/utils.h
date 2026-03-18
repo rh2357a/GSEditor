@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base/types/types.h"
-#include "utils/free_space.h"
+#include "services/pokegold/utils/free_space.h"
 
 #include <lzcomp/lzcomp.h>
 
