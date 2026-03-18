@@ -2,11 +2,13 @@
 
 #include <algorithm>
 
-void pokegold::FreeSpaceDataResolver::Push(std::string label, std::span<const u8> data)
+void pokegold::FreeSpaceDataResolver::Push(std::string label, std::span<const u8> data, int reservedSize, std::string dataAsm)
 {
     m_dataBlocks.push_back({
         label,
         {data.begin(), data.end()},
+        reservedSize,
+        dataAsm,
     });
 }
 

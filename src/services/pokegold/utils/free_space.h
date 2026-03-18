@@ -24,6 +24,9 @@ namespace pokegold
     {
         std::string Label;
         std::vector<u8> Data;
+
+        int ReservedSize;
+        std::string DataAsm;
     };
 
     /**
@@ -49,8 +52,10 @@ namespace pokegold
          *
          * @param label 라벨
          * @param data 바이너리 데이터
+         * @param reservedSize 예약 사이즈, 미사용 시, `-1` 사용
+         * @param dataAsm 예약 사이즈에 들어갈 어셈블리 데이터
          */
-        void Push(std::string label, std::span<const u8> data);
+        void Push(std::string label, std::span<const u8> data, int reservedSize = -1, std::string dataAsm = "");
 
         /**
          * @brief 입력된 모든 데이터를 빈 공간에 알맞게 처리

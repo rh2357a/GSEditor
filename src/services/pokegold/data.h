@@ -26,7 +26,11 @@ namespace pokegold
         std::array<TrainerGroup, 68> TrainerGroups;
         std::array<Type, 28> Types;
         std::array<TMHM, 57> TMHMs;
+
         Maps Maps;
+
+        bool TrainerCardImageEnabled = true;
+        u8 UnownPokemonId = 0xc9;
 
         std::vector<BadData> BadDataList;
 
@@ -36,10 +40,6 @@ namespace pokegold
         base::Event<int> TypeNameUpdated;
         base::Event<> TMHMsUpdated;
         base::Event<int> TrainerGroupUpdated;
-
-    public:
-        bool TrainerCardImageEnabled = true;
-        u8 UnownPokemonId = 0xc9;
 
     public:
         Data(std::filesystem::path romFilePath = base::NullPath);

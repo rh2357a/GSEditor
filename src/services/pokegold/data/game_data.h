@@ -389,26 +389,30 @@ namespace pokegold
         auto end() { return m_colors.end(); }
     };
 
-    struct Map;
+    struct MapId
+    {
+        u8 Group;
+        u8 Number;
+
+        bool IsDummy;
+    };
+
     struct MapConnection
     {
-        size_t MapGroup, MapNo;
+        MapId TargetMapId;
         i8 Offset;
 
-        MapConnection(size_t mapGroup, size_t mapNo, i8 offset)
-            : MapGroup(mapGroup),
-              MapNo(mapNo),
+        MapConnection(u8 mapGroup, u8 mapNo, i8 offset)
+            : TargetMapId({mapGroup, mapNo, false}),
               Offset(offset) {}
 
         MapConnection(const MapConnection &other)
-            : MapGroup(other.MapGroup),
-              MapNo(other.MapNo),
+            : TargetMapId(other.TargetMapId),
               Offset(other.Offset) {}
 
         MapConnection &operator=(const MapConnection &other)
         {
-            MapGroup = other.MapGroup;
-            MapNo = other.MapNo;
+            TargetMapId = other.TargetMapId;
             Offset = other.Offset;
             return *this;
         }
@@ -438,15 +442,17 @@ namespace pokegold
         std::optional<MapConnection> WestConnection = std::nullopt;
         std::optional<MapConnection> EastConnection = std::nullopt;
 
-        // TODO: tiles... (bank, 2-bytes ptr)
+        std::vector<u8> Tiles;
+
         // TODO: scripts, events... (bank, 2-bytes ptr x2)
 
-        u8 TilesBank, ScriptsBank;
-        u16 TilesPtr, ScriptsPtr, EventsPtr;
+        u8 ScriptsBank;
+        u16 ScriptsPtr, EventsPtr;
     };
 
     struct Maps
     {
+        std::array<MapId, 256> MapVariables;
         std::array<std::vector<Map>, 26> MapGroups;
 
         NpcColors NpcColors;

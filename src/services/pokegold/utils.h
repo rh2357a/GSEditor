@@ -34,8 +34,8 @@ namespace pokegold
         u16 ptr = offset % 0x4000 + (offset >= 0x4000 ? 0x4000 : 0);
         std::string name = std::format(fmt, std::forward<_Args>(args)...);
         return bank == 0
-                   ? std::format("SECTION \"{}\", ROM0[{}]\n", name, ptr)
-                   : std::format("SECTION \"{}\", ROMX[{}], BANK[{}]\n", name, ptr, bank);
+                   ? std::format("SECTION \"{}\", ROM0[${:04x}]\n", name, ptr)
+                   : std::format("SECTION \"{}\", ROMX[${:04x}], BANK[${:02x}]\n", name, ptr, bank);
     }
 
     template <typename... _Args>
@@ -82,12 +82,12 @@ namespace pokegold::internal
     private:
         std::ofstream m_source;
         std::ofstream m_namesSource;
-        std::ofstream m_imagesSource;
+        std::ofstream m_globalDataSource;
         std::ofstream m_typeNamesSource;
 
         std::vector<u8> m_lzcompBuffer = std::vector<u8>(0x400);
 
-        FreeSpaceDataResolver m_imageDataBlocks;
+        FreeSpaceDataResolver m_globalDataBlocks;
         FreeSpaceDataResolver m_typeNameDataBlocks;
 
         size_t m_playerBackImageSize = 0;
@@ -96,22 +96,33 @@ namespace pokegold::internal
         RomBuildData(const std::filesystem::path &workdir)
             : m_source(workdir / "GSEditor.asm"),
               m_namesSource(workdir / "GSEditor.Names.asm"),
-              m_imagesSource(workdir / "GSEditor.Images.asm"),
-              m_typeNamesSource(workdir / "GSEditor.TypeNames.asm") {}
+              m_globalDataSource(workdir / "GSEditor.GlobalData.asm"),
+              m_typeNamesSource(workdir / "GSEditor.TypeNames.asm")
+        {}
 
     public:
         auto &GetSourceStream() { return m_source; }
         auto &GetNamesSourceStream() { return m_namesSource; }
-        auto &GetImagesSourceStream() { return m_imagesSource; }
+        auto &GetGlobalDataSourceStream() { return m_globalDataSource; }
         auto &GetTypeNameSourceStream() { return m_typeNamesSource; }
 
-        auto &GetImageDataBlocks() { return m_imageDataBlocks; }
+        auto &GetGlobalDataBlocks() { return m_globalDataBlocks; }
         auto &GetTypeNameDataBlocks() { return m_typeNameDataBlocks; }
 
-        void PushImageDataBlock(std::string label, std::span<const u8> data)
+        void PushReservedDataBlock(std::string label, size_t size, std::string dataAsm)
+        {
+            m_globalDataBlocks.Push(label, std::vector<u8>(size, 0), int(size), dataAsm);
+        }
+
+        void PushDataBlock(std::string label, std::span<const u8> data)
+        {
+            m_globalDataBlocks.Push(label, {data.begin(), data.end()});
+        }
+
+        void PushLzDataBlock(std::string label, std::span<const u8> data)
         {
             size_t lzSize = lzcomp::Compress(m_lzcompBuffer, data);
-            m_imageDataBlocks.Push(label, {m_lzcompBuffer.begin(), m_lzcompBuffer.begin() + lzSize});
+            m_globalDataBlocks.Push(label, {m_lzcompBuffer.begin(), m_lzcompBuffer.begin() + lzSize});
         }
 
         void PushPlayerBackImageDataBlock(std::string label, std::span<const u8> playerData, std::span<const u8> dudeData)
@@ -124,7 +135,7 @@ namespace pokegold::internal
             std::vector<u8> tempDudeData(m_lzcompBuffer.begin(), m_lzcompBuffer.begin() + lzSize);
             tempPlayerData.insert(tempPlayerData.end(), tempDudeData.begin(), tempDudeData.end());
 
-            m_imageDataBlocks.Push(label, tempPlayerData);
+            m_globalDataBlocks.Push(label, tempPlayerData);
         }
 
         size_t GetPlayerBackImageSize() const
