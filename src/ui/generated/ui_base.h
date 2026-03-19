@@ -16,6 +16,7 @@ namespace ui{ class ColoredListCtrl; }
 namespace ui{ class DatabasePanel; }
 namespace ui{ class ImageEditorPanel; }
 namespace ui{ class LabeledSeparator; }
+namespace ui{ class MapEditorTreeCtrl; }
 
 #include <wx/panel.h>
 #include <wx/gdicmn.h>
@@ -34,6 +35,8 @@ namespace ui{ class LabeledSeparator; }
 #include <wx/menu.h>
 #include <wx/toolbar.h>
 #include <wx/statusbr.h>
+#include <wx/treectrl.h>
+#include <wx/splitter.h>
 #include <wx/frame.h>
 #include <wx/listbox.h>
 #include <wx/textctrl.h>
@@ -45,9 +48,9 @@ namespace ui{ class LabeledSeparator; }
 #include <wx/scrolwin.h>
 #include <wx/radiobox.h>
 #include <wx/notebook.h>
+#include <wx/dialog.h>
 #include <wx/statbmp.h>
 #include <wx/html/htmlwin.h>
-#include <wx/dialog.h>
 #include <wx/radiobut.h>
 #include <wx/checkbox.h>
 #include <wx/gauge.h>
@@ -102,6 +105,7 @@ class MainFrameBase : public wxFrame
 			wxID_IPS = 6000,
 			wxID_XDELTA,
 			wxID_TEST_PLAY,
+			wxID_DB,
 			wxID_EMULATOR,
 			wxID_DEBUG_LABEL,
 			wxID_TEST_PLAY_SAVE,
@@ -113,15 +117,20 @@ class MainFrameBase : public wxFrame
 		wxMenuItem* m_fileExportToIpsMenuItem;
 		wxMenuItem* m_fileExportToXdeltaMenuItem;
 		wxMenuItem* m_gameTestPlayMenuItem;
+		wxMenuItem* m_gameDbMenuItem;
 		wxMenuItem* m_gameSettingsEmulatorMenuItem;
 		wxMenuItem* m_gameSettingsShowDebugLabelMenuItem;
 		wxMenuItem* m_gameSettingsSaveMenuItem;
 		wxMenuItem* m_gameSettingsTrainerCardImageMenuItem;
 		wxToolBar* m_toolBar;
 		wxToolBarToolBase* m_saveToolbarItem;
+		wxToolBarToolBase* m_dbToolbarItem;
 		wxToolBarToolBase* m_testPlayToolbarItem;
 		wxStatusBar* m_statusBar;
-		ui::DatabasePanel* m_mainPanel;
+		wxSplitterWindow* m_mainSplitter;
+		wxPanel* m_mapGroupPanel;
+		ui::MapEditorTreeCtrl* m_mapGroupTreeCtrl;
+		wxPanel* m_mapEditorPanel;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
@@ -131,9 +140,15 @@ class MainFrameBase : public wxFrame
 
 	public:
 
-		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 740,600 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+		MainFrameBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("{title}"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 800,640 ), long style = wxCAPTION|wxCLOSE_BOX|wxICONIZE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~MainFrameBase();
+
+		void m_mainSplitterOnIdle( wxIdleEvent& )
+		{
+			m_mainSplitter->SetSashPosition( 180 );
+			m_mainSplitter->Disconnect( wxEVT_IDLE, wxIdleEventHandler( MainFrameBase::m_mainSplitterOnIdle ), NULL, this );
+		}
 
 };
 
@@ -310,6 +325,27 @@ class DatabasePanelBase : public wxPanel
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+/// Class DatabaseDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class DatabaseDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnConfirmButtonClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		DatabaseDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("데이터베이스"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 760,600 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER|wxSYSTEM_MENU );
+
+		~DatabaseDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
 /// Class AboutDialogBase
 ///////////////////////////////////////////////////////////////////////////////
 class AboutDialogBase : public wxDialog
@@ -329,7 +365,7 @@ class AboutDialogBase : public wxDialog
 
 	public:
 
-		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 624,540 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
+		AboutDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("GS 에디터 정보"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 624,540 ), long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE );
 
 		~AboutDialogBase();
 

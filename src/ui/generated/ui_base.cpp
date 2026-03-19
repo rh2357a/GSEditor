@@ -5,11 +5,13 @@
 // PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
+#include "ui/frames/main/map_editor_tree_ctrl.h"
 #include "ui/ui.h"
 
 #include "ui_base.h"
 
 #include "icon_about.png.h"
+#include "icon_database.png.h"
 #include "icon_exit.png.h"
 #include "icon_folder.png.h"
 #include "icon_play.png.h"
@@ -146,7 +148,8 @@ ColorPickerPopupPanelBase::~ColorPickerPopupPanelBase()
 
 MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	this->SetSizeHints( wxSize( 740,600 ), wxDefaultSize );
+	this->SetSizeHints( wxSize( 800,640 ), wxDefaultSize );
+	this->SetBackgroundColour( wxColour( 240, 240, 240 ) );
 
 	m_mainMenuBar = new wxMenuBar( 0 );
 	wxMenu* fileMenu;
@@ -199,6 +202,18 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	#endif
 	gameMenu->Append( m_gameTestPlayMenuItem );
 
+	gameMenu->AppendSeparator();
+
+	m_gameDbMenuItem = new wxMenuItem( gameMenu, wxID_DB, wxString( wxT("데이터베이스(&D)") ) , wxT("포켓몬, 아이템 등 여러 데이터들을 편집합니다."), wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_gameDbMenuItem->SetBitmaps( icon_database_png_to_wx_bitmap() );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_gameDbMenuItem->SetBitmap( icon_database_png_to_wx_bitmap() );
+	#endif
+	gameMenu->Append( m_gameDbMenuItem );
+
+	gameMenu->AppendSeparator();
+
 	wxMenu* gameSettingsSubMenu;
 	gameSettingsSubMenu = new wxMenu();
 	wxMenuItem* gameSettingsSubMenuItem = new wxMenuItem( gameMenu, wxID_ANY, wxT("설정"), wxEmptyString, wxITEM_NORMAL, gameSettingsSubMenu );
@@ -245,12 +260,11 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	m_toolBar->AddSeparator();
 
-	m_testPlayToolbarItem = m_toolBar->AddTool( wxID_TEST_PLAY, wxT("save"), icon_play_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("롬을 빌드하여 테스트합니다."), NULL );
+	m_dbToolbarItem = m_toolBar->AddTool( wxID_DB, wxT("db"), icon_database_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("포켓몬, 아이템 등 여러 데이터들을 편집합니다."), NULL );
 
 	m_toolBar->AddSeparator();
 
-	wxToolBarToolBase* exitToolbarItem;
-	exitToolbarItem = m_toolBar->AddTool( wxID_EXIT, wxT("exit"), icon_exit_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("프로그램을 종료합니다."), NULL );
+	m_testPlayToolbarItem = m_toolBar->AddTool( wxID_TEST_PLAY, wxT("save"), icon_play_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("롬을 빌드하여 테스트합니다."), NULL );
 
 	m_toolBar->Realize();
 
@@ -258,8 +272,36 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	wxBoxSizer* mainSizer;
 	mainSizer = new wxBoxSizer( wxVERTICAL );
 
-	m_mainPanel = new ui::DatabasePanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	mainSizer->Add( m_mainPanel, 1, wxEXPAND | wxALL, 0 );
+	m_mainSplitter = new wxSplitterWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE );
+	m_mainSplitter->SetSashSize( 12 );
+	m_mainSplitter->Connect( wxEVT_IDLE, wxIdleEventHandler( MainFrameBase::m_mainSplitterOnIdle ), NULL, this );
+	m_mainSplitter->SetMinimumPaneSize( 160 );
+
+	m_mainSplitter->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ) );
+
+	m_mapGroupPanel = new wxPanel( m_mainSplitter, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	wxBoxSizer* mapGroupPanelSizer;
+	mapGroupPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+	m_mapGroupTreeCtrl = new ui::MapEditorTreeCtrl( m_mapGroupPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HIDE_ROOT|wxTR_SINGLE|wxBORDER_NONE );
+	mapGroupPanelSizer->Add( m_mapGroupTreeCtrl, 1, wxEXPAND, 5 );
+
+
+	m_mapGroupPanel->SetSizer( mapGroupPanelSizer );
+	m_mapGroupPanel->Layout();
+	mapGroupPanelSizer->Fit( m_mapGroupPanel );
+	m_mapEditorPanel = new wxPanel( m_mainSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC|wxTAB_TRAVERSAL );
+	m_mapEditorPanel->SetBackgroundColour( wxColour( 160, 160, 160 ) );
+
+	wxBoxSizer* mapEditorPanelSizer;
+	mapEditorPanelSizer = new wxBoxSizer( wxVERTICAL );
+
+
+	m_mapEditorPanel->SetSizer( mapEditorPanelSizer );
+	m_mapEditorPanel->Layout();
+	mapEditorPanelSizer->Fit( m_mapEditorPanel );
+	m_mainSplitter->SplitVertically( m_mapGroupPanel, m_mapEditorPanel, 180 );
+	mainSizer->Add( m_mainSplitter, 1, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 4 );
 
 
 	this->SetSizer( mainSizer );
@@ -275,6 +317,7 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_fileExportToXdeltaMenuItem->GetId());
 	fileMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, fileExitMenuItem->GetId());
 	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameTestPlayMenuItem->GetId());
+	gameMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameDbMenuItem->GetId());
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, m_gameSettingsEmulatorMenuItem->GetId());
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsShowDebugLabelMenuItem->GetId());
 	gameSettingsSubMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuItemSelected ), this, m_gameSettingsSaveMenuItem->GetId());
@@ -282,8 +325,8 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	helpMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ), this, helpAboutMenuItem->GetId());
 	this->Connect( openToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 	this->Connect( m_saveToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
+	this->Connect( m_dbToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 	this->Connect( m_testPlayToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
-	this->Connect( exitToolbarItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrameBase::OnMenuSelected ));
 }
 
 MainFrameBase::~MainFrameBase()
@@ -2737,6 +2780,46 @@ DatabasePanelBase::DatabasePanelBase( wxWindow* parent, wxWindowID id, const wxP
 }
 
 DatabasePanelBase::~DatabasePanelBase()
+{
+}
+
+DatabaseDialogBase::DatabaseDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxSize( 760,600 ), wxDefaultSize );
+
+	wxBoxSizer* mainSizer;
+	mainSizer = new wxBoxSizer( wxVERTICAL );
+
+	ui::DatabasePanel* contentsPanel;
+	contentsPanel = new ui::DatabasePanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	mainSizer->Add( contentsPanel, 1, wxEXPAND, 0 );
+
+	wxPanel* buttonsPanel;
+	buttonsPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* buttonsSizer;
+	buttonsSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxButton* confirmButton;
+	confirmButton = new wxButton( buttonsPanel, wxID_ANY, wxT("확인"), wxDefaultPosition, wxDefaultSize, 0 );
+	buttonsSizer->Add( confirmButton, 0, wxALL, 5 );
+
+
+	buttonsPanel->SetSizer( buttonsSizer );
+	buttonsPanel->Layout();
+	buttonsSizer->Fit( buttonsPanel );
+	mainSizer->Add( buttonsPanel, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	this->SetSizer( mainSizer );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	confirmButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DatabaseDialogBase::OnConfirmButtonClick ), NULL, this );
+}
+
+DatabaseDialogBase::~DatabaseDialogBase()
 {
 }
 

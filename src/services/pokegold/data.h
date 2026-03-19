@@ -29,7 +29,7 @@ namespace pokegold
 
         Maps Maps;
 
-        bool TrainerCardImageEnabled = true;
+        bool TrainerCardImageEnabled = false;
         u8 UnownPokemonId = 0xc9;
 
         std::vector<BadData> BadDataList;

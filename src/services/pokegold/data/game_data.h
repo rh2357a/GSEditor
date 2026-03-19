@@ -446,14 +446,56 @@ namespace pokegold
 
         // TODO: scripts, events... (bank, 2-bytes ptr x2)
 
-        u8 ScriptsBank;
-        u16 ScriptsPtr, EventsPtr;
+        u8 ScriptsBank = 0;
+        u16 ScriptsPtr = 0, EventsPtr = 0;
+
+        Map() = default;
+
+        Map(const Map &other)
+        {
+            Assign(*this, other);
+        }
+
+        Map &operator=(const Map &other)
+        {
+            Assign(*this, other);
+            return *this;
+        }
+
+    private:
+        void Assign(Map &thiz, const Map &other)
+        {
+            thiz.TilesetId = other.TilesetId;
+            thiz.LocationId = other.LocationId;
+            thiz.MusicId = other.MusicId;
+            thiz.FishingGroupId = other.FishingGroupId;
+
+            thiz.PhoneMuted = other.PhoneMuted;
+
+            thiz.Environment = other.Environment;
+            thiz.Color = other.Color;
+
+            thiz.BorderTileId = other.BorderTileId;
+            thiz.Width = other.Width;
+            thiz.Height = other.Height;
+
+            thiz.NorthConnection = other.NorthConnection;
+            thiz.SouthConnection = other.SouthConnection;
+            thiz.WestConnection = other.WestConnection;
+            thiz.EastConnection = other.EastConnection;
+
+            thiz.Tiles = other.Tiles;
+
+            thiz.ScriptsBank = other.ScriptsBank;
+            thiz.ScriptsPtr = other.ScriptsPtr;
+            thiz.EventsPtr = other.EventsPtr;
+        }
     };
 
     struct Maps
     {
         std::array<MapId, 256> MapVariables;
-        std::array<std::vector<Map>, 26> MapGroups;
+        std::vector<std::vector<Map>> MapGroups;
 
         NpcColors NpcColors;
         std::array<std::array<std::vector<u8>, 2>, 38> LegacyPokemonSmallPictures; // 롬 빌드에 포함하지 않음 (읽기 전용)

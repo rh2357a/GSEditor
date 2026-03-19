@@ -5,12 +5,13 @@
 #include "base/resources.h"
 #include "ui/dialogs/about_dialog.h"
 #include "ui/dialogs/bad_data_dialog.h"
+#include "ui/dialogs/database_dialog.h"
 #include "ui/dialogs/file_dialogs.h"
 #include "ui/dialogs/message_box.h"
 #include "ui/dialogs/progress_dialog.h"
-#include "ui/generated/ui_base.h"
 
 #include <wx/persist/toplevel.h>
+#include <wx/string.h>
 
 #include <filesystem>
 #include <format>
@@ -22,7 +23,7 @@ namespace
     const std::vector<std::string> k_romFileFilter = {"gbc 파일|*.gbc", "bin 파일|*.bin"};
 }
 
-ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
+ui::MainFrame::MainFrame() : MainFrameBase(nullptr), m_dbDialog(this)
 {
     wxPersistentRegisterAndRestore(this);
 
@@ -41,6 +42,7 @@ ui::MainFrame::MainFrame() : MainFrameBase(nullptr)
 
     m_pokegold.IsOpenedState().Subscribe(this, [this] { RomOpenedControlHandler(); });
     m_pokegold.IsDataChangedState().Subscribe(this, [this] { StatusBarTextHandler(); });
+
     m_configs.GetEmulatorPathState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetShowDebugLabelState().Subscribe(this, [this] { SettingsMenusHandler(); });
     m_configs.GetTestPlaySaveState().Subscribe(this, [this] { SettingsMenusHandler(); });
@@ -54,12 +56,15 @@ void ui::MainFrame::RomOpenedControlHandler()
     m_fileExportToIpsMenuItem->Enable(isOpened);
     m_fileExportToXdeltaMenuItem->Enable(isOpened);
     m_gameTestPlayMenuItem->Enable(isOpened);
+    m_gameDbMenuItem->Enable(isOpened);
+    m_gameSettingsTrainerCardImageMenuItem->Enable(isOpened);
 
     m_saveToolbarItem->Enable(isOpened);
+    m_dbToolbarItem->Enable(isOpened);
     m_testPlayToolbarItem->Enable(isOpened);
     m_toolBar->Realize();
 
-    m_mainPanel->Enable(isOpened);
+    m_mainSplitter->Enable(isOpened);
 }
 
 void ui::MainFrame::StatusBarTextHandler()
@@ -136,6 +141,13 @@ void ui::MainFrame::OnMenuSelected(wxCommandEvent &event)
     {
         base::Log(TAG, "menu selected (menu: exit app)");
         Close();
+        return;
+    }
+
+    if (id == wxID_DB)
+    {
+        base::Log(TAG, "menu selected (menu: database)");
+        m_dbDialog.ShowModal();
         return;
     }
 

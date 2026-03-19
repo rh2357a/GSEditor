@@ -2,6 +2,7 @@
 
 #include "services/app_configs.h"
 #include "services/pokegold.h"
+#include "ui/dialogs/database_dialog.h"
 #include "ui/ui.h"
 
 namespace ui
@@ -14,6 +15,8 @@ namespace ui
     private:
         services::AppConfigs &m_configs = services::AppConfigs::Default();
         services::Pokegold &m_pokegold = services::Pokegold::Default();
+
+        ui::DatabaseDialog m_dbDialog;
 
     public:
         MainFrame();

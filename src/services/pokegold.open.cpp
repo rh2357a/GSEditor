@@ -1044,42 +1044,51 @@ bool services::Pokegold::Open_ReadMaps(pokegold::Data &data)
             const u8 bank = data.GetByte(0x2d46);
             const size_t ptrBaseOffset = pokegold::Calc(bank, data.GetBytes(0x2d29, 2));
 
-            std::array<size_t, data.Maps.MapGroups.size()> groupCnts;
+            // 맵 그룹, 맵 항목 할당
+            // std::array<size_t, data.Maps.MapGroups.size()> groupCnts;
             {
-                for (size_t i = 0, max = data.Maps.MapGroups.size(); i < max; i++)
+                size_t i = 0;
+                size_t mapGroupOffset, nextMapGroupOffset;
+                for (;;)
                 {
-                    const size_t mapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + (i * 2), 2));
-                    const size_t nextMapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + ((i + 1) * 2), 2));
+                    mapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + (i * 2), 2));
+                    nextMapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + ((i + 1) * 2), 2));
 
-                    if (i == max - 1)
+                    const u16 nextPtr = data.GetByte(ptrBaseOffset + ((i + 1) * 2)) | (data.GetByte(ptrBaseOffset + ((i + 1) * 2) + 1) << 8);
+                    if (!(nextPtr >= 0x4000 && nextPtr <= 0x7fff))
+                        break;
+
+                    if (mapGroupOffset >= nextMapGroupOffset)
+                        break;
+
+                    data.Maps.MapGroups.emplace_back(std::vector<pokegold::Map>());
+
+                    for (size_t j = 0; j < (nextMapGroupOffset - mapGroupOffset) / 9; j++)
+                        data.Maps.MapGroups[i].emplace_back();
+
+                    i++;
+                }
+
+                data.Maps.MapGroups.emplace_back(std::vector<pokegold::Map>());
+
+                for (size_t j = 0; j < 256 * 9; j += 9)
+                {
+                    const u8 attrBank = data.GetByte(mapGroupOffset + j);
+                    const u16 attrPtr = data.GetByte(mapGroupOffset + j + 3) | (data.GetByte(mapGroupOffset + j + 4) << 8);
+                    if (/* attrBank != bank || */ !(attrPtr >= 0x4000 && attrPtr <= 0x7fff))
                     {
-                        groupCnts[i] = 0;
-
-                        for (size_t j = 0; groupCnts[i] < 255;)
-                        {
-                            const u8 attrBank = data.GetByte(mapGroupOffset + j);
-                            const u16 attrPtr = data.GetByte(mapGroupOffset + j + 3) | (data.GetByte(mapGroupOffset + j + 4) << 8);
-                            if (/* attrBank != bank || */ !(attrPtr >= 0x4000 && attrPtr <= 0x7fff))
-                            {
-                                // MEMO: 맵 속성의 뱅크는 툴에서 재배치가 일어나기 때문에 뱅크 일치여부는 제외함
-                                break;
-                            }
-
-                            const size_t attrOffset = pokegold::Calc(attrBank, data.GetBytes(mapGroupOffset + j + 3, 2));
-                            const u8 locationId = data.GetByte(attrOffset);
-                            const u8 width = data.GetByte(attrOffset + 4);
-                            const u8 height = data.GetByte(attrOffset + 3);
-                            if (locationId >= 95 || width * height == 0)
-                                break;
-
-                            groupCnts[i]++;
-                            j += 9;
-                        }
+                        // MEMO: 맵 속성의 뱅크는 툴에서 재배치가 일어나기 때문에 뱅크 일치여부는 제외함
+                        break;
                     }
-                    else
-                    {
-                        groupCnts[i] = (nextMapGroupOffset - mapGroupOffset) / 9;
-                    }
+
+                    const size_t attrOffset = pokegold::Calc(attrBank, data.GetBytes(mapGroupOffset + j + 3, 2));
+                    const u8 locationId = data.GetByte(attrOffset);
+                    const u8 width = data.GetByte(attrOffset + 4);
+                    const u8 height = data.GetByte(attrOffset + 3);
+                    if (locationId >= 95 || width * height == 0)
+                        break;
+
+                    data.Maps.MapGroups[i].emplace_back();
                 }
             }
 
@@ -1092,7 +1101,7 @@ bool services::Pokegold::Open_ReadMaps(pokegold::Data &data)
                 m_openProgressState.Increase();
 
                 const size_t mapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + (i * 2), 2));
-                for (size_t j = 0; j < groupCnts[i]; j++)
+                for (size_t j = 0; j < data.Maps.MapGroups[i].size(); j++)
                 {
                     const size_t curretMapGroupOffset = mapGroupOffset + (j * 9);
                     const size_t currentMapAttributeOffset = pokegold::Calc(data.GetByte(curretMapGroupOffset + 0), data.GetBytes(curretMapGroupOffset + 3, 2));
@@ -1117,7 +1126,7 @@ bool services::Pokegold::Open_ReadMaps(pokegold::Data &data)
                         newMap.Height = data.GetByte(currentMapAttributeOffset + 1);
                     }
 
-                    data.Maps.MapGroups[i].push_back(newMap);
+                    data.Maps.MapGroups[i][j] = newMap;
                 }
             }
 
@@ -1130,7 +1139,7 @@ bool services::Pokegold::Open_ReadMaps(pokegold::Data &data)
                 m_openProgressState.Increase();
 
                 const size_t mapGroupOffset = pokegold::Calc(bank, data.GetBytes(ptrBaseOffset + (i * 2), 2));
-                for (size_t j = 0; j < groupCnts[i]; j++)
+                for (size_t j = 0; j < data.Maps.MapGroups[i].size(); j++)
                 {
                     const size_t curretMapGroupOffset = mapGroupOffset + (j * 9);
                     const size_t currentMapAttributeOffset = pokegold::Calc(data.GetByte(curretMapGroupOffset + 0), data.GetBytes(curretMapGroupOffset + 3, 2));

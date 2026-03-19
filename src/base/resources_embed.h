@@ -4,6 +4,9 @@
 
 EMBED_WX_BITMAP(AppIcon, wxBITMAP_TYPE_ICO, "GSEditor.exe.ico")
 
+EMBED_WX_BITMAP(MapGroupIcon, wxBITMAP_TYPE_PNG, "icons/icon_map_group.png")
+EMBED_WX_BITMAP(MapItemIcon, wxBITMAP_TYPE_PNG, "icons/icon_map_item.png")
+
 EMBED_BINARY(AppVersionsHtml, "app_versions.html")
 EMBED_BINARY(AppThirdPartyNotices, "third_party_notices.txt")
 
