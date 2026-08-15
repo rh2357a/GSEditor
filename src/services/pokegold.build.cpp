@@ -1586,7 +1586,7 @@ bool services::Pokegold::Build_Assemble(pokegold::internal::RomBuildData &data)
         m_buildProgressState.UpdateMessage("Assemble...");
         m_buildProgressState.Increase();
 
-        auto args = std::format("-o {} {}", (workdir / "GSEditor.o").string(), (workdir / "GSEditor.asm").string());
+        auto args = std::format("-o \"{}\" \"{}\"", (workdir / "GSEditor.o").string(), (workdir / "GSEditor.asm").string());
         auto result = base::RunRgbasm(args, workdir.string());
         base::Log(TAG, "Build: rgbasm {}", args);
         base::Log(TAG, "Build: \n{}", result.GetOutput());
@@ -1601,13 +1601,13 @@ bool services::Pokegold::Build_Assemble(pokegold::internal::RomBuildData &data)
         m_buildProgressState.Increase();
 
         auto debugLabelOption = m_appConfigs.GetShowDebugLabel()
-                                    ? std::format("--map {} --sym {}",
+                                    ? std::format("--map \"{}\" --sym \"{}\"",
                                                   (workdir / (s_targetName + ".map")).string(),
                                                   (workdir / (s_targetName + ".sym")).string())
                                     : "";
 
         auto args = std::format(
-            "{} -o {} -O {} {}",
+            "{} -o \"{}\" -O \"{}\" \"{}\"",
             debugLabelOption,
             (workdir / (s_targetName + ".bin")).string(),
             (workdir / (s_baseName + ".bin")).string(),
@@ -1625,7 +1625,7 @@ bool services::Pokegold::Build_Assemble(pokegold::internal::RomBuildData &data)
         m_buildProgressState.UpdateMessage("Rom fixing...");
         m_buildProgressState.Increase();
 
-        auto args = std::format("-v -Wno-overwrite {}", (workdir / (s_targetName + ".bin")).string());
+        auto args = std::format("-v -Wno-overwrite \"{}\"", (workdir / (s_targetName + ".bin")).string());
         auto result = base::RunRgbfix(args, workdir.string());
         base::Log(TAG, "Build: rgbfix {}", args);
         base::Log(TAG, "Build: \n{}", result.GetOutput());

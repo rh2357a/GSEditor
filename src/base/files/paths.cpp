@@ -15,7 +15,7 @@ std::filesystem::path base::GetAppDataPath()
         std::filesystem::path result(path);
         ::CoTaskMemFree(path);
 
-        result = result / APP_NAME;
+        result = result / "GS Editor";
         return result;
     }();
     return pathImpl;
