@@ -4,7 +4,6 @@
 
 #include "ui/generated/ui_base.h"               // IWYU pragma: export
 
-#include "ui/controls/script_text_ctrl.h"       // IWYU pragma: export
 #include "ui/controls/colored_list_box.h"       // IWYU pragma: export
 #include "ui/controls/colored_check_list_box.h" // IWYU pragma: export
 #include "ui/controls/colored_list_ctrl.h"      // IWYU pragma: export

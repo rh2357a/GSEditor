@@ -55,7 +55,7 @@ namespace pokegold
         std::span<const u8> GetBytesUntil(size_t offset, std::function<bool(size_t, u8)> predicate, bool includeEnd);
 
         void SetByte(size_t offset, u8 byte);
-        void SetBytes(size_t offset, const std::vector<u8> &bytes);
+        void SetBytes(size_t offset, std::span<const u8> bytes);
         void FillBytes(u8 byte, size_t offset, size_t length);
     };
 }

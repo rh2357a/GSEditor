@@ -3,7 +3,7 @@
 #include "base/types/types.h"
 #include "services/pokegold/utils/free_space.h"
 
-#include <lzcomp/lzcomp.h>
+#include "base/lzcomp.h"
 
 #include <filesystem>
 #include <format>

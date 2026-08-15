@@ -10,7 +10,7 @@
 #include "services/pokegold/data/game_data.h"
 #include "services/pokegold/utils.h"
 
-#include <lzcomp/lzcomp.h>
+#include "base/lzcomp.h"
 #include <wx/wx.h>
 
 #include <array>
@@ -271,9 +271,12 @@ bool services::Pokegold::Open_ReadPokemons(pokegold::Data &data)
     // TODO: v1.3.0부터 제거
     if (data.MatchBytes(0x53b4c, {0x00, 0x64, 0x00, 0x05}))
     {
-        data.SetBytes(0x53b3f, {0x1a, 0x15, 0x33, 0x16, 0x4b, 0x17, 0x62, 0x18,
-                                0x79, 0x19, 0x90, 0x1a, 0xa8, 0x1b, 0xc4, 0x1c,
-                                0xe0, 0x1d, 0xf6, 0x1e, 0xff, 0x1f, 0xff, 0x20});
+        data.SetBytes(
+            0x53b3f,
+            std::vector<u8>{
+                0x1a, 0x15, 0x33, 0x16, 0x4b, 0x17, 0x62, 0x18,
+                0x79, 0x19, 0x90, 0x1a, 0xa8, 0x1b, 0xc4, 0x1c,
+                0xe0, 0x1d, 0xf6, 0x1e, 0xff, 0x1f, 0xff, 0x20});
     }
 
     const bool isHackedUnownIds = data.MatchBytes(0x1fc7d6, {0xfd, 0xff});
@@ -552,10 +555,10 @@ bool services::Pokegold::Open_ReadPokemons(pokegold::Data &data)
             }
         }
 
-        const auto &picsPalData = embed::GetPokegoldDefaultSmallPicturesPaletteData();
+        const auto &picsPalData = embed::pokegold::kDefaultSmallPicturesPaletteData;
         data.SetBytes(0x017ace, picsPalData);
 
-        const auto &picsAttr = embed::GetPokegoldDefaultSmallPicturesAttributes();
+        const auto &picsAttr = embed::pokegold::kDefaultSmallPicturesAttributes;
         data.SetBytes(0x08e96d, picsAttr);
     }
 
@@ -907,7 +910,7 @@ bool services::Pokegold::Open_ReadTypes(pokegold::Data &data)
                     e.TypeMatchups.clear();
 
                 typeMatchupsOffset = 0x34d01;
-                data.SetBytes(0x34d01, embed::GetPokegoldDefaultTypeMatchupsData());
+                data.SetBytes(0x34d01, embed::pokegold::kDefaultTypeMatchupsData);
                 data.BadDataList.emplace_back(pokegold::BadDataReason::TypeMatchups, nullptr);
                 continue;
             }
@@ -946,7 +949,7 @@ bool services::Pokegold::Open_ReadTypes(pokegold::Data &data)
                     e.WeatherModifiers.clear();
 
                 weatherTypeModifiersOffset = 0xfbe68;
-                data.SetBytes(0xfbe68, embed::GetPokegoldDefaultTypeWeatherModifiersData());
+                data.SetBytes(0xfbe68, embed::pokegold::kDefaultTypeWeatherModifiersData);
                 data.BadDataList.emplace_back(pokegold::BadDataReason::TypeWeatherModifiers, nullptr);
                 continue;
             }
@@ -982,7 +985,7 @@ bool services::Pokegold::Open_ReadTypes(pokegold::Data &data)
                     e.WeatherModifiers.clear();
 
                 weatherMoveModifiersOffset = 0xfbe75;
-                data.SetBytes(0xfbe75, embed::GetPokegoldDefaultMoveEffectWeatherModifiersData());
+                data.SetBytes(0xfbe75, embed::pokegold::kDefaultMoveEffectWeatherModifiersData);
                 data.BadDataList.emplace_back(pokegold::BadDataReason::MoveEffectWeatherModifiers, nullptr);
                 continue;
             }

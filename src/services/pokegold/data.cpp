@@ -94,7 +94,7 @@ void pokegold::Data::SetByte(size_t offset, u8 byte)
     m_romBytes[offset] = byte;
 }
 
-void pokegold::Data::SetBytes(size_t offset, const std::vector<u8> &bytes)
+void pokegold::Data::SetBytes(size_t offset, std::span<const u8> bytes)
 {
     if (offset >= m_romBytes.size() || bytes.size() > m_romBytes.size() - offset)
         return;

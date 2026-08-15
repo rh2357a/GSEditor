@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef _IGNORE_EMBED
-#include "base/resources_embed.h" // IWYU pragma: export
-#endif
-
 #define APP_AUTHOR   "rh2357a"
 #define APP_NAME     "GSEditor"
 #define APP_FILENAME "GSEditor.exe"

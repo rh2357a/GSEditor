@@ -5,7 +5,7 @@
 #include "base/strings/crypto.h"
 #include "base/types/types.h"
 
-#include <lodepng/lodepng.h>
+#include <lodepng.h>
 #include <wx/colour.h>
 #include <wx/gdicmn.h>
 

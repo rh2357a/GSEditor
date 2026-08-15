@@ -2,7 +2,7 @@
 
 #include "base/files/file_util.h"
 
-#include <xdelta3/xdelta3.h>
+#include <xdelta3_wrapper.h>
 
 #include <algorithm>
 #include <filesystem>
@@ -114,7 +114,7 @@ base::CreatePatchResult base::CreateDeltaPatch(const std::filesystem::path &writ
     if (!std::filesystem::exists(modifiedPath))
         return CreatePatchResult::ModifiedFileNotFound;
 
-    int xdeltaResult = xdelta3::xd3_main_exec({"-e", "-n", "-s", originalPath.string(), modifiedPath.string(), writeToPath.string()});
+    int xdeltaResult = xd3_main_exec({"-e", "-n", "-s", originalPath.string(), modifiedPath.string(), writeToPath.string()});
     if (xdeltaResult != 0)
         return CreatePatchResult::WriteFailure;
 

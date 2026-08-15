@@ -3,6 +3,7 @@
 #include "base/files/patch.h"
 #include "base/log.h"
 #include "base/resources.h"
+#include "base/resources_embed.h"
 #include "ui/dialogs/about_dialog.h"
 #include "ui/dialogs/bad_data_dialog.h"
 #include "ui/dialogs/file_dialogs.h"

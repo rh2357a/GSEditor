@@ -171,7 +171,7 @@ bool services::Pokegold::Build_Startup(pokegold::internal::RomBuildData &data)
         constexpr auto filename = "GSEditor.Macros.asm";
         data.GetSourceStream() << pokegold::GetAsmInclude(filename);
 
-        base::WriteBytesToFile(*m_workspacePathState / filename, embed::GetPokegoldMacrosSource());
+        base::WriteBytesToFile(*m_workspacePathState / filename, embed::pokegold::kMacrosSource);
     }
 
     // names section 기록
@@ -179,7 +179,7 @@ bool services::Pokegold::Build_Startup(pokegold::internal::RomBuildData &data)
 
     // 트레이너 카드 코드 기록
     {
-        base::WriteBytesToFile(*m_workspacePathState / "GSSEditor.TrainerCard.asm", embed::GetPokegoldTrainerCardSource());
+        base::WriteBytesToFile(*m_workspacePathState / "GSSEditor.TrainerCard.asm", embed::pokegold::kTrainerCardSource);
         data.GetSourceStream() << pokegold::GetAsmInclude("GSSEditor.TrainerCard.asm");
     }
 
@@ -790,7 +790,7 @@ bool services::Pokegold::Build_PokemonSources(pokegold::internal::RomBuildData &
 
         // small pics
         {
-            base::WriteBytesToFile(*m_workspacePathState / "GSSEditor.SmallPictures.asm", embed::GetPokegoldSmallPicturesSource());
+            base::WriteBytesToFile(*m_workspacePathState / "GSSEditor.SmallPictures.asm", embed::pokegold::kSmallPicturesSource);
             data.GetSourceStream() << pokegold::GetAsmInclude("GSSEditor.SmallPictures.asm");
 
             srcStream << pokegold::GetAsmSection(0x1f0000, "GSEditor_Pokemon_SmallPictures_0");
@@ -1377,7 +1377,7 @@ bool services::Pokegold::Build_HackSources(pokegold::internal::RomBuildData &dat
         m_buildProgressState.UpdateMessage("해킹 코드 삽입");
         m_buildProgressState.Increase();
 
-        const auto &hackAsmFile = embed::GetPokegoldHacksSource();
+        const auto &hackAsmFile = embed::pokegold::kHacksSource;
         std::string_view hackAsmStr(reinterpret_cast<const char *>(hackAsmFile.data()), hackAsmFile.size());
         srcStream << hackAsmStr;
     }

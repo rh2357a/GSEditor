@@ -1,6 +1,6 @@
 #include "string.h"
 
-#include "base/resources.h"
+#include "base/resources_embed.h"
 
 #include <charconv>
 #include <unordered_map>
@@ -98,7 +98,7 @@ void pokegold::String::InitializeCharmap()
 {
     k_charmap.clear();
 
-    const auto &charmapList = embed::GetPokegoldCharmapList();
+    const auto &charmapList = embed::pokegold::kCharmapList;
     std::string_view sv(reinterpret_cast<const char *>(charmapList.data()), charmapList.size());
     for (size_t pos = 0; pos < sv.size();)
     {

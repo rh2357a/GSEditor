@@ -7,8 +7,6 @@
 #include "services/pokegold/data.h"
 #include "services/pokegold/utils.h"
 
-#include <lzcomp/lzcomp.h>
-
 #include <filesystem>
 #include <optional>
 

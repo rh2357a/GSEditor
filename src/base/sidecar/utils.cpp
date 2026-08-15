@@ -15,7 +15,7 @@ namespace
     {
         const auto module = ::GetModuleHandle(nullptr);
 
-        const auto res = ::FindResource(module, MAKEINTRESOURCEW(resId), RT_RCDATA);
+        const auto res = ::FindResource(module, MAKEINTRESOURCE(resId), RT_RCDATA);
         const auto resData = ::LoadResource(module, res);
         const auto resSize = ::SizeofResource(module, res);
 

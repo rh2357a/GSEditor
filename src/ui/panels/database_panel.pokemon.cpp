@@ -16,7 +16,7 @@
 #include "ui/dialogs/move_editor_dialog.h"
 #include "ui/utils.h"
 
-#include <utf8cpp/utf8.h>
+#include <utf8.h>
 #include <wx/colour.h>
 #include <wx/event.h>
 #include <wx/gdicmn.h>

@@ -1,6 +1,7 @@
 #include "free_space.h"
 
 #include <algorithm>
+#include <functional>
 
 void pokegold::FreeSpaceDataResolver::Push(std::string label, std::span<const u8> data)
 {

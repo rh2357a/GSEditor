@@ -1,0 +1,62 @@
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+
+project(GSEditor)
+
+add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
+
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+file(GLOB_RECURSE ASSETS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/assets/*")
+cmrc_add_resource_library(
+    cmrc
+    NAMESPACE embed
+    WHENCE "${CMAKE_SOURCE_DIR}"
+    ${ASSETS}
+)
+
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/*.c"
+)
+
+ENABLE_LANGUAGE(RC)
+set(SOURCES ${CMAKE_SOURCE_DIR}/src/win32/resources.rc ${SOURCES})
+add_executable(GSEditor WIN32 ${SOURCES})
+
+target_include_directories(GSEditor PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_link_libraries(GSEditor PRIVATE cmrc utf8cpp xxhash lzcomp lodepng xdelta3 wx::core wx::html)
+
+if(MINGW)
+    target_compile_options(GSEditor PRIVATE
+        -Wall
+        -Wextra
+        -Wno-comment
+        -Wno-parentheses
+        -Wno-unused-parameter
+        -Wno-unused-variable
+        -Wno-unused-function
+    )
+
+    target_link_options(GSEditor PRIVATE
+        -static
+        -static-libgcc
+        -static-libstdc++
+    )
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_link_options(GSEditor PRIVATE -s)
+
+        find_program(UPX_EXECUTABLE upx)
+        if(UPX_EXECUTABLE)
+            add_custom_command(TARGET GSEditor POST_BUILD
+                COMMAND "${UPX_EXECUTABLE}"
+                -q
+                --compress-icons=0
+                "$<$<CONFIG:Release>:$<TARGET_FILE:GSEditor>>"
+            )
+        endif()
+    endif()
+
+endif()

@@ -1,6 +1,7 @@
 #include "about_dialog.h"
 
 #include "base/resources.h"
+#include "base/resources_embed.h"
 #include "base/strings/string_util.h"
 
 #include <wx/event.h>
@@ -16,16 +17,12 @@ ui::internal::AboutDialog::AboutDialog(wxWindow *parent) : AboutDialogBase(paren
     const auto version = std::format("버전: {}", APP_VERSION_STR);
     m_versionText->SetLabel(wxString::FromUTF8(version));
 
-    const auto appVersionHtml = embed::GetAppVersionsHtml();
-    m_versionHtml->SetPage(base::ToWxString(appVersionHtml));
+    const auto changelog = embed::kChangelog;
+    m_versionHtml->SetPage(base::ToWxString(changelog));
 
-    const auto appThirdPartyNotices = embed::GetAppThirdPartyNotices();
+    const auto appThirdPartyNotices = embed::kThirdPartyNotices;
     m_thirdPartyNoticesText->SetValue(base::ToWxString(appThirdPartyNotices));
     m_thirdPartyNoticesText->Bind(wxEVT_CONTEXT_MENU, [](wxContextMenuEvent &) { /* 오른쪽 메뉴 방지 */ });
-
-#ifdef RELEASE
-    m_aboutContentTabs->RemovePage(2);
-#endif
 }
 
 void ui::internal::AboutDialog::OnOkButtonClick(wxCommandEvent &event)
